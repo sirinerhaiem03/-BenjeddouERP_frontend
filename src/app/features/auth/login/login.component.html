@@ -1,0 +1,465 @@
+<app-public-header></app-public-header>
+<div class="login-wrapper" style="padding-top:60px">
+  <!-- Premium moving blurred background blobs -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <div class="login-container glass-card hover-glow">
+    <!-- Left Side: Brand Panel -->
+    <div class="brand-panel">
+      <div class="grid-overlay"></div>
+      <div class="brand-content">
+        <div class="logo-box">
+          <span class="material-symbols-outlined logo-icon">insights</span>
+        </div>
+        <h1>BENJEDDOU ERP</h1>
+        <p class="brand-pitch">{{ 'LOGIN.BRAND_PITCH' | translate }}</p>
+
+        <!-- Premium glassmorphic analytics widget -->
+        <div class="mini-widget glass-card">
+          <div class="widget-header">
+            <span class="badge badge-success">{{ 'LOGIN.WIDGET_AI' | translate }}</span>
+            <span class="time-badge">{{ 'LOGIN.WIDGET_REALTIME' | translate }}</span>
+          </div>
+          <p class="widget-stat">{{ 'LOGIN.WIDGET_PERF' | translate }}</p>
+          <div class="stat-row">
+            <span class="stat-value">+35.8%</span>
+            <span class="material-symbols-outlined trend-icon">trending_up</span>
+          </div>
+
+          <!-- Premium Vector Sparkline Chart -->
+          <div class="sparkline-container"
+            style="height: 48px; margin: 12px 0 16px; position: relative; overflow: hidden;">
+            <svg width="100%" height="100%" viewBox="0 0 200 50" preserveAspectRatio="none" style="display: block;">
+              <defs>
+                <linearGradient id="sparklineGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#10b981" stop-opacity="0.3" />
+                  <stop offset="100%" stop-color="#10b981" stop-opacity="0" />
+                </linearGradient>
+              </defs>
+              <!-- Area Fill -->
+              <path
+                d="M0,50 L0,38 C20,36 30,42 50,28 C70,14 80,30 100,20 C120,10 130,22 150,8 C170,-6 180,4 200,2 L200,50 Z"
+                fill="url(#sparklineGrad)" />
+              <!-- Stroke Line -->
+              <path d="M0,38 C20,36 30,42 50,28 C70,14 80,30 100,20 C120,10 130,22 150,8 C170,-6 180,4 200,2"
+                fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" />
+              <!-- Glowing End Point -->
+              <circle cx="200" cy="2" r="3" fill="#10b981" />
+            </svg>
+          </div>
+
+          <!-- KPI Details Sub-grid -->
+          <div class="widget-kpis"
+            style="display: flex; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 12px; font-size: 0.75rem; color: #94a3b8;">
+            <div>
+              <span
+                style="display: block; font-weight: 500; font-size: 0.65rem; text-transform: uppercase; color: #64748b; margin-bottom: 2px;">{{ 'LOGIN.WIDGET_CA' | translate }}</span>
+              <strong style="color: #ffffff; font-size: 0.85rem;">+24.5%</strong>
+            </div>
+            <div style="text-align: right;">
+              <span
+                style="display: block; font-weight: 500; font-size: 0.65rem; text-transform: uppercase; color: #64748b; margin-bottom: 2px;">{{ 'LOGIN.WIDGET_NEW_CLIENTS' | translate }}</span>
+              <strong style="color: #ffffff; font-size: 0.85rem;">128</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side: Connection / Reset Password Panel -->
+    <div class="form-panel">
+
+      <!-- Session revocation banner -->
+      <div *ngIf="sessionRevocationMsg" class="session-revoke-banner">
+        <div class="session-revoke-glow"></div>
+        <div class="session-revoke-icon-wrapper">
+          <span class="material-symbols-outlined session-revoke-icon">gpp_bad</span>
+        </div>
+        <div class="session-revoke-content">
+          <strong class="session-revoke-title">{{ 'LOGIN.SESSION_INTERRUPTED' | translate }}</strong>
+          <span class="session-revoke-msg">{{ sessionRevocationMsg }}</span>
+          <!-- Bouton automatique "Ce n'est pas moi" si sigToken disponible -->
+          <a *ngIf="sigToken"
+             [href]="'/signaler-connexion?token=' + sigToken"
+             class="sig-btn"
+             title="{{ 'LOGIN.REPORT_SUSPICIOUS' | translate }}">
+            <span class="material-symbols-outlined" style="font-size:1rem;">report</span>
+            {{ 'LOGIN.NOT_ME_REPORT' | translate }}
+          </a>
+        </div>
+        <div class="session-revoke-badge">{{ 'LOGIN.SECURITY_BADGE' | translate }}</div>
+      </div>
+
+      <!-- Error alert banner (Shared) -->
+      <div *ngIf="errorMsg" class="error-banner" style="margin-bottom: 24px;">
+        <span class="material-symbols-outlined error-icon">error</span>
+        <span>{{ errorMsg.startsWith('LOGIN.') ? (errorMsg | translate) : errorMsg }}</span>
+      </div>
+
+      <!-- Success alert banner -->
+      <div *ngIf="successMsg" class="error-banner"
+        style="margin-bottom: 24px; background: rgba(16, 185, 129, 0.08); color: #10b981; border-color: rgba(16, 185, 129, 0.15)">
+        <span class="material-symbols-outlined error-icon" style="color: #10b981;">check_circle</span>
+        <span>{{ successMsg }}</span>
+      </div>
+
+      <!-- MODE 1: Standard Connection Form -->
+      <ng-container *ngIf="!forgotMode && !registerMode">
+        <div class="form-header">
+          <h2>{{ 'LOGIN.FORM_TITLE' | translate }}</h2>
+          <p>{{ 'LOGIN.FORM_SUBTITLE' | translate }}</p>
+        </div>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+          <!-- Identifiant -->
+          <div class="form-group">
+            <label for="identifiant">{{ 'LOGIN.IDENTIFIER_LABEL' | translate }}</label>
+            <div class="input-wrapper">
+              <span class="material-symbols-outlined input-icon">person</span>
+              <input type="text" id="identifiant" formControlName="identifiant" class="input-field"
+                [placeholder]="'LOGIN.IDENTIFIER_PH' | translate" autocomplete="username" required />
+            </div>
+            <div
+              *ngIf="loginForm.get('identifiant')?.touched && loginForm.get('identifiant')?.errors?.['required']"
+              class="field-error">
+              {{ 'LOGIN.IDENTIFIER_REQUIRED' | translate }}
+            </div>
+          </div>
+
+          <!-- Input Password -->
+          <div class="form-group">
+            <label for="motDePasse">{{ 'LOGIN.PASSWORD' | translate }}</label>
+            <div class="input-wrapper">
+              <span class="material-symbols-outlined input-icon">lock</span>
+              <input [type]="showPassword ? 'text' : 'password'" id="motDePasse" formControlName="motDePasse"
+                class="input-field" placeholder="••••••••" required />
+              <button type="button" class="visibility-btn" (click)="showPassword = !showPassword">
+                <span class="material-symbols-outlined">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+            <div *ngIf="loginForm.get('motDePasse')?.touched && loginForm.get('motDePasse')?.errors?.['required']"
+              class="field-error">
+              {{ 'LOGIN.PASSWORD_REQUIRED' | translate }}
+            </div>
+          </div>
+
+          <!-- Remember Me -->
+          <div style="margin: 8px 0 12px;">
+            <label class="remember-me-container">
+              <input type="checkbox" formControlName="rememberMe" />
+              <span class="remember-me-label">{{ 'LOGIN.REMEMBER_ME' | translate }}</span>
+            </label>
+          </div>
+
+          <!-- Forgot link -->
+          <div style="display: flex; justify-content: flex-start; align-items: center; margin-bottom: 16px;">
+            <button type="button" class="forgot-link-btn" (click)="toggleForgotMode(true)">
+              {{ 'LOGIN.FORGOT_PASSWORD' | translate }}
+            </button>
+          </div>
+
+          <!-- Client Registration CTA -->
+          <div class="client-register-cta">
+            <span class="cta-icon">🏢</span>
+            <div class="cta-text">
+              <span class="cta-title">{{ 'LOGIN.CTA_TITLE' | translate }}</span>
+              <span class="cta-desc">{{ 'LOGIN.CTA_DESC' | translate }}</span>
+            </div>
+            <a routerLink="/register" class="cta-btn">{{ 'LOGIN.CTA_BTN' | translate }}</a>
+          </div>
+
+          <!-- Double CAPTCHA : CAPTCHA local + Google reCAPTCHA v2 -->
+          <div *ngIf="showCaptcha" class="captcha-block">
+            <div class="captcha-header">
+              <span class="material-symbols-outlined captcha-shield">security</span>
+              <div class="captcha-header-text">
+                <span class="captcha-title">{{ 'LOGIN.CAPTCHA_TITLE' | translate }}</span>
+                <span class="captcha-subtitle">{{ 'LOGIN.CAPTCHA_SUBTITLE' | translate }}</span>
+              </div>
+            </div>
+            <div class="captcha-body">
+
+              <!-- ── Étape 1 : CAPTCHA image local ────────────────── -->
+              <div class="captcha-step-label">
+                <span class="material-symbols-outlined captcha-step-icon">looks_one</span>
+                <span>{{ 'LOGIN.CAPTCHA_STEP1' | translate }}</span>
+              </div>
+              <div class="captcha-image-row">
+                <div class="captcha-image-wrapper">
+                  <img *ngIf="captchaImageBase64 && !captchaLoading"
+                       [src]="'data:image/png;base64,' + captchaImageBase64"
+                       [alt]="'LOGIN.CAPTCHA_ALT' | translate"
+                       class="captcha-image" />
+                  <div *ngIf="captchaLoading" class="captcha-loading">
+                    <span class="material-symbols-outlined spin">refresh</span>
+                  </div>
+                </div>
+                <button type="button" class="captcha-refresh-btn" (click)="refreshCaptcha($event)"
+                        [title]="'LOGIN.CAPTCHA_REFRESH' | translate" [disabled]="captchaLoading">
+                  <span class="material-symbols-outlined">refresh</span>
+                </button>
+              </div>
+              <div class="captcha-input-wrapper">
+                <span class="material-symbols-outlined captcha-input-icon">keyboard</span>
+                <input type="text"
+                       [(ngModel)]="captchaCodeSaisi"
+                       [ngModelOptions]="{standalone: true}"
+                       id="captcha-input"
+                       class="captcha-input"
+                       [placeholder]="'LOGIN.CAPTCHA_PH' | translate"
+                       maxlength="8"
+                       autocomplete="off"
+                       spellcheck="false" />
+              </div>
+              <div *ngIf="captchaError" class="captcha-error">
+                <span class="material-symbols-outlined" style="font-size:1rem;">error</span>
+                {{ 'LOGIN.CAPTCHA_ERROR' | translate }}
+              </div>
+
+              <!-- ── Étape 2 : Google reCAPTCHA v2 ────────────────── -->
+              <div class="captcha-step-label captcha-step-label--google">
+                <span class="material-symbols-outlined captcha-step-icon">looks_two</span>
+                <span>{{ 'LOGIN.RECAPTCHA_LABEL' | translate }}</span>
+              </div>
+              <div class="recaptcha-wrapper">
+                <div id="login-recaptcha-container"></div>
+                <div *ngIf="recaptchaError" class="captcha-error">
+                  <span class="material-symbols-outlined" style="font-size:1rem;">error</span>
+                  {{ 'LOGIN.RECAPTCHA_REQUIRED' | translate }}
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+
+          <!-- Rate Limiting block -->
+          <div *ngIf="rateLimited" class="rate-limit-block">
+            <div class="rate-limit-icon">
+              <span class="material-symbols-outlined">lock_clock</span>
+            </div>
+            <div class="rate-limit-content">
+              <div class="rate-limit-title">{{ 'LOGIN.RATE_LIMIT_TITLE' | translate }}</div>
+              <div class="rate-limit-desc">{{ 'LOGIN.RATE_LIMIT_DESC' | translate }}</div>
+              <div class="rate-limit-timer">{{ countdownFormatted }}</div>
+              <div class="rate-limit-progress">
+                <div class="rate-limit-bar"
+                  [style.width.%]="(countdownSeconds / (5 * 60)) * 100">
+                </div>
+              </div>
+              <div class="rate-limit-hint">
+                <span class="material-symbols-outlined">info</span>
+                {{ 'LOGIN.RATE_LIMIT_HINT' | translate }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" [disabled]="loginForm.invalid || loading || rateLimited" class="btn-submit"
+            [class.btn-locked]="rateLimited">
+            <span *ngIf="!loading && !rateLimited" class="btn-content">
+              <span>{{ 'LOGIN.SUBMIT' | translate }}</span>
+              <span class="material-symbols-outlined arrow-icon">arrow_forward</span>
+            </span>
+            <span *ngIf="loading" class="spinner"></span>
+            <span *ngIf="!loading && rateLimited" class="btn-content">
+              <span class="material-symbols-outlined">lock</span>
+              <span>{{ 'LOGIN.BLOCKED' | translate }} — {{ countdownFormatted }}</span>
+            </span>
+          </button>
+        </form>
+      </ng-container>
+
+      <!-- MODE 3: Register Form -->
+      <ng-container *ngIf="!forgotMode && registerMode">
+        <div class="form-header">
+          <h2>{{ 'LOGIN.REG_TITLE' | translate }}</h2>
+          <p>{{ 'LOGIN.REG_SUBTITLE' | translate }}</p>
+        </div>
+
+        <form [formGroup]="registerForm" (ngSubmit)="onRegisterSubmit()" class="login-form">
+          <!-- Nom d'utilisateur -->
+          <div class="form-group">
+            <label for="regNomUtilisateur">{{ 'LOGIN.REG_USERNAME' | translate }}</label>
+            <div class="input-wrapper">
+              <span class="material-symbols-outlined input-icon">person</span>
+              <input type="text" id="regNomUtilisateur" formControlName="nomUtilisateur" class="input-field"
+                placeholder="Ex: jean_dupont" required />
+            </div>
+            <div *ngIf="registerForm.get('nomUtilisateur')?.touched && registerForm.get('nomUtilisateur')?.invalid"
+              class="field-error">
+              <span *ngIf="registerForm.get('nomUtilisateur')?.errors?.['required']">{{ 'LOGIN.REG_USERNAME_REQUIRED' | translate }}</span>
+              <span *ngIf="registerForm.get('nomUtilisateur')?.errors?.['minlength']">{{ 'LOGIN.REG_USERNAME_MIN' | translate }}</span>
+            </div>
+          </div>
+
+          <!-- Prénom & Nom -->
+          <div style="display: flex; gap: 16px;">
+            <div class="form-group" style="flex: 1;">
+              <label for="regPrenom">{{ 'LOGIN.REG_FIRSTNAME' | translate }}</label>
+              <div class="input-wrapper">
+                <span class="material-symbols-outlined input-icon">badge</span>
+                <input type="text" id="regPrenom" formControlName="prenom" class="input-field" placeholder="Jean" required />
+              </div>
+              <div *ngIf="registerForm.get('prenom')?.touched && registerForm.get('prenom')?.invalid" class="field-error">
+                {{ 'LOGIN.REG_FIRSTNAME_REQUIRED' | translate }}
+              </div>
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label for="regNom">{{ 'LOGIN.REG_LASTNAME' | translate }}</label>
+              <div class="input-wrapper">
+                <span class="material-symbols-outlined input-icon">badge</span>
+                <input type="text" id="regNom" formControlName="nom" class="input-field" placeholder="Dupont" required />
+              </div>
+              <div *ngIf="registerForm.get('nom')?.touched && registerForm.get('nom')?.invalid" class="field-error">
+                {{ 'LOGIN.REG_LASTNAME_REQUIRED' | translate }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="form-group">
+            <label for="regEmail">{{ 'LOGIN.REG_EMAIL' | translate }}</label>
+            <div class="input-wrapper">
+              <span class="material-symbols-outlined input-icon">mail</span>
+              <input type="email" id="regEmail" formControlName="email" class="input-field"
+                placeholder="Ex: jean.dupont@benjeddou.com" required />
+            </div>
+            <div *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.invalid" class="field-error">
+              <span *ngIf="registerForm.get('email')?.errors?.['required']">{{ 'LOGIN.REG_EMAIL_REQUIRED' | translate }}</span>
+              <span *ngIf="registerForm.get('email')?.errors?.['email']">{{ 'LOGIN.REG_EMAIL_INVALID' | translate }}</span>
+            </div>
+          </div>
+
+          <!-- Rôle -->
+          <div class="form-group">
+            <label>{{ 'LOGIN.REG_ROLE' | translate }}</label>
+            <div class="custom-select-wrapper" [class.open]="regRoleDropdownOpen" (click)="$event.stopPropagation()">
+              <div class="custom-select-trigger" (click)="regRoleDropdownOpen = !regRoleDropdownOpen">
+                <span class="material-symbols-outlined input-icon-custom">assignment_ind</span>
+                <span class="selected-value">{{ getRoleLabel(registerForm.get('role')?.value) }}</span>
+                <span class="material-symbols-outlined arrow-icon-custom">keyboard_arrow_down</span>
+              </div>
+              <div class="custom-options-dropdown glass-card shadow-lg" *ngIf="regRoleDropdownOpen">
+                <div class="custom-option" (click)="selectRegRole('commercial')">{{ 'LOGIN.ROLE_COMMERCIAL' | translate }}</div>
+                <div class="custom-option" (click)="selectRegRole('comptable')">{{ 'LOGIN.ROLE_COMPTABLE' | translate }}</div>
+                <div class="custom-option" (click)="selectRegRole('stock')">{{ 'LOGIN.ROLE_STOCK' | translate }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mot de passe -->
+          <div class="form-group">
+            <label for="regMotDePasse">{{ 'LOGIN.PASSWORD' | translate }}</label>
+            <div class="input-wrapper">
+              <span class="material-symbols-outlined input-icon">lock</span>
+              <input [type]="showRegPassword ? 'text' : 'password'" id="regMotDePasse" formControlName="motDePasse"
+                class="input-field" placeholder="••••••••" required />
+              <button type="button" class="visibility-btn" (click)="showRegPassword = !showRegPassword">
+                <span class="material-symbols-outlined">{{ showRegPassword ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+            <div class="password-strength-container" *ngIf="registerForm.get('motDePasse')?.value">
+              <div class="password-strength-bar-bg">
+                <div class="password-strength-bar-fill" [style.width]="passwordStrength.width"
+                  [style.backgroundColor]="passwordStrength.color"></div>
+              </div>
+              <div class="password-strength-label" [style.color]="passwordStrength.color">
+                {{ 'LOGIN.PASSWORD_STRENGTH' | translate }}: {{ passwordStrength.label }}
+              </div>
+            </div>
+            <div *ngIf="registerForm.get('motDePasse')?.touched && registerForm.get('motDePasse')?.invalid" class="field-error">
+              <span *ngIf="registerForm.get('motDePasse')?.errors?.['required']">{{ 'LOGIN.PASSWORD_REQUIRED' | translate }}</span>
+              <span *ngIf="registerForm.get('motDePasse')?.errors?.['minlength']">{{ 'LOGIN.PASSWORD_MIN' | translate }}</span>
+            </div>
+          </div>
+
+          <!-- Confirmation Mot de passe -->
+          <div class="form-group">
+            <label for="regConfirmerMotDePasse">{{ 'LOGIN.REG_CONFIRM_PASSWORD' | translate }}</label>
+            <div class="input-wrapper">
+              <span class="material-symbols-outlined input-icon">lock</span>
+              <input [type]="showRegConfirmPassword ? 'text' : 'password'" id="regConfirmerMotDePasse"
+                formControlName="confirmerMotDePasse" class="input-field" placeholder="••••••••" required />
+              <button type="button" class="visibility-btn" (click)="showRegConfirmPassword = !showRegConfirmPassword">
+                <span class="material-symbols-outlined">{{ showRegConfirmPassword ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+            <div *ngIf="registerForm.get('confirmerMotDePasse')?.touched && registerForm.hasError('mismatch')" class="field-error">
+              {{ 'LOGIN.REG_PASSWORD_MISMATCH' | translate }}
+            </div>
+          </div>
+
+          <!-- Submit Register -->
+          <button type="submit" [disabled]="registerForm.invalid || loading" class="btn-submit">
+            <span *ngIf="!loading" class="btn-content">
+              <span>{{ 'LOGIN.REG_SUBMIT' | translate }}</span>
+              <span class="material-symbols-outlined arrow-icon">how_to_reg</span>
+            </span>
+            <span *ngIf="loading" class="spinner"></span>
+          </button>
+
+          <!-- Back to Connection -->
+          <div class="form-back-option">
+            <button type="button" class="back-link-btn" (click)="toggleRegisterMode(false)">
+              <span class="material-symbols-outlined">arrow_back</span>
+              <span>{{ 'LOGIN.BACK_TO_LOGIN' | translate }}</span>
+            </button>
+          </div>
+        </form>
+      </ng-container>
+
+      <!-- MODE 2: Forgot Password Form -->
+      <ng-container *ngIf="forgotMode">
+        <!-- Sub-mode A: Input Email Form -->
+        <div *ngIf="!resetSuccess">
+          <div class="form-header">
+            <h2>{{ 'LOGIN.FORGOT_TITLE' | translate }}</h2>
+            <p>{{ 'LOGIN.FORGOT_SUBTITLE' | translate }}</p>
+          </div>
+          <form [formGroup]="resetForm" (ngSubmit)="onResetSubmit()" class="login-form">
+            <div class="form-group">
+              <label for="email">{{ 'LOGIN.REG_EMAIL' | translate }}</label>
+              <div class="input-wrapper">
+                <span class="material-symbols-outlined input-icon">mail</span>
+                <input type="email" id="email" formControlName="email" class="input-field"
+                  placeholder="Ex: contact@benjeddou.com" required />
+              </div>
+            </div>
+            <button type="submit" [disabled]="resetForm.invalid || loading" class="btn-submit">
+              <span *ngIf="!loading" class="btn-content">
+                <span>{{ 'LOGIN.FORGOT_SEND' | translate }}</span>
+                <span class="material-symbols-outlined arrow-icon">send</span>
+              </span>
+              <span *ngIf="loading" class="spinner"></span>
+            </button>
+            <div class="form-back-option">
+              <button type="button" class="back-link-btn" (click)="toggleForgotMode(false)">
+                <span class="material-symbols-outlined">arrow_back</span>
+                <span>{{ 'LOGIN.BACK_TO_LOGIN' | translate }}</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Sub-mode B: Success Screen -->
+        <div *ngIf="resetSuccess" class="success-reset-panel">
+          <div class="success-icon-box">
+            <span class="material-symbols-outlined check-icon">check_circle</span>
+          </div>
+          <h2>{{ 'LOGIN.FORGOT_SUCCESS_TITLE' | translate }}</h2>
+          <p class="success-desc">{{ 'LOGIN.FORGOT_SUCCESS_DESC' | translate }}</p>
+          <button type="button" class="btn-submit" (click)="toggleForgotMode(false)">
+            <span class="btn-content">
+              <span class="material-symbols-outlined">arrow_back</span>
+              <span>{{ 'LOGIN.BACK_HOME' | translate }}</span>
+            </span>
+          </button>
+        </div>
+      </ng-container>
+
+    </div>
+  </div>
+</div>

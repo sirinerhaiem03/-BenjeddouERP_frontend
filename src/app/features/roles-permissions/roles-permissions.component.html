@@ -1,0 +1,364 @@
+<div class="rbac-container">
+
+  <!-- ── En-tête ────────────────────────────────────────────── -->
+  <div class="rbac-header">
+    <div class="rbac-header-left">
+      <div class="rbac-hero-icon">
+        <span class="material-symbols-outlined">shield</span>
+      </div>
+      <div>
+        <h1 class="rbac-title">{{ 'ROLES.TITLE' | translate }}</h1>
+        <p class="rbac-subtitle">{{ 'ROLES.SUBTITLE' | translate }}</p>
+      </div>
+    </div>
+    <button class="btn-create-role" (click)="ouvrirCreerRole()">
+      <span class="material-symbols-outlined">add_circle</span>
+      {{ 'ROLES.NEW_ROLE' | translate }}
+    </button>
+  </div>
+
+  <!-- ── Notifications ─────────────────────────────────────── -->
+  <div class="rbac-notif success" *ngIf="successMsg">
+    <span class="material-symbols-outlined">check_circle</span> {{ successMsg }}
+  </div>
+  <div class="rbac-notif error" *ngIf="errorMsg">
+    <span class="material-symbols-outlined">error</span> {{ errorMsg }}
+  </div>
+
+  <!-- ── Onglets ────────────────────────────────────────────── -->
+  <div class="rbac-tabs">
+    <button class="rbac-tab" [class.active]="activeTab === 'roles'" (click)="activeTab = 'roles'">
+      <span class="material-symbols-outlined">groups</span> {{ 'ROLES.TABS.ROLES' | translate }}
+    </button>
+    <button class="rbac-tab" [class.active]="activeTab === 'permissions'" (click)="activeTab = 'permissions'">
+      <span class="material-symbols-outlined">grid_view</span> {{ 'ROLES.TABS.MATRIX' | translate }}
+    </button>
+    <button class="rbac-tab" [class.active]="activeTab === 'attribution'" (click)="activeTab = 'attribution'">
+      <span class="material-symbols-outlined">person_add</span> {{ 'ROLES.TABS.ATTRIBUTION' | translate }}
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- ONGLET 1 — RÔLES & PROFILS                               -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <ng-container *ngIf="activeTab === 'roles'">
+    <div class="roles-grid">
+
+      <!-- Carte de chaque rôle -->
+      <div class="role-card" *ngFor="let role of roles"
+           [class.selected]="roleSelectionne?.id === role.id"
+           (click)="selectionnerRole(role)">
+
+        <div class="role-card-top" [style.background]="role.couleur + '18'"
+             [style.border-color]="role.couleur + '44'">
+          <div class="role-icon-wrap" [style.background]="role.couleur">
+            <span class="material-symbols-outlined">{{ role.icone }}</span>
+          </div>
+          <div class="role-badge-system" *ngIf="role.estSysteme">
+            <span class="material-symbols-outlined" style="font-size:12px">lock</span> {{ 'ROLES.CARDS.SYSTEM_BADGE' | translate }}
+          </div>
+        </div>
+
+        <div class="role-card-body">
+          <div class="role-nom" [style.color]="role.couleur">{{ role.nom }}</div>
+          <div class="role-desc">{{ role.description }}</div>
+          <div class="role-stats">
+            <span class="role-perm-count">
+              <span class="material-symbols-outlined">check_circle</span>
+              {{ compterPermissions(role) }} / {{ totalPermissions() }} {{ 'ROLES.CARDS.PERMISSIONS' | translate }}
+            </span>
+            <div class="role-perm-bar">
+              <div class="role-perm-fill"
+                   [style.width.%]="(compterPermissions(role) / totalPermissions()) * 100"
+                   [style.background]="role.couleur"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="role-card-actions">
+          <button class="btn-role-edit" (click)="ouvrirEditerRole(role); $event.stopPropagation()">
+            <span class="material-symbols-outlined">edit</span>
+          </button>
+          <button class="btn-role-delete" (click)="supprimerRole(role); $event.stopPropagation()"
+                  [disabled]="role.estSysteme" [title]="role.estSysteme ? ('ROLES.CARDS.DELETE_SYSTEM_TIP' | translate) : ('ROLES.CARDS.DELETE_TIP' | translate)">
+            <span class="material-symbols-outlined">delete</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Carte "Nouveau rôle" -->
+      <div class="role-card role-card-add" (click)="ouvrirCreerRole()">
+        <span class="material-symbols-outlined add-icon">add_circle</span>
+        <span>{{ 'ROLES.CARDS.CREATE_ROLE' | translate }}<br>{{ 'ROLES.CARDS.CREATE_ROLE_SUB' | translate }}</span>
+      </div>
+
+    </div>
+
+    <!-- Détail du rôle sélectionné -->
+    <div class="role-detail glass-card" *ngIf="roleSelectionne">
+      <div class="role-detail-header">
+        <div class="role-icon-wrap-lg" [style.background]="roleSelectionne.couleur">
+          <span class="material-symbols-outlined">{{ roleSelectionne.icone }}</span>
+        </div>
+        <div>
+          <h2 [style.color]="roleSelectionne.couleur">{{ roleSelectionne.nom }}</h2>
+          <p>{{ roleSelectionne.description }}</p>
+          <span class="badge-systeme" *ngIf="roleSelectionne.estSysteme">
+            {{ 'ROLES.CARDS.SYSTEM_BADGE_LOCK' | translate }}
+          </span>
+        </div>
+      </div>
+
+      <div class="detail-modules-grid">
+        <div class="detail-module" *ngFor="let mp of roleSelectionne.modulePermissions">
+          <div class="detail-module-name">
+            <span class="material-symbols-outlined">{{ mp.icon }}</span>
+            {{ mp.label }}
+          </div>
+          <div class="detail-perms">
+            <span class="perm-chip"
+                  *ngFor="let pl of PERMISSIONS_LABELS"
+                  [class.perm-on]="mp.permissions[pl.key]"
+                  [style.--pcolor]="mp.permissions[pl.key] ? pl.color : '#64748b'">
+              <span class="material-symbols-outlined">{{ mp.permissions[pl.key] ? pl.icon : 'block' }}</span>
+              {{ pl.label }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- ONGLET 2 — MATRICE DES PERMISSIONS                        -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <ng-container *ngIf="activeTab === 'permissions'">
+
+    <!-- Sélecteur de rôle -->
+    <div class="perm-role-selector">
+      <span class="perm-role-label">{{ 'ROLES.MATRIX.ROLE_TO_CONFIG' | translate }}</span>
+      <div class="perm-role-btns">
+        <button class="perm-role-btn"
+                *ngFor="let role of roles"
+                [class.active]="roleSelectionne?.id === role.id"
+                [style.--rc]="role.couleur"
+                (click)="selectionnerRole(role)">
+          <span class="material-symbols-outlined">{{ role.icone }}</span>
+          {{ role.nom }}
+        </button>
+      </div>
+    </div>
+
+    <div class="matrix-wrapper glass-card" *ngIf="roleSelectionne">
+      <div class="matrix-header-row">
+        <div class="matrix-cell matrix-module-head">{{ 'ROLES.MATRIX.COL_MODULE' | translate }}</div>
+        <div class="matrix-cell matrix-perm-head"
+             *ngFor="let pl of PERMISSIONS_LABELS"
+             [style.color]="pl.color">
+          <span class="material-symbols-outlined">{{ pl.icon }}</span>
+          <span>{{ pl.label }}</span>
+          <button class="btn-col-all" (click)="toggleToutePermission(pl.key, true)" [title]="'ROLES.MATRIX.ENABLE_ALL' | translate">✓</button>
+          <button class="btn-col-none" (click)="toggleToutePermission(pl.key, false)" [title]="'ROLES.MATRIX.DISABLE_ALL' | translate">✗</button>
+        </div>
+        <div class="matrix-cell matrix-perm-head">{{ 'ROLES.MATRIX.COL_ALL' | translate }}</div>
+      </div>
+
+      <div class="matrix-row" *ngFor="let mp of roleSelectionne.modulePermissions"
+           [class.row-full]="toutModuleActif(mp)">
+        <div class="matrix-cell matrix-module-cell">
+          <span class="material-symbols-outlined mod-icon">{{ mp.icon }}</span>
+          <span class="mod-name">{{ mp.label }}</span>
+          <span class="perm-count-badge">{{ getPermCount(mp) }}/6</span>
+        </div>
+        <div class="matrix-cell matrix-check" *ngFor="let pl of PERMISSIONS_LABELS">
+          <label class="toggle-switch">
+            <input type="checkbox" [(ngModel)]="mp.permissions[pl.key]">
+            <span class="toggle-thumb" [style.--tc]="pl.color"></span>
+          </label>
+        </div>
+        <div class="matrix-cell matrix-all-toggle">
+          <button class="btn-module-all"
+                  [class.all-on]="toutModuleActif(mp)"
+                  (click)="toggleToutModule(mp, !toutModuleActif(mp))"
+                  [title]="toutModuleActif(mp) ? ('ROLES.MATRIX.DISABLE_MODULE' | translate) : ('ROLES.MATRIX.ENABLE_MODULE' | translate)">
+            <span class="material-symbols-outlined">{{ toutModuleActif(mp) ? 'toggle_on' : 'toggle_off' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="matrix-save-bar">
+      <span class="matrix-save-info">
+        <span class="material-symbols-outlined">info</span>
+        {{ 'ROLES.MATRIX.SAVE_INFO' | translate }}
+      </span>
+      <button class="btn-save-matrix" (click)="sauvegarderMatrice()">
+        <span class="material-symbols-outlined">save</span>
+        {{ 'ROLES.MATRIX.SAVE_BTN' | translate }}
+      </button>
+    </div>
+
+  </ng-container>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- ONGLET 3 — ATTRIBUTION AUX UTILISATEURS                   -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <ng-container *ngIf="activeTab === 'attribution'">
+
+    <div class="attr-loading" *ngIf="loadingUsers">
+      <div class="spinner-ring"></div>
+      <span>{{ 'ROLES.ATTRIBUTION.LOADING' | translate }}</span>
+    </div>
+
+    <div class="attr-table-card glass-card" *ngIf="!loadingUsers">
+      <table class="attr-table">
+        <thead>
+          <tr>
+            <th>{{ 'ROLES.ATTRIBUTION.COL_USER' | translate }}</th>
+            <th>{{ 'ROLES.ATTRIBUTION.COL_EMAIL' | translate }}</th>
+            <th>{{ 'ROLES.ATTRIBUTION.COL_CURRENT_ROLE' | translate }}</th>
+            <th>{{ 'ROLES.ATTRIBUTION.COL_CHANGE' | translate }}</th>
+            <th>{{ 'ROLES.ATTRIBUTION.COL_PERMISSIONS' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users">
+            <td>
+              <div class="attr-user">
+                <div class="attr-avatar" [style.background]="(getRoleParNom(user.role)?.couleur || '#64748b') + '22'"
+                     [style.color]="getRoleParNom(user.role)?.couleur || '#64748b'">
+                  {{ (user.prenom || user.nomUtilisateur || 'U')[0] | uppercase }}
+                </div>
+                <div>
+                  <span class="attr-name">{{ user.prenom }} {{ user.nom }}</span>
+                  <span class="attr-login">&#64;{{ user.nomUtilisateur }}</span>
+                </div>
+              </div>
+            </td>
+            <td class="attr-email">{{ user.email }}</td>
+            <td>
+              <span class="attr-role-badge"
+                    [style.background]="(getRoleParNom(user.role)?.couleur || '#64748b') + '22'"
+                    [style.color]="getRoleParNom(user.role)?.couleur || '#64748b'"
+                    [style.border-color]="(getRoleParNom(user.role)?.couleur || '#64748b') + '55'">
+                <span class="material-symbols-outlined" style="font-size:14px">
+                  {{ getRoleParNom(user.role)?.icone || 'person' }}
+                </span>
+                {{ user.role }}
+              </span>
+            </td>
+            <td>
+              <select class="attr-select" [value]="user.role"
+                      (change)="changerRoleUtilisateur(user, $any($event.target).value)">
+                <option *ngFor="let role of roles" [value]="role.nom">{{ role.nom }}</option>
+              </select>
+            </td>
+            <td>
+              <div class="attr-perms-preview">
+                <span class="attr-perm-count"
+                      [style.background]="(getRoleParNom(user.role)?.couleur || '#64748b') + '22'"
+                      [style.color]="getRoleParNom(user.role)?.couleur || '#64748b'">
+                  {{ compterPermissions(getRoleParNom(user.role) || roles[0]) }} / {{ totalPermissions() }}
+                </span>
+                <div class="mini-perm-bar">
+                  <div class="mini-perm-fill"
+                       [style.width.%]="(compterPermissions(getRoleParNom(user.role) || roles[0]) / totalPermissions()) * 100"
+                       [style.background]="getRoleParNom(user.role)?.couleur || '#64748b'">
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="users.length === 0">
+            <td colspan="5" class="no-data">{{ 'ROLES.ATTRIBUTION.NO_USERS' | translate }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-container>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- MODAL — CRÉER / ÉDITER RÔLE                                   -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="rbac-modal-bg" *ngIf="showRoleModal" (click)="showRoleModal = false">
+  <div class="rbac-modal" (click)="$event.stopPropagation()">
+
+    <div class="rbac-modal-header">
+      <h2>{{ modeEdition ? ('ROLES.MODAL.EDIT_TITLE' | translate) : ('ROLES.MODAL.CREATE_TITLE' | translate) }}</h2>
+      <button class="modal-close" (click)="showRoleModal = false">✕</button>
+    </div>
+
+    <div class="rbac-modal-body">
+
+      <div class="form-row-2">
+        <div class="form-group">
+          <label>{{ 'ROLES.MODAL.NAME' | translate }}</label>
+          <input type="text" class="rbac-input" [(ngModel)]="nouveauRole.nom"
+                 [placeholder]="'ROLES.MODAL.NAME_PH' | translate" [disabled]="nouveauRole.estSysteme || false">
+        </div>
+        <div class="form-group">
+          <label>{{ 'ROLES.MODAL.DESCRIPTION' | translate }}</label>
+          <input type="text" class="rbac-input" [(ngModel)]="nouveauRole.description"
+                 [placeholder]="'ROLES.MODAL.DESCRIPTION_PH' | translate">
+        </div>
+      </div>
+
+      <div class="form-row-2">
+        <div class="form-group">
+          <label>{{ 'ROLES.MODAL.COLOR' | translate }}</label>
+          <div class="color-picker">
+            <div class="color-swatch" *ngFor="let c of COULEURS"
+                 [style.background]="c"
+                 [class.selected]="nouveauRole.couleur === c"
+                 (click)="nouveauRole.couleur = c"></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>{{ 'ROLES.MODAL.ICON' | translate }}</label>
+          <div class="icon-picker">
+            <div class="icon-swatch" *ngFor="let ic of ICONES"
+                 [class.selected]="nouveauRole.icone === ic"
+                 [style.color]="nouveauRole.couleur"
+                 (click)="nouveauRole.icone = ic">
+              <span class="material-symbols-outlined">{{ ic }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-perms-section">
+        <h3>{{ 'ROLES.MODAL.PERMS_TITLE' | translate }}</h3>
+        <div class="modal-perm-grid">
+          <div class="modal-perm-row" *ngFor="let mp of nouveauRole.modulePermissions">
+            <div class="modal-mod-name">
+              <span class="material-symbols-outlined">{{ mp.icon }}</span>
+              {{ mp.label }}
+            </div>
+            <div class="modal-perm-checks">
+              <label class="mini-check" *ngFor="let pl of PERMISSIONS_LABELS" [title]="pl.label">
+                <input type="checkbox" [(ngModel)]="mp.permissions[pl.key]" class="mini-chk-input">
+                <span class="toggle-track" [style.--tcolor]="pl.color">
+                  <span class="toggle-knob"></span>
+                </span>
+                <span class="mini-check-label" [style.color]="pl.color">{{ pl.label[0] }}</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="rbac-modal-footer">
+      <button class="btn-cancel" (click)="showRoleModal = false">{{ 'ROLES.MODAL.CANCEL' | translate }}</button>
+      <button class="btn-save" (click)="sauvegarderRole()"
+              [style.background]="nouveauRole.couleur">
+        <span class="material-symbols-outlined">save</span>
+        {{ modeEdition ? ('ROLES.MODAL.SAVE' | translate) : ('ROLES.MODAL.CREATE' | translate) }}
+      </button>
+    </div>
+
+  </div>
+</div>

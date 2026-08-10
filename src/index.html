@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>BENJEDDOU ERP - Plateforme ERP Intelligente</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <!-- Premium Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Modern Material Symbols/Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+  <!-- Double CAPTCHA : CAPTCHA local (Backend) + Google reCAPTCHA v2 -->
+  <!-- reCAPTCHA v2 - "Je ne suis pas un robot" -->
+  <script src="https://www.google.com/recaptcha/api.js?render=explicit" async defer></script>
+
+</head>
+<body>
+  <app-root></app-root>
+
+  <!-- ═════════════════════════════════════════════════════════════════════
+       DICTIONNAIRES DE SAISIE & AUTO-COMPLÉTION GLOBALE (BDD ERP)
+  ═════════════════════════════════════════════════════════════════════ -->
+
+  <!-- Produits / Articles BDD -->
+  <datalist id="produits-list">
+    <option value="Ordinateur Portable HP ProBook 450 G9">INFORMATIQUE — 1850 TND</option>
+    <option value="Imprimante Laser HP LaserJet Pro M404n">INFORMATIQUE — 980 TND</option>
+    <option value="Switch Réseau Cisco 24 ports Catalyst 1000">RESEAU — 1250 TND</option>
+    <option value="Ramette Papier A4 80g (boîte 5 ramettes)">FOURNITURES — 28 TND</option>
+    <option value="Chaise de Bureau Ergonomique">MOBILIER — 420 TND</option>
+    <option value="Bureau Direction 180x90 cm chêne">MOBILIER — 950 TND</option>
+    <option value="Logiciel Antivirus Kaspersky (1 an, 3 postes)">LOGICIELS — 145 TND</option>
+    <option value="Cartouche Toner HP 26A Noir">CONSOMMABLES — 72 TND</option>
+    <option value="Huile de Moteur Total 5W30 (5L)">AUTOMOBILE — 58 TND</option>
+    <option value="Ciment CEM II 42.5 SOTACIB (sac 50kg)">CONSTRUCTION — 12.5 TND</option>
+    <option value="Câble Électrique 2.5mm² (bobine 100m)">ELECTRICITE — 130 TND</option>
+    <option value="Disjoncteur Schneider 16A/1P">ELECTRICITE — 18.5 TND</option>
+    <option value="Peinture Intérieure Blanche 10L">BATIMENT — 52 TND</option>
+  </datalist>
+
+  <!-- Clients BDD -->
+  <datalist id="clients-list">
+    <option value="Société Industrielle Sahem">CLI-001 · Z.I. La Charguia, Tunis</option>
+    <option value="Groupe Alimentaire Tunisien">CLI-002 · Av. Habib Bourguiba, Sfax</option>
+    <option value="Chantiers Navals Ben Arous">CLI-003 · Zone Portuaire, Ben Arous</option>
+    <option value="Cabinet Juridique Maître Tlili">CLI-004 · Rue de Marseille, Tunis</option>
+    <option value="Hôtel El Mouradi Hammamet">CLI-005 · Route Touristique, Nabeul</option>
+    <option value="Pharmacie Centrale Sousse">CLI-006 · Av. de la République, Sousse</option>
+    <option value="Ferme Agricole Ben Salah">CLI-007 · Route de Kairouan, Enfidha</option>
+    <option value="Imprimerie Moderne Ariana">CLI-008 · Borj Louzir, Ariana</option>
+    <option value="École Privée Avenir Brillant">CLI-009 · Rue des Jasmins, La Marsa</option>
+    <option value="Clinique Santé Plus Bizerte">CLI-010 · Av. Farhat Hached, Bizerte</option>
+    <option value="Sotrapil S.A.">CLI-000 · Z.I. Radès, Tunis</option>
+  </datalist>
+
+  <!-- Fournisseurs BDD -->
+  <datalist id="fournisseurs-list">
+    <option value="SOTACIB — Ciments de Tunisie">FRN-001 · Jendouba</option>
+    <option value="Tunisair Catering Services">FRN-002 · Tunis-Carthage</option>
+    <option value="STEG — Société Tunisienne Électricité">FRN-003 · Tunis</option>
+    <option value="Léoni Wiring Systems Tunisia">FRN-004 · Ben Arous</option>
+    <option value="Office National de l'Artisanat">FRN-005 · Tunis</option>
+    <option value="Poulina Group Holding">FRN-006 · Les Berges du Lac</option>
+    <option value="SPDI — Production et Distribution">FRN-007 · Sfax</option>
+    <option value="Maghreb Steel">FRN-008 · Nabeul</option>
+    <option value="Cisco International">Fournisseur Réseau</option>
+    <option value="Legrand Tunisie">Fournisseur Électrique</option>
+    <option value="Schneider Electric TN">Fournisseur Électrique</option>
+  </datalist>
+
+  <!-- Catégories d'articles -->
+  <datalist id="categories-list">
+    <option value="INFORMATIQUE">Matériel & Équipements informatiques</option>
+    <option value="RESEAU">Équipements réseau & interconnexion</option>
+    <option value="FOURNITURES">Fournitures de bureau & consommables</option>
+    <option value="MOBILIER">Mobilier & Aménagement de bureau</option>
+    <option value="LOGICIELS">Licences & Logiciels professionnels</option>
+    <option value="CONSOMMABLES">Consommables d'impression</option>
+    <option value="AUTOMOBILE">Produits & Entretien véhicules</option>
+    <option value="CONSTRUCTION">Matériaux de construction</option>
+    <option value="ELECTRICITE">Matériel électrique & câblage</option>
+    <option value="BATIMENT">Peinture & Revêtements bâtiment</option>
+  </datalist>
+
+  <!-- Unités de mesure -->
+  <datalist id="unites-list">
+    <option value="UNITE">Unité (pièce / article)</option>
+    <option value="BOITE">Boîte / Pack</option>
+    <option value="BOBINE">Bobine / Rouleau</option>
+    <option value="SAC">Sac (kg/unité)</option>
+    <option value="BIDON">Bidon (L)</option>
+    <option value="LICENCE">Licence numérique</option>
+    <option value="KG">Kilogramme (kg)</option>
+    <option value="LITRE">Litre (L)</option>
+    <option value="METRE">Mètre (m)</option>
+    <option value="CARTON">Carton de plusieurs unités</option>
+    <option value="FORFAIT">Forfait global</option>
+    <option value="HEURE">Heure de prestation</option>
+  </datalist>
+
+  <!-- Villes / Localités BDD -->
+  <datalist id="villes-list">
+    <option value="Tunis (La Charguia)">Grand Tunis</option>
+    <option value="Tunis (Les Berges du Lac)">Grand Tunis</option>
+    <option value="Tunis (Centre Urbain Nord)">Grand Tunis</option>
+    <option value="Ariana (El Ghazala)">Ariana</option>
+    <option value="La Marsa (Tunis)">Grand Tunis</option>
+    <option value="Ben Arous (Mégrine)">Ben Arous</option>
+    <option value="Ben Arous (Radès)">Ben Arous</option>
+    <option value="Sfax (Ville / Z.I. Sakiet Ezzit)">Sfax</option>
+    <option value="Sousse (Ville / Zone Touristique)">Sousse</option>
+    <option value="Monastir">Sahel</option>
+    <option value="Nabeul / Hammamet">Cap Bon</option>
+    <option value="Bizerte">Nord</option>
+    <option value="Kairouan">Centre</option>
+    <option value="Enfidha">Sousse</option>
+    <option value="Béja / Jendouba">Nord-Ouest</option>
+  </datalist>
+
+  <!-- Taux de TVA -->
+  <datalist id="tva-list">
+    <option value="19.00">19% — Taux normal (Matériel, Services)</option>
+    <option value="7.00">7% — Taux réduit (Papier, Fournitures)</option>
+    <option value="13.00">13% — Taux intermédiaire</option>
+    <option value="0.00">0% — Exonéré de TVA</option>
+  </datalist>
+</body>
+</html>
+

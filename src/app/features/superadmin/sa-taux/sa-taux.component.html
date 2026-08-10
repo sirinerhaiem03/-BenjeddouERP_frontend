@@ -1,0 +1,368 @@
+<div class="sa-page">
+
+  <!-- ══ En-tête ══════════════════════════════════════════════════════ -->
+  <div class="sa-page-header">
+    <div>
+      <h1 class="sa-page-title">
+        <span class="material-symbols-outlined">percent</span>
+        {{ 'SUPERADMIN.TAUX.TITLE' | translate }}
+      </h1>
+      <p class="sa-page-subtitle">
+        {{ 'SUPERADMIN.TAUX.SUBTITLE' | translate }}
+      </p>
+    </div>
+    <div class="sa-header-actions">
+      <button class="sa-btn-refresh" (click)="charger()">
+        <span class="material-symbols-outlined">refresh</span>
+        {{ 'SUPERADMIN.TAUX.REFRESH' | translate }}
+      </button>
+      <button class="sa-btn-primary" (click)="ouvrirModalCreer()">
+        <span class="material-symbols-outlined">add</span>
+        {{ 'SUPERADMIN.TAUX.NEW_PERIOD' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ Alertes ══════════════════════════════════════════════════════ -->
+  <div class="sa-alert sa-alert-success" *ngIf="successMsg">
+    <span class="material-symbols-outlined">check_circle</span>
+    {{ successMsg }}
+  </div>
+  <div class="sa-alert sa-alert-error" *ngIf="errorMsg">
+    <span class="material-symbols-outlined">error</span>
+    {{ errorMsg }}
+    <button class="sa-alert-close" (click)="clearMessages()">✕</button>
+  </div>
+
+  <!-- ══ Stats KPI ══════════════════════════════════════════════════════ -->
+  <div class="sa-stats-row">
+    <div class="sa-kpi-card sa-kpi-purple">
+      <span class="material-symbols-outlined sa-kpi-icon">calendar_month</span>
+      <div class="sa-kpi-body">
+        <div class="sa-kpi-value">{{ totalPeriodes }}</div>
+        <div class="sa-kpi-label">{{ 'SUPERADMIN.TAUX.TOTAL_PERIODS' | translate }}</div>
+      </div>
+    </div>
+    <div class="sa-kpi-card sa-kpi-green">
+      <span class="material-symbols-outlined sa-kpi-icon">check_circle</span>
+      <div class="sa-kpi-body">
+        <div class="sa-kpi-value">{{ totalActives }}</div>
+        <div class="sa-kpi-label">{{ 'SUPERADMIN.TAUX.ACTIVE' | translate }}</div>
+      </div>
+    </div>
+    <div class="sa-kpi-card sa-kpi-gray">
+      <span class="material-symbols-outlined sa-kpi-icon">cancel</span>
+      <div class="sa-kpi-body">
+        <div class="sa-kpi-value">{{ totalInactives }}</div>
+        <div class="sa-kpi-label">{{ 'SUPERADMIN.TAUX.INACTIVE' | translate }}</div>
+      </div>
+    </div>
+    <div class="sa-kpi-card sa-kpi-blue">
+      <span class="material-symbols-outlined sa-kpi-icon">percent</span>
+      <div class="sa-kpi-body">
+        <div class="sa-kpi-value">{{ tauxMoyen | number:'1.2-2' }}%</div>
+        <div class="sa-kpi-label">{{ 'SUPERADMIN.TAUX.AVG_RATE' | translate }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Filtres ══════════════════════════════════════════════════════ -->
+  <div class="sa-filters-row">
+    <div class="sa-search-bar">
+      <span class="material-symbols-outlined">search</span>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (input)="appliquerFiltres()"
+        [placeholder]="'SUPERADMIN.TAUX.SEARCH_PH' | translate"
+      />
+    </div>
+    <select class="sa-select" [(ngModel)]="filtreStatut" (change)="appliquerFiltres()">
+      <option value="tous">{{ 'SUPERADMIN.USERS.ALL_STATUS' | translate }}</option>
+      <option value="actives">{{ 'SUPERADMIN.TAUX.ACTIVE' | translate }}</option>
+      <option value="inactives">{{ 'SUPERADMIN.TAUX.INACTIVE' | translate }}</option>
+    </select>
+  </div>
+
+  <!-- ══ Chargement ════════════════════════════════════════════════════ -->
+  <div class="sa-loading" *ngIf="loading">
+    <div class="sa-spinner"></div>
+    <span>{{ 'COMMON.LOADING' | translate }}</span>
+  </div>
+
+  <!-- ══ Tableau ═══════════════════════════════════════════════════════ -->
+  <div class="sa-card" *ngIf="!loading">
+    <div class="sa-card-header">
+      <span class="material-symbols-outlined">table_chart</span>
+      {{ 'SUPERADMIN.TAUX.TABLE_HEADER' | translate }}
+      <span class="sa-card-count">{{ periodesFiltrees.length }} {{ 'SUPERADMIN.TAUX.RESULTS' | translate }}</span>
+    </div>
+
+    <!-- Vide -->
+    <div class="sa-empty" *ngIf="periodesFiltrees.length === 0">
+      <span class="material-symbols-outlined">percent</span>
+      <p *ngIf="periodes.length === 0">Aucune période définie. Cliquez sur « Nouvelle Période » pour commencer.</p>
+      <p *ngIf="periodes.length > 0">Aucun résultat pour ce filtre.</p>
+    </div>
+
+    <div class="sa-table-wrap" *ngIf="periodesFiltrees.length > 0">
+      <table class="sa-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Libellé</th>
+            <th>Début</th>
+            <th>Fin</th>
+            <th>Taux</th>
+            <th>Durée</th>
+            <th>Statut</th>
+            <th>Dernière Modif.</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of periodesFiltrees; let i = index">
+            <td class="sa-td-num">{{ i + 1 }}</td>
+
+            <!-- Libellé + état -->
+            <td>
+              <div class="sa-periode-cell">
+                <span class="sa-periode-libelle">{{ p.libelle || '—' }}</span>
+                <span class="sa-encours-dot" *ngIf="estEnCours(p.dateDebut, p.dateFin)" title="En cours"></span>
+              </div>
+            </td>
+
+            <td class="sa-td-date">{{ formatDate(p.dateDebut) }}</td>
+            <td class="sa-td-date" [class.sa-expired]="estExpire(p.dateFin)">
+              {{ formatDate(p.dateFin) }}
+              <span class="sa-expired-badge" *ngIf="estExpire(p.dateFin)">Expirée</span>
+            </td>
+
+            <!-- Taux -->
+            <td>
+              <span class="sa-taux-badge">{{ p.taux | number:'1.2-2' }}%</span>
+            </td>
+
+            <!-- Durée -->
+            <td class="sa-td-duree">{{ calculerDuree(p.dateDebut, p.dateFin) }} j</td>
+
+            <!-- Statut -->
+            <td>
+              <span
+                class="sa-badge-statut"
+                [class.sa-actif]="p.actif"
+                [class.sa-inactif]="!p.actif"
+              >
+                {{ p.actif ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+
+            <td class="sa-td-date">{{ formatDatetime(p.dateModification) }}</td>
+
+            <!-- Actions -->
+            <td>
+              <div class="sa-actions">
+                <!-- Modifier -->
+                <button
+                  class="sa-btn-icon sa-btn-edit"
+                  (click)="ouvrirModalEditer(p)"
+                  title="Modifier"
+                >
+                  <span class="material-symbols-outlined">edit</span>
+                </button>
+
+                <!-- Toggle actif/inactif -->
+                <button
+                  class="sa-btn-icon"
+                  [class.sa-btn-activate]="!p.actif"
+                  [class.sa-btn-deactivate]="p.actif"
+                  (click)="toggleActif(p)"
+                  [title]="p.actif ? 'Désactiver' : 'Activer'"
+                >
+                  <span class="material-symbols-outlined">{{ p.actif ? 'toggle_on' : 'toggle_off' }}</span>
+                </button>
+
+                <!-- Supprimer -->
+                <button
+                  class="sa-btn-icon sa-btn-delete"
+                  (click)="ouvrirModalSupprimer(p)"
+                  title="Supprimer"
+                >
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ Note informative ═══════════════════════════════════════════════ -->
+  <div class="sa-info-note" *ngIf="!loading">
+    <span class="material-symbols-outlined">info</span>
+    <span>
+      Ces taux sont stockés dans la base <strong>centralisée</strong> (<code>benjeddou_erp</code>)
+      et sont automatiquement disponibles pour tous les tenants via le moteur de calcul.
+      <strong>Formule :</strong> Résultat = Montant × (Taux / 100) × (Jours / 365)
+    </span>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     MODAL CRÉER / MODIFIER
+     ══════════════════════════════════════════════════════════════════ -->
+<div class="sa-modal-overlay" *ngIf="showModal" (click)="fermerModal()">
+  <div class="sa-modal" (click)="$event.stopPropagation()">
+
+    <div class="sa-modal-header">
+      <div class="sa-modal-title">
+        <span class="material-symbols-outlined">{{ modeEdition ? 'edit' : 'add_circle' }}</span>
+        {{ modeEdition ? 'Modifier la Période' : 'Nouvelle Période de Taux' }}
+      </div>
+      <button class="sa-modal-close" (click)="fermerModal()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="sa-modal-body">
+
+      <!-- Libellé -->
+      <div class="sa-form-group">
+        <label>Libellé <span class="sa-required">*</span></label>
+        <input
+          type="text"
+          [(ngModel)]="form.libelle"
+          placeholder="ex: Taux légal 2024, TVA réduite…"
+          [class.sa-error]="formErrors.libelle"
+        />
+        <span class="sa-field-error" *ngIf="formErrors.libelle">{{ formErrors.libelle }}</span>
+      </div>
+
+      <!-- Dates en ligne -->
+      <div class="sa-form-row">
+        <div class="sa-form-group">
+          <label>Date de Début <span class="sa-required">*</span></label>
+          <input
+            type="date"
+            [(ngModel)]="form.dateDebut"
+            [class.sa-error]="formErrors.dateDebut"
+          />
+          <span class="sa-field-error" *ngIf="formErrors.dateDebut">{{ formErrors.dateDebut }}</span>
+        </div>
+        <div class="sa-form-group">
+          <label>Date de Fin <span class="sa-required">*</span></label>
+          <input
+            type="date"
+            [(ngModel)]="form.dateFin"
+            [class.sa-error]="formErrors.dateFin"
+          />
+          <span class="sa-field-error" *ngIf="formErrors.dateFin">{{ formErrors.dateFin }}</span>
+        </div>
+      </div>
+
+      <!-- Aperçu durée -->
+      <div class="sa-duree-preview" *ngIf="form.dateDebut && form.dateFin && form.dateFin >= form.dateDebut">
+        <span class="material-symbols-outlined">schedule</span>
+        Durée : <strong>{{ calculerDuree(form.dateDebut, form.dateFin) }} jours</strong>
+      </div>
+
+      <!-- Taux -->
+      <div class="sa-form-group">
+        <label>Taux (%) <span class="sa-required">*</span></label>
+        <div class="sa-taux-input-wrap">
+          <input
+            type="number"
+            [(ngModel)]="form.taux"
+            placeholder="ex: 9.75"
+            step="0.01"
+            min="0"
+            max="999"
+            [class.sa-error]="formErrors.taux"
+          />
+          <span class="sa-taux-suffix">%</span>
+        </div>
+        <span class="sa-field-hint">
+          Formule appliquée : Montant × ({{ form.taux || '?' }}% / 100) × (Jours / 365)
+        </span>
+        <span class="sa-field-error" *ngIf="formErrors.taux">{{ formErrors.taux }}</span>
+      </div>
+
+      <!-- Statut actif -->
+      <div class="sa-form-group sa-form-toggle-row">
+        <label>Statut</label>
+        <div class="sa-toggle-wrap">
+          <label class="sa-toggle">
+            <input type="checkbox" [(ngModel)]="form.actif" />
+            <span class="sa-toggle-slider"></span>
+          </label>
+          <span class="sa-toggle-label" [class.sa-on]="form.actif" [class.sa-off]="!form.actif">
+            {{ form.actif ? 'Active' : 'Inactive' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Avertissement chevauchement -->
+      <div class="sa-warning-note">
+        <span class="material-symbols-outlined">warning</span>
+        Le système vérifie automatiquement les chevauchements de périodes. Une erreur sera affichée si une période existante couvre déjà ces dates.
+      </div>
+
+    </div>
+
+    <div class="sa-modal-footer">
+      <button class="sa-btn-secondary" (click)="fermerModal()" [disabled]="saving">
+        Annuler
+      </button>
+      <button class="sa-btn-primary" (click)="enregistrer()" [disabled]="saving">
+        <div class="sa-spinner-sm" *ngIf="saving"></div>
+        <span class="material-symbols-outlined" *ngIf="!saving">{{ modeEdition ? 'save' : 'add_circle' }}</span>
+        {{ modeEdition ? 'Enregistrer' : 'Créer la Période' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     MODAL CONFIRMATION SUPPRESSION
+     ══════════════════════════════════════════════════════════════════ -->
+<div class="sa-modal-overlay" *ngIf="showDeleteModal" (click)="fermerModalSupprimer()">
+  <div class="sa-modal sa-modal-delete" (click)="$event.stopPropagation()">
+    <div class="sa-modal-header">
+      <div class="sa-modal-title">
+        <span class="material-symbols-outlined" style="color:#ef4444">delete_forever</span>
+        Supprimer la Période
+      </div>
+      <button class="sa-modal-close" (click)="fermerModalSupprimer()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="sa-modal-body">
+      <p class="sa-delete-msg">
+        Êtes-vous sûr de vouloir supprimer définitivement cette période ?
+      </p>
+      <div class="sa-delete-target" *ngIf="periodeASupprimer">
+        <span class="material-symbols-outlined">percent</span>
+        <div>
+          <strong>{{ periodeASupprimer.libelle || 'Sans libellé' }}</strong>
+          <small>{{ formatDate(periodeASupprimer.dateDebut) }} → {{ formatDate(periodeASupprimer.dateFin) }} | {{ periodeASupprimer.taux }}%</small>
+        </div>
+      </div>
+      <div class="sa-delete-warning">
+        <span class="material-symbols-outlined">warning</span>
+        Cette action est irréversible. Si cette période est utilisée dans des calculs existants, les données historiques ne seront pas affectées.
+      </div>
+    </div>
+    <div class="sa-modal-footer">
+      <button class="sa-btn-secondary" (click)="fermerModalSupprimer()" [disabled]="suppression">
+        Annuler
+      </button>
+      <button class="sa-btn-danger" (click)="confirmerSuppression()" [disabled]="suppression">
+        <div class="sa-spinner-sm" *ngIf="suppression"></div>
+        <span class="material-symbols-outlined" *ngIf="!suppression">delete_forever</span>
+        Supprimer définitivement
+      </button>
+    </div>
+  </div>
+</div>

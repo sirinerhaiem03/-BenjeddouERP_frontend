@@ -1,0 +1,193 @@
+<div class="sa-page">
+
+  <!-- Header -->
+  <div class="sa-page-header">
+    <div class="sa-page-header-left">
+      <h1 class="sa-page-title">
+        <span class="material-symbols-outlined">business</span>
+        {{ 'SUPERADMIN.ENTREPRISES.TITLE' | translate }}
+      </h1>
+      <p class="sa-page-subtitle">{{ entreprises.length }} {{ 'SUPERADMIN.ENTREPRISES.SUBTITLE' | translate }}</p>
+    </div>
+    <button class="sa-btn-primary" (click)="ouvrirCreation()">
+      <span class="material-symbols-outlined">add</span>
+      {{ 'SUPERADMIN.ENTREPRISES.NEW_BTN' | translate }}
+    </button>
+  </div>
+
+  <!-- Alerts -->
+  <div class="sa-alert sa-alert-success" *ngIf="successMsg">
+    <span class="material-symbols-outlined">check_circle</span>
+    {{ successMsg }}
+  </div>
+  <div class="sa-alert sa-alert-error" *ngIf="errorMsg">
+    <span class="material-symbols-outlined">error</span>
+    {{ errorMsg }}
+    <button class="sa-alert-close" (click)="errorMsg=''">✕</button>
+  </div>
+
+  <!-- Barre de recherche -->
+  <div class="sa-search-bar">
+    <span class="material-symbols-outlined">search</span>
+    <input type="text" [(ngModel)]="searchTerm" [placeholder]="'SUPERADMIN.ENTREPRISES.SEARCH_PH' | translate" />
+  </div>
+
+  <!-- Loading -->
+  <div class="sa-loading" *ngIf="loading">
+    <div class="sa-spinner"></div>
+    <span>{{ 'COMMON.LOADING' | translate }}</span>
+  </div>
+
+  <!-- Table -->
+  <div class="sa-card" *ngIf="!loading">
+    <div class="sa-table-wrap">
+      <table class="sa-table">
+        <thead>
+          <tr>
+            <th>{{ 'SUPERADMIN.ENTREPRISES.TH_NUM' | translate }}</th>
+            <th>{{ 'SUPERADMIN.ENTREPRISES.TH_ENT' | translate }}</th>
+            <th>{{ 'SUPERADMIN.ENTREPRISES.TH_SCHEMA' | translate }}</th>
+            <th>{{ 'SUPERADMIN.ENTREPRISES.TH_ADMIN' | translate }}</th>
+            <th>{{ 'SUPERADMIN.ENTREPRISES.TH_STATUS' | translate }}</th>
+            <th>{{ 'SUPERADMIN.ENTREPRISES.TH_DATE' | translate }}</th>
+            <th>{{ 'SUPERADMIN.ENTREPRISES.TH_ACTIONS' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let e of filteredEntreprises; let i = index">
+            <td class="sa-td-num">{{ i + 1 }}</td>
+            <td>
+              <div class="sa-ent-name">
+                <div class="sa-ent-avatar">{{ e.nomEntreprise?.[0]?.toUpperCase() || 'E' }}</div>
+                <div>
+                  <div class="sa-ent-title">{{ e.nomEntreprise }}</div>
+                  <div class="sa-ent-id">ID: {{ e.id }}</div>
+                </div>
+              </div>
+            </td>
+            <td><code class="sa-schema">{{ e.schema || e.entrepriseSchema || '—' }}</code></td>
+            <td>
+              <div class="sa-admin-cell">
+                <span class="material-symbols-outlined">person</span>
+                {{ e.adminUsername || e.adminNomUtilisateur || '—' }}
+              </div>
+            </td>
+            <td>
+              <span class="sa-badge-status"
+                [class.sa-active]="e.statut === 'ACTIVE' || e.statut === 'ACTIF'"
+                [class.sa-suspended]="e.statut === 'SUSPENDUE' || e.statut === 'SUSPENDU'"
+                [class.sa-pending]="e.statut === 'EN_ATTENTE'">
+                {{ e.statut || 'ACTIVE' }}
+              </span>
+            </td>
+            <td class="sa-td-date">{{ e.dateCreation | date:'dd/MM/yyyy' }}</td>
+            <td>
+              <div class="sa-actions">
+                <button class="sa-btn-icon sa-btn-success" title="Activer"
+                  *ngIf="e.statut === 'SUSPENDUE' || e.statut === 'SUSPENDU'"
+                  (click)="activer(e.id)">
+                  <span class="material-symbols-outlined">play_circle</span>
+                </button>
+                <button class="sa-btn-icon sa-btn-warning" title="Suspendre"
+                  *ngIf="e.statut !== 'SUSPENDUE' && e.statut !== 'SUSPENDU'"
+                  (click)="suspendre(e.id)">
+                  <span class="material-symbols-outlined">pause_circle</span>
+                </button>
+                <button class="sa-btn-icon sa-btn-danger" title="Supprimer"
+                  (click)="supprimer(e.id, e.nomEntreprise)">
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="filteredEntreprises.length === 0">
+            <td colspan="7" class="sa-empty">
+              <span class="material-symbols-outlined">search_off</span>
+              <span>Aucune entreprise trouvée</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════ MODAL CRÉATION ══════════ -->
+<div class="sa-modal-overlay" *ngIf="showCreateModal" (click)="showCreateModal=false">
+  <div class="sa-modal" (click)="$event.stopPropagation()">
+    <div class="sa-modal-header">
+      <div class="sa-modal-title">
+        <span class="material-symbols-outlined">add_business</span>
+        Créer une Nouvelle Entreprise
+      </div>
+      <button class="sa-modal-close" (click)="showCreateModal=false">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="sa-modal-body">
+      <div class="sa-form-section">
+        <div class="sa-form-section-title">
+          <span class="material-symbols-outlined">business</span>
+          Informations Entreprise
+        </div>
+        <div class="sa-form-group">
+          <label>Nom de l'entreprise *</label>
+          <input type="text" [(ngModel)]="form.nomEntreprise" placeholder="Ex: Tech Solutions SAS"
+            [class.sa-error]="errors.nomEntreprise" />
+          <span class="sa-field-error" *ngIf="errors.nomEntreprise">{{ errors.nomEntreprise }}</span>
+        </div>
+      </div>
+
+      <div class="sa-form-section">
+        <div class="sa-form-section-title">
+          <span class="material-symbols-outlined">manage_accounts</span>
+          Compte Administrateur
+        </div>
+        <div class="sa-form-row">
+          <div class="sa-form-group">
+            <label>Prénom *</label>
+            <input type="text" [(ngModel)]="form.prenom" placeholder="Prénom" />
+          </div>
+          <div class="sa-form-group">
+            <label>Nom *</label>
+            <input type="text" [(ngModel)]="form.nom" placeholder="Nom" />
+          </div>
+        </div>
+        <div class="sa-form-group">
+          <label>Nom d'utilisateur *</label>
+          <input type="text" [(ngModel)]="form.nomUtilisateur" placeholder="admin_entreprise"
+            [class.sa-error]="errors.nomUtilisateur" />
+          <span class="sa-field-error" *ngIf="errors.nomUtilisateur">{{ errors.nomUtilisateur }}</span>
+        </div>
+        <div class="sa-form-group">
+          <label>Email *</label>
+          <input type="email" [(ngModel)]="form.email" placeholder="admin@entreprise.com"
+            [class.sa-error]="errors.email" />
+          <span class="sa-field-error" *ngIf="errors.email">{{ errors.email }}</span>
+        </div>
+        <div class="sa-form-group sa-pw-group">
+          <label>Mot de passe *</label>
+          <div class="sa-pw-input">
+            <input [type]="showPw ? 'text' : 'password'" [(ngModel)]="form.motDePasse"
+              placeholder="Min. 6 caractères" [class.sa-error]="errors.motDePasse" />
+            <button type="button" (click)="showPw = !showPw">
+              <span class="material-symbols-outlined">{{ showPw ? 'visibility_off' : 'visibility' }}</span>
+            </button>
+          </div>
+          <span class="sa-field-error" *ngIf="errors.motDePasse">{{ errors.motDePasse }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sa-modal-footer">
+      <button class="sa-btn-secondary" (click)="showCreateModal=false">Annuler</button>
+      <button class="sa-btn-primary" (click)="creerEntreprise()" [disabled]="creating">
+        <div class="sa-spinner-sm" *ngIf="creating"></div>
+        <span class="material-symbols-outlined" *ngIf="!creating">add_business</span>
+        {{ creating ? 'Création...' : 'Créer l\'Entreprise' }}
+      </button>
+    </div>
+  </div>
+</div>

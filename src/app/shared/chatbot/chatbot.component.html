@@ -1,0 +1,51 @@
+<div class="chatbot-container" [class.open]="isOpen">
+  <!-- Chat Window -->
+  <div class="chat-window">
+    <div class="chat-header">
+      <div class="header-info">
+        <div class="ai-avatar">
+          <span class="material-symbols-outlined">smart_toy</span>
+          <div class="online-indicator"></div>
+        </div>
+        <div class="ai-details">
+          <h3>Assistant IA</h3>
+          <p>En ligne • BENJEDDOU ERP</p>
+        </div>
+      </div>
+      <button class="close-btn" (click)="toggleChat()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="chat-body" #scrollMe>
+      <div class="message" *ngFor="let msg of messages" [ngClass]="msg.sender === 'user' ? 'user-msg' : 'ai-msg'">
+        <div class="msg-bubble">
+          <p>{{ msg.text }}</p>
+          <span class="msg-time">{{ msg.time | date:'HH:mm' }}</span>
+        </div>
+      </div>
+      
+      <!-- Typing indicator -->
+      <div class="message ai-msg" *ngIf="isTyping">
+        <div class="msg-bubble typing-indicator">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-footer">
+      <textarea rows="1" placeholder="Posez une question à l'IA..." 
+                [(ngModel)]="userInput" 
+                (keydown)="onKeydown($event)"></textarea>
+      <button class="send-btn" (click)="sendMessage()" [disabled]="!userInput.trim() || isTyping">
+        <span class="material-symbols-outlined">send</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Floating Trigger Button -->
+  <button class="chat-trigger" (click)="toggleChat()" [class.hidden]="isOpen">
+    <span class="material-symbols-outlined icon-default">smart_toy</span>
+    <div class="pulse-ring"></div>
+  </button>
+</div>

@@ -1,0 +1,180 @@
+<div class="sa-app" [class.collapsed]="!sidebarOpen" [class.sa-light]="!isDarkMode">
+
+  <!-- ══════════════ SIDEBAR ══════════════ -->
+  <aside class="sa-sidebar" [style.background]="sidebarBg">
+    <div class="sa-sidebar-header">
+      <div class="sa-logo">
+        <!-- Logo image si definie, sinon icone par defaut -->
+        <ng-container *ngIf="themeService.currentTheme.logoUrl; else defaultSaIcon">
+          <img [src]="themeService.currentTheme.logoUrl" alt="Logo" class="sa-logo-img" />
+        </ng-container>
+        <ng-template #defaultSaIcon>
+          <div class="sa-logo-icon">
+            <span class="material-symbols-outlined">shield_person</span>
+          </div>
+        </ng-template>
+        <div class="sa-logo-text">
+          <span class="sa-logo-main">{{ themeService.currentTheme.logoText || 'BENJEDDOU' }}</span>
+          <span class="sa-logo-sub">{{ 'SUPERADMIN.HEADER_TITLE' | translate }}</span>
+        </div>
+      </div>
+      <button class="sa-toggle-btn" (click)="toggleSidebar()">
+        <span class="material-symbols-outlined">{{ sidebarOpen ? 'menu_open' : 'menu' }}</span>
+      </button>
+    </div>
+
+    <!-- Badge SuperAdmin -->
+    <div class="sa-badge-wrapper">
+      <div class="sa-badge">
+        <span class="material-symbols-outlined">verified</span>
+        <span>{{ 'SUPERADMIN.SUPER_ADMIN_ROLE' | translate }}</span>
+      </div>
+    </div>
+
+    <nav class="sa-nav">
+
+      <!-- Dashboard -->
+      <a routerLink="/superadmin/dashboard" routerLinkActive="sa-active" class="sa-nav-item">
+        <span class="material-symbols-outlined">space_dashboard</span>
+        <span class="sa-nav-label">{{ 'SUPERADMIN.NAV_GLOBAL_VIEW' | translate }}</span>
+      </a>
+
+      <div class="sa-nav-section">{{ 'SUPERADMIN.SECTION_PLATFORM' | translate }}</div>
+
+      <!-- Entreprises -->
+      <a routerLink="/superadmin/entreprises" routerLinkActive="sa-active" class="sa-nav-item">
+        <span class="material-symbols-outlined">business</span>
+        <span class="sa-nav-label">{{ 'SUPERADMIN.NAV_ENTERPRISES' | translate }}</span>
+      </a>
+
+      <!-- Utilisateurs -->
+      <a routerLink="/superadmin/utilisateurs" routerLinkActive="sa-active" class="sa-nav-item">
+        <span class="material-symbols-outlined">manage_accounts</span>
+        <span class="sa-nav-label">{{ 'SUPERADMIN.NAV_ALL_USERS' | translate }}</span>
+      </a>
+
+      <div class="sa-nav-section">{{ 'SUPERADMIN.SECTION_SECURITY' | translate }}</div>
+
+      <!-- Audit -->
+      <a routerLink="/superadmin/audit" routerLinkActive="sa-active" class="sa-nav-item">
+        <span class="material-symbols-outlined">policy</span>
+        <span class="sa-nav-label">{{ 'SUPERADMIN.NAV_AUDIT_LOG' | translate }}</span>
+      </a>
+
+      <!-- Sessions actives -->
+      <a routerLink="/superadmin/sessions" routerLinkActive="sa-active" class="sa-nav-item sa-nav-sessions" id="nav-sessions">
+        <span class="material-symbols-outlined">manage_accounts</span>
+        <span class="sa-nav-label">{{ 'SUPERADMIN.NAV_ACTIVE_SESSIONS' | translate }}</span>
+        <span class="sa-sessions-dot" title="Sessions en temps réel"></span>
+      </a>
+
+      <!-- Configuration -->
+      <a routerLink="/superadmin/configuration" routerLinkActive="sa-active" class="sa-nav-item">
+        <span class="material-symbols-outlined">settings</span>
+        <span class="sa-nav-label">{{ 'SUPERADMIN.NAV_CONFIGURATION' | translate }}</span>
+      </a>
+
+      <!-- Sécurité -->
+      <a routerLink="/superadmin/securite" routerLinkActive="sa-active" class="sa-nav-item sa-nav-securite" id="nav-securite">
+        <span class="material-symbols-outlined">shield</span>
+        <span class="sa-nav-label">{{ 'SUPERADMIN.NAV_SECURITY_BACKUP' | translate }}</span>
+        <span class="sa-securite-dot" title="Tableau de bord sécurité"></span>
+      </a>
+
+      <div class="sa-nav-section">{{ 'SUPERADMIN.SECTION_SETTINGS' | translate }}</div>
+
+      <!-- Taux & Périodes -->
+      <a routerLink="/superadmin/taux" routerLinkActive="sa-active" class="sa-nav-item" id="nav-taux">
+        <span class="material-symbols-outlined">percent</span>
+        <span class="sa-nav-label">{{ 'SUPERADMIN.NAV_RATES_PERIODS' | translate }}</span>
+      </a>
+
+      <div class="sa-nav-section">{{ 'SUPERADMIN.SECTION_APPEARANCE' | translate }}</div>
+
+      <!-- Personnalisation visuelle -->
+      <a routerLink="/superadmin/theming" routerLinkActive="sa-active" class="sa-nav-item">
+        <span class="material-symbols-outlined">palette</span>
+        <span class="sa-nav-label">{{ 'SUPERADMIN.NAV_CUSTOMIZATION' | translate }}</span>
+      </a>
+
+
+    </nav>
+
+    <!-- Footer sidebar -->
+    <div class="sa-sidebar-footer">
+      <div class="sa-user-card">
+        <div class="sa-user-avatar">{{ userInitial }}</div>
+        <div class="sa-user-info">
+          <span class="sa-user-name">{{ userName }}</span>
+          <span class="sa-user-role">{{ 'SUPERADMIN.SUPER_ADMIN_ROLE' | translate }}</span>
+        </div>
+        <button class="sa-logout-btn" (click)="logout()" [title]="'SUPERADMIN.NAV_LOGOUT' | translate">
+          <span class="material-symbols-outlined">logout</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══════════════ MAIN CONTENT ══════════════ -->
+  <main class="sa-main">
+    <!-- Top Bar -->
+    <header class="sa-topbar">
+      <div class="sa-topbar-left">
+        <button class="sa-menu-btn" (click)="toggleSidebar()">
+          <span class="material-symbols-outlined">menu</span>
+        </button>
+        <div class="sa-breadcrumb">
+          <span class="material-symbols-outlined">shield_person</span>
+          <span>{{ 'SUPERADMIN.HEADER_TITLE' | translate }}</span>
+        </div>
+      </div>
+      <div class="sa-topbar-right">
+        <div class="sa-clock">
+          <span class="material-symbols-outlined">schedule</span>
+          <span>{{ currentTime | date:'HH:mm' }}</span>
+        </div>
+        <div class="sa-env-badge">
+          <span class="material-symbols-outlined">cloud</span>
+          <span>{{ 'SUPERADMIN.DASHBOARD.ENV_SAAS' | translate }}</span>
+        </div>
+
+        <!-- Sélecteur de langue FR / EN / AR -->
+        <div class="sa-lang-wrap" style="position:relative">
+          <button class="sa-lang-btn" (click)="toggleLangMenu()" title="Changer de langue / Change Language / تغيير اللغة">
+            <span class="material-symbols-outlined sa-lang-globe">language</span>
+            <span class="sa-lang-code">{{ currentLang.toUpperCase() }}</span>
+            <span class="material-symbols-outlined sa-lang-arrow">expand_more</span>
+          </button>
+          <div class="sa-lang-menu" *ngIf="langMenuOpen">
+            <button (click)="switchLanguage('fr')" [class.active]="currentLang === 'fr'">
+              <span class="sa-flag-pill">FR</span>
+              <span>Français</span>
+            </button>
+            <button (click)="switchLanguage('en')" [class.active]="currentLang === 'en'">
+              <span class="sa-flag-pill">EN</span>
+              <span>English</span>
+            </button>
+            <button (click)="switchLanguage('ar')" [class.active]="currentLang === 'ar'">
+              <span class="sa-flag-pill">AR</span>
+              <span>العربية</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Toggle Thème Clair / Sombre -->
+        <button class="sa-theme-toggle" (click)="toggleTheme()" [title]="isDarkMode ? 'Passer en mode clair' : 'Passer en mode sombre'">
+          <span class="material-symbols-outlined">{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</span>
+        </button>
+        <div class="sa-avatar-mini" (click)="logout()" title="Déconnexion">
+          {{ userInitial }}
+        </div>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <div class="sa-content">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+
+</div>

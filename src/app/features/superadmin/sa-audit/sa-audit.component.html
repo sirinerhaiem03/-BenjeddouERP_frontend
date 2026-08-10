@@ -1,0 +1,93 @@
+<div class="sa-page">
+  <!-- Header -->
+  <div class="sa-page-header">
+    <div>
+      <h1 class="sa-page-title"><span class="material-symbols-outlined">policy</span>{{ 'SUPERADMIN.AUDIT.TITLE' | translate }}</h1>
+      <p class="sa-page-subtitle">{{ totalElements }} {{ 'SUPERADMIN.AUDIT.SUBTITLE' | translate }}</p>
+    </div>
+    <button class="sa-btn-refresh" (click)="charger()">
+      <span class="material-symbols-outlined">refresh</span> {{ 'SUPERADMIN.AUDIT.REFRESH' | translate }}
+    </button>
+  </div>
+
+  <!-- Stats rapides -->
+  <div class="sa-audit-stats" *ngIf="stats.totalLogs > 0">
+    <div class="sa-stat-chip">
+      <span class="material-symbols-outlined">article</span>
+      <span>{{ stats.totalLogs }} {{ 'SUPERADMIN.AUDIT.TOTAL_LOGS' | translate }}</span>
+    </div>
+    <div class="sa-stat-chip sa-stat-chip-danger">
+      <span class="material-symbols-outlined">warning</span>
+      <span>{{ stats.logsCritiques }} {{ 'SUPERADMIN.AUDIT.CRITICAL_LOGS' | translate }}</span>
+    </div>
+    <div class="sa-stat-chip sa-stat-chip-info">
+      <span class="material-symbols-outlined">schedule</span>
+      <span>{{ stats.periode || '24h' }}</span>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="sa-filters">
+    <div class="sa-search-bar">
+      <span class="material-symbols-outlined">search</span>
+      <input type="text" [(ngModel)]="searchTerm" [placeholder]="'SUPERADMIN.AUDIT.SEARCH_PH' | translate"
+        (keyup.enter)="rechercherFiltrer()" />
+    </div>
+    <select [(ngModel)]="filterAction" class="sa-select" (change)="rechercherFiltrer()">
+      <option value="">{{ 'SUPERADMIN.AUDIT.ALL_ACTIONS' | translate }}</option>
+      <option *ngFor="let a of actions" [value]="a">{{ a }}</option>
+    </select>
+    <button class="sa-btn-search" (click)="rechercherFiltrer()">
+      <span class="material-symbols-outlined">filter_list</span> {{ 'SUPERADMIN.AUDIT.FILTER_BTN' | translate }}
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="sa-loading" *ngIf="loading"><div class="sa-spinner"></div><span>Chargement...</span></div>
+
+  <!-- Logs -->
+  <div class="sa-log-list" *ngIf="!loading">
+    <div [class]="getActionClass(log.action)" *ngFor="let log of logs">
+      <div class="sa-log-icon">
+        <span class="material-symbols-outlined">{{ getActionIcon(log.action) }}</span>
+      </div>
+      <div class="sa-log-content">
+        <div class="sa-log-header">
+          <span class="sa-log-action">{{ log.action }}</span>
+          <span class="sa-log-user" *ngIf="log.nomUtilisateur">
+            <span class="material-symbols-outlined">person</span>
+            {{ log.nomUtilisateur }}
+          </span>
+          <span class="sa-log-anon" *ngIf="!log.nomUtilisateur">
+            <span class="material-symbols-outlined">person_off</span> Anonyme
+          </span>
+          <span [class]="getResultatClass(log.resultat)" *ngIf="log.resultat">{{ log.resultat }}</span>
+          <span class="sa-log-module" *ngIf="log.module">
+            <span class="material-symbols-outlined">widgets</span> {{ log.module }}
+          </span>
+        </div>
+        <div class="sa-log-details" *ngIf="log.details">{{ log.details }}</div>
+        <div class="sa-log-meta">
+          <span><span class="material-symbols-outlined">schedule</span>{{ log.createdAt | date:'dd/MM/yyyy HH:mm:ss' }}</span>
+          <span *ngIf="log.adresseIp"><span class="material-symbols-outlined">lan</span>{{ log.adresseIp }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sa-empty" *ngIf="logs.length === 0">
+      <span class="material-symbols-outlined">policy</span>
+      <span>Aucun log trouvé</span>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="sa-pagination" *ngIf="totalPages > 1">
+    <button class="sa-page-btn" (click)="goPage(currentPage - 1)" [disabled]="currentPage === 0">
+      <span class="material-symbols-outlined">chevron_left</span>
+    </button>
+    <span class="sa-page-info">Page {{ currentPage + 1 }} / {{ totalPages }}</span>
+    <button class="sa-page-btn" (click)="goPage(currentPage + 1)" [disabled]="currentPage >= totalPages - 1">
+      <span class="material-symbols-outlined">chevron_right</span>
+    </button>
+  </div>
+</div>

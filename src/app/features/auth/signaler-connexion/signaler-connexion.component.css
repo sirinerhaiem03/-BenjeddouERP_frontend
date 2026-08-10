@@ -1,0 +1,214 @@
+/* ═══════════════════════════════════════════════════════════════
+   signaler-connexion.component.css
+   Page de signalement connexion inconnue — Design premium dark
+   ═══════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+/* ── Page de base ── */
+.sc-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0a0f1e;
+  font-family: 'Inter', sans-serif;
+  position: relative;
+  overflow: hidden;
+  padding: 20px;
+}
+
+/* ── Fond animé ── */
+.sc-bg { position: absolute; inset: 0; pointer-events: none; }
+
+.sc-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+  animation: orbPulse 8s ease-in-out infinite;
+}
+.sc-orb-1 { width: 500px; height: 500px; background: #ef4444; top: -200px; right: -150px; animation-delay: 0s; }
+.sc-orb-2 { width: 350px; height: 350px; background: #f97316; bottom: -100px; left: -100px; animation-delay: 3s; }
+.sc-orb-3 { width: 250px; height: 250px; background: #8b5cf6; top: 40%; left: 40%; animation-delay: 5s; }
+
+@keyframes orbPulse {
+  0%, 100% { transform: scale(1); opacity: 0.15; }
+  50% { transform: scale(1.2); opacity: 0.25; }
+}
+
+/* ── Carte principale ── */
+.sc-card {
+  position: relative;
+  z-index: 10;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 48px 44px;
+  width: 100%;
+  max-width: 520px;
+  text-align: center;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255,255,255,0.04);
+}
+
+/* ── Logo ── */
+.sc-logo {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  margin: 0 auto 12px;
+  box-shadow: 0 12px 32px rgba(249, 115, 22, 0.4);
+}
+.sc-brand { color: #fff; font-size: 1.2rem; font-weight: 800; letter-spacing: -0.02em; }
+.sc-brand-sub { color: #64748b; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 36px; }
+
+/* ── Contenu état ── */
+.sc-content { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+
+/* ── Spinner ── */
+.sc-spinner {
+  width: 56px;
+  height: 56px;
+  border: 3px solid rgba(249, 115, 22, 0.2);
+  border-top: 3px solid #f97316;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Icônes d'état ── */
+.sc-icon-wrap {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: iconPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.sc-icon-wrap .material-icons { font-size: 2.2rem; }
+.sc-emoji    { font-size: 2rem; line-height: 1; }
+.sc-emoji-sm { font-size: 1.4rem; flex-shrink: 0; margin-top: 2px; }
+
+@keyframes iconPop {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.sc-icon-success { background: rgba(34, 197, 94, 0.12); border: 2px solid rgba(34, 197, 94, 0.3); }
+.sc-icon-success .material-icons { color: #22c55e; }
+.sc-icon-info    { background: rgba(59, 130, 246, 0.12); border: 2px solid rgba(59, 130, 246, 0.3); }
+.sc-icon-info .material-icons { color: #3b82f6; }
+.sc-icon-danger  { background: rgba(239, 68, 68, 0.12); border: 2px solid rgba(239, 68, 68, 0.3); }
+.sc-icon-danger .material-icons { color: #ef4444; }
+
+/* ── Badges ── */
+.sc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  border-radius: 99px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.sc-badge-success { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+.sc-badge-info    { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+.sc-badge-danger  { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+/* ── Titres et textes ── */
+.sc-state-title {
+  color: #f1f5f9;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+.sc-state-sub {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  max-width: 380px;
+}
+
+/* ── Boîte d'alerte actions ── */
+.sc-alert-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  text-align: left;
+  width: 100%;
+}
+.sc-alert-box .material-icons { font-size: 1.3rem; flex-shrink: 0; margin-top: 2px; }
+.sc-alert-box strong { display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 8px; }
+.sc-alert-box ol { margin: 0; padding-left: 18px; font-size: 0.78rem; line-height: 1.7; color: #cbd5e1; }
+
+.sc-alert-warning {
+  background: rgba(234, 179, 8, 0.08);
+  border: 1px solid rgba(234, 179, 8, 0.25);
+  color: #fbbf24;
+}
+.sc-alert-warning .material-icons { color: #fbbf24; }
+.sc-alert-warning strong { color: #fcd34d; }
+
+/* ── Boutons ── */
+.sc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 28px;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  width: 100%;
+  justify-content: center;
+}
+.sc-btn .material-icons { font-size: 1.1rem; }
+
+.sc-btn-primary {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.35);
+}
+.sc-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 32px rgba(239, 68, 68, 0.5);
+}
+
+.sc-btn-secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.sc-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+}
+
+/* ── Footer ── */
+.sc-footer {
+  margin-top: 32px;
+  color: #334155;
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+}
+
+/* ── Responsive ── */
+@media (max-width: 560px) {
+  .sc-card { padding: 32px 24px; }
+  .sc-state-title { font-size: 1.1rem; }
+}

@@ -1,0 +1,113 @@
+<!-- Page signalement connexion inconnue — BENJEDDOU ERP -->
+<div class="sc-page">
+  <!-- Fond animé -->
+  <div class="sc-bg">
+    <div class="sc-orb sc-orb-1"></div>
+    <div class="sc-orb sc-orb-2"></div>
+    <div class="sc-orb sc-orb-3"></div>
+  </div>
+
+  <div class="sc-card">
+    <!-- Logo -->
+    <div class="sc-logo">⚡</div>
+    <div class="sc-brand">BENJEDDOU ERP</div>
+    <div class="sc-brand-sub">Système de Sécurité</div>
+
+    <!-- ─── CHARGEMENT ─── -->
+    <div *ngIf="etat === 'chargement'" class="sc-content sc-loading">
+      <div class="sc-spinner"></div>
+      <div class="sc-state-title">Traitement en cours…</div>
+      <div class="sc-state-sub">Nous enregistrons votre signalement.</div>
+    </div>
+
+    <!-- ─── SUCCÈS ─── -->
+    <div *ngIf="etat === 'succes'" class="sc-content sc-success">
+      <div class="sc-icon-wrap sc-icon-success">
+        <span class="sc-emoji">✅</span>
+      </div>
+      <div class="sc-badge sc-badge-success">SIGNALÉ</div>
+      <div class="sc-state-title">Connexion signalée avec succès</div>
+      <div class="sc-state-sub">
+        Votre signalement a été enregistré et notre équipe de sécurité a été alertée immédiatement.
+      </div>
+      <div class="sc-alert-box sc-alert-warning">
+        <span class="sc-emoji-sm">⚠️</span>
+        <div>
+          <strong>Actions recommandées :</strong>
+          <ol>
+            <li>Changez votre mot de passe dès maintenant</li>
+            <li>Vérifiez vos appareils connectés</li>
+            <li>Contactez votre administrateur si nécessaire</li>
+          </ol>
+        </div>
+      </div>
+      <a href="/login" class="sc-btn sc-btn-primary">
+        🔒 Se connecter &amp; changer le mot de passe
+      </a>
+    </div>
+
+    <!-- ─── DÉJÀ SIGNALÉ ─── -->
+    <div *ngIf="etat === 'deja_signale'" class="sc-content sc-info">
+      <div class="sc-icon-wrap sc-icon-info">
+        <span class="sc-emoji">ℹ️</span>
+      </div>
+      <div class="sc-badge sc-badge-info">DÉJÀ SIGNALÉ</div>
+      <div class="sc-state-title">Cette connexion a déjà été signalée</div>
+      <div class="sc-state-sub">
+        Vous avez déjà signalé cette connexion. Notre équipe de sécurité traite votre demande.
+      </div>
+      <a href="/login" class="sc-btn sc-btn-secondary">
+        ← Retour à la connexion
+      </a>
+    </div>
+
+    <!-- ─── TOKEN INVALIDE ─── -->
+    <div *ngIf="etat === 'invalide'" class="sc-content sc-danger">
+      <div class="sc-icon-wrap sc-icon-danger">
+        <span class="sc-emoji">🚫</span>
+      </div>
+      <div class="sc-badge sc-badge-danger">LIEN INVALIDE</div>
+      <div class="sc-state-title">Lien de signalement invalide</div>
+      <div class="sc-state-sub">
+        Ce lien est invalide ou a expiré. Les liens de signalement sont valables 24h après l'envoi de l'email.
+      </div>
+      <a href="/login" class="sc-btn sc-btn-secondary">
+        ← Retour à la connexion
+      </a>
+    </div>
+
+    <!-- ─── ERREUR RÉSEAU ─── -->
+    <div *ngIf="etat === 'erreur'" class="sc-content sc-danger">
+      <div class="sc-icon-wrap sc-icon-danger">
+        <span class="sc-emoji">📡</span>
+      </div>
+      <div class="sc-badge sc-badge-danger">ERREUR</div>
+      <div class="sc-state-title">Erreur de connexion au serveur</div>
+      <div class="sc-state-sub">
+        Impossible de traiter votre signalement. Veuillez réessayer ou contacter le support.
+      </div>
+      <!-- ── Code d'erreur exact pour diagnostic ── -->
+      <div *ngIf="erreurDebug" style="
+        margin-top: 12px;
+        padding: 10px 14px;
+        background: rgba(255,100,100,0.15);
+        border: 1px solid rgba(255,100,100,0.4);
+        border-radius: 8px;
+        font-size: 11px;
+        font-family: monospace;
+        color: #ff9999;
+        word-break: break-all;
+        text-align: left;">
+        🔍 {{ erreurDebug }}
+      </div>
+      <a href="javascript:void(0)" (click)="ngOnInit()" class="sc-btn sc-btn-secondary">
+        🔄 Réessayer
+      </a>
+    </div>
+
+
+    <div class="sc-footer">
+      BENJEDDOU ERP &copy; 2026 &mdash; Système de Sécurité Automatisé
+    </div>
+  </div>
+</div>

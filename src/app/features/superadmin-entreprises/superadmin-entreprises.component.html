@@ -1,0 +1,257 @@
+<div class="superadmin-container">
+
+  <!-- ── En-tête ─────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-icon">
+        <span class="material-symbols-outlined">corporate_fare</span>
+      </div>
+      <div>
+        <h1 class="page-title">Gestion des Entreprises</h1>
+        <p class="page-subtitle">Créer et administrer les entreprises SaaS clientes</p>
+      </div>
+    </div>
+    <button class="btn-create" (click)="ouvrirCreer()">
+      <span class="material-symbols-outlined">add_business</span>
+      Nouvelle entreprise
+    </button>
+  </div>
+
+  <!-- ── Notifications ──────────────────────────────────────────── -->
+  <div class="notif success" *ngIf="successMsg">
+    <span class="material-symbols-outlined">check_circle</span>{{ successMsg }}
+  </div>
+  <div class="notif error" *ngIf="errorMsg">
+    <span class="material-symbols-outlined">error</span>{{ errorMsg }}
+  </div>
+
+  <!-- ── Statistiques ───────────────────────────────────────────── -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <span class="material-symbols-outlined stat-icon blue">corporate_fare</span>
+      <div>
+        <div class="stat-value">{{ entreprises.length }}</div>
+        <div class="stat-label">Total entreprises</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="material-symbols-outlined stat-icon green">check_circle</span>
+      <div>
+        <div class="stat-value">{{ compterParStatut('ACTIVE') }}</div>
+        <div class="stat-label">Actives</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="material-symbols-outlined stat-icon orange">pause_circle</span>
+      <div>
+        <div class="stat-value">{{ compterParStatut('SUSPENDUE') }}</div>
+        <div class="stat-label">Suspendues</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="material-symbols-outlined stat-icon purple">storage</span>
+      <div>
+        <div class="stat-value">{{ entreprises.length }}</div>
+        <div class="stat-label">Bases MySQL dédiées</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Chargement ─────────────────────────────────────────────── -->
+  <div class="loading-box" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Chargement des entreprises...</p>
+  </div>
+
+  <!-- ── Tableau des entreprises ────────────────────────────────── -->
+  <div class="table-card" *ngIf="!loading">
+    <table class="ent-table">
+      <thead>
+        <tr>
+          <th>Entreprise</th>
+          <th>Admin</th>
+          <th>Base MySQL</th>
+          <th>User MySQL</th>
+          <th>Statut</th>
+          <th>Créée le</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let e of entreprises">
+          <td>
+            <div class="ent-name">
+              <span class="ent-avatar">{{ e.nom[0] }}</span>
+              <div>
+                <strong>{{ e.nom }}</strong>
+                <small>{{ e.emailContact }}</small>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="badge badge-admin">
+              <span class="material-symbols-outlined">person</span>
+              {{ adminsMap[e.adminId] || 'Non assigné' }}
+            </span>
+          </td>
+          <td>
+            <span class="badge badge-db">
+              <span class="material-symbols-outlined">storage</span>
+              {{ e.schemaName }}
+            </span>
+          </td>
+          <td>
+            <span class="badge badge-user">
+              <span class="material-symbols-outlined">key</span>
+              {{ e.dbUsername }}
+            </span>
+          </td>
+          <td>
+            <span class="statut-badge" [class]="'statut-' + e.statut.toLowerCase()">
+              {{ e.statut === 'ACTIVE' ? '✅ Active' : '⏸ Suspendue' }}
+            </span>
+          </td>
+          <td>{{ e.dateCreation | date:'dd/MM/yyyy' }}</td>
+          <td>
+            <div class="actions">
+              <button class="btn-action btn-suspend"
+                      *ngIf="e.statut === 'ACTIVE'"
+                      (click)="suspendre(e)"
+                      title="Suspendre">
+                <span class="material-symbols-outlined">pause_circle</span>
+              </button>
+              <button class="btn-action btn-activate"
+                      *ngIf="e.statut === 'SUSPENDUE'"
+                      (click)="reactiver(e)"
+                      title="Réactiver">
+                <span class="material-symbols-outlined">play_circle</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="entreprises.length === 0">
+          <td colspan="7" class="empty-state">
+            <span class="material-symbols-outlined">business_center</span>
+            <p>Aucune entreprise enregistrée</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- MODAL : Créer une entreprise + son admin                      -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" *ngIf="showCreateModal" (click)="fermerModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <div class="modal-icon">
+          <span class="material-symbols-outlined">add_business</span>
+        </div>
+        <div>
+          <h2>Créer une nouvelle entreprise</h2>
+          <p>Chaque entreprise dispose de sa propre base MySQL dédiée et d'un admin unique.</p>
+        </div>
+        <button class="modal-close" (click)="fermerModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- Section Entreprise -->
+        <div class="section-title">
+          <span class="material-symbols-outlined">corporate_fare</span>
+          Informations de l'entreprise
+        </div>
+
+        <div class="form-group">
+          <label>Nom de l'entreprise *</label>
+          <input type="text" class="form-input" [(ngModel)]="form.nomEntreprise"
+                 placeholder="Ex: Société Trabelsi SARL"
+                 [class.input-error]="errors.nomEntreprise">
+          <span class="field-error" *ngIf="errors.nomEntreprise">{{ errors.nomEntreprise }}</span>
+        </div>
+
+        <!-- Section Admin -->
+        <div class="section-title">
+          <span class="material-symbols-outlined">manage_accounts</span>
+          Compte administrateur de l'entreprise
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Prénom *</label>
+            <input type="text" class="form-input" [(ngModel)]="form.prenom"
+                   placeholder="Mohamed"
+                   [class.input-error]="errors.prenom">
+            <span class="field-error" *ngIf="errors.prenom">{{ errors.prenom }}</span>
+          </div>
+          <div class="form-group">
+            <label>Nom *</label>
+            <input type="text" class="form-input" [(ngModel)]="form.nom"
+                   placeholder="Trabelsi"
+                   [class.input-error]="errors.nom">
+            <span class="field-error" *ngIf="errors.nom">{{ errors.nom }}</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Nom d'utilisateur *</label>
+          <input type="text" class="form-input" [(ngModel)]="form.nomUtilisateur"
+                 placeholder="admin_trabelsi"
+                 [class.input-error]="errors.nomUtilisateur">
+          <span class="field-error" *ngIf="errors.nomUtilisateur">{{ errors.nomUtilisateur }}</span>
+        </div>
+
+        <div class="form-group">
+          <label>Email *</label>
+          <input type="email" class="form-input" [(ngModel)]="form.email"
+                 placeholder="admin@trabelsi.tn"
+                 [class.input-error]="errors.email">
+          <span class="field-error" *ngIf="errors.email">{{ errors.email }}</span>
+        </div>
+
+        <div class="form-group">
+          <label>Mot de passe *</label>
+          <div class="password-field">
+            <input [type]="showPw ? 'text' : 'password'" class="form-input"
+                   [(ngModel)]="form.motDePasse" placeholder="Minimum 6 caractères"
+                   [class.input-error]="errors.motDePasse">
+            <button class="btn-toggle-pw" type="button" (click)="showPw = !showPw">
+              <span class="material-symbols-outlined">{{ showPw ? 'visibility_off' : 'visibility' }}</span>
+            </button>
+          </div>
+          <span class="field-error" *ngIf="errors.motDePasse">{{ errors.motDePasse }}</span>
+        </div>
+
+        <!-- Info box -->
+        <div class="info-box">
+          <span class="material-symbols-outlined">info</span>
+          <div>
+            <strong>Isolation automatique garantie :</strong>
+            <ul>
+              <li>Base MySQL dédiée créée automatiquement (ex: <code>erp_ent_00003</code>)</li>
+              <li>Utilisateur MySQL propre avec mot de passe unique (ex: <code>erp_user_00003</code>)</li>
+              <li>Aucun croisement possible avec les autres entreprises</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="fermerModal()">
+          <span class="material-symbols-outlined">close</span>Annuler
+        </button>
+        <button class="btn-confirm" (click)="creerEntrepriseAvecAdmin()" [disabled]="creating">
+          <span class="material-symbols-outlined">{{ creating ? 'hourglass_top' : 'add_business' }}</span>
+          {{ creating ? 'Création en cours...' : 'Créer l\'entreprise' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

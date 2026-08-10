@@ -1,0 +1,92 @@
+<div class="sa-page">
+  <div class="sa-page-header">
+    <div>
+      <h1 class="sa-page-title"><span class="material-symbols-outlined">manage_accounts</span>{{ 'SUPERADMIN.USERS.TITLE' | translate }}</h1>
+      <p class="sa-page-subtitle">{{ utilisateurs.length }} {{ 'SUPERADMIN.USERS.SUBTITLE' | translate }}</p>
+    </div>
+  </div>
+
+  <div class="sa-alert sa-alert-success" *ngIf="successMsg"><span class="material-symbols-outlined">check_circle</span>{{ successMsg }}</div>
+  <div class="sa-alert sa-alert-error" *ngIf="errorMsg"><span class="material-symbols-outlined">error</span>{{ errorMsg }}<button class="sa-alert-close" (click)="errorMsg=''">✕</button></div>
+
+  <!-- Filtres -->
+  <div class="sa-filters">
+    <div class="sa-search-bar">
+      <span class="material-symbols-outlined">search</span>
+      <input type="text" [(ngModel)]="searchTerm" [placeholder]="'SUPERADMIN.USERS.SEARCH_PH' | translate" />
+    </div>
+    <select [(ngModel)]="filterRole" class="sa-select">
+      <option value="">{{ 'SUPERADMIN.USERS.ALL_ROLES' | translate }}</option>
+      <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
+    </select>
+    <select [(ngModel)]="filterStatut" class="sa-select">
+      <option value="">{{ 'SUPERADMIN.USERS.ALL_STATUS' | translate }}</option>
+      <option value="ACTIF">ACTIF</option>
+      <option value="SUSPENDU">SUSPENDU</option>
+    </select>
+  </div>
+
+  <div class="sa-loading" *ngIf="loading">
+    <div class="sa-spinner"></div><span>{{ 'COMMON.LOADING' | translate }}</span>
+  </div>
+
+  <div class="sa-card" *ngIf="!loading">
+    <div class="sa-table-wrap">
+      <table class="sa-table">
+        <thead>
+          <tr>
+            <th>{{ 'SUPERADMIN.USERS.TH_USER' | translate }}</th>
+            <th>{{ 'SUPERADMIN.USERS.TH_EMAIL' | translate }}</th>
+            <th>{{ 'SUPERADMIN.USERS.TH_ROLE' | translate }}</th>
+            <th>{{ 'SUPERADMIN.USERS.TH_ENT' | translate }}</th>
+            <th>{{ 'SUPERADMIN.USERS.TH_STATUS' | translate }}</th>
+            <th>{{ 'SUPERADMIN.USERS.TH_ACTIONS' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of filtered">
+            <td>
+              <div class="sa-user-cell">
+                <div class="sa-user-av">{{ getInitials(u) }}</div>
+                <div>
+                  <div class="sa-user-name">{{ u.prenom }} {{ u.nom }}</div>
+                  <div class="sa-user-login">{{ u.nomUtilisateur }}</div>
+                </div>
+              </div>
+            </td>
+            <td class="sa-td-email">{{ u.email }}</td>
+            <td>
+              <span class="sa-role-badge" [class]="getRoleBadge(u.role)">{{ u.role }}</span>
+            </td>
+            <td>
+              <code class="sa-schema" *ngIf="u.entrepriseSchema">{{ u.entrepriseSchema }}</code>
+              <span class="sa-global" *ngIf="!u.entrepriseSchema">🌐 Global</span>
+            </td>
+            <td>
+              <span class="sa-badge-status"
+                [class.sa-active]="u.actif"
+                [class.sa-suspended]="!u.actif">
+                {{ u.actif ? 'ACTIF' : 'INACTIF' }}
+              </span>
+            </td>
+            <td>
+              <div class="sa-actions">
+                <button class="sa-btn-icon" title="{{ u.actif ? 'Désactiver' : 'Activer' }}"
+                  [class.sa-btn-warning]="u.actif" [class.sa-btn-success]="!u.actif"
+                  (click)="toggleActif(u)">
+                  <span class="material-symbols-outlined">{{ u.actif ? 'person_off' : 'person' }}</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="filtered.length === 0">
+            <td colspan="6" class="sa-empty">
+              <span class="material-symbols-outlined">person_search</span>
+              <span>Aucun utilisateur trouvé</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,412 @@
+<div class="sa-page">
+
+  <!-- ═══ HEADER ═══ -->
+  <div class="sa-page-header">
+    <div class="sa-page-header-left">
+      <h1 class="sa-page-title">
+        <span class="material-symbols-outlined">manage_accounts</span>
+        {{ 'SUPERADMIN.SESSIONS.TITLE' | translate }}
+      </h1>
+      <p class="sa-page-subtitle">{{ 'SUPERADMIN.SESSIONS.SUBTITLE' | translate }}</p>
+    </div>
+    <div class="sa-page-header-right">
+      <button class="btn-refresh" (click)="chargerTout()" title="Rafraîchir">
+        <span class="material-symbols-outlined">refresh</span>
+        {{ 'SUPERADMIN.SESSIONS.REFRESH' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ MESSAGES ═══ -->
+  <div class="msg-succes" *ngIf="messageSucces">
+    <span class="material-symbols-outlined">check_circle</span> {{ messageSucces }}
+  </div>
+  <div class="msg-erreur" *ngIf="messageErreur">
+    <span class="material-symbols-outlined">error</span> {{ messageErreur }}
+  </div>
+
+  <!-- ═══ STATS KPI ═══ -->
+  <div class="stats-grid">
+    <div class="stat-card stat-green">
+      <span class="material-symbols-outlined">wifi</span>
+      <div class="stat-content">
+        <span class="stat-value">{{ stats.sessionsActives }}</span>
+        <span class="stat-label">{{ 'SUPERADMIN.SESSIONS.ACTIVE_SESSIONS' | translate }}</span>
+      </div>
+      <div class="stat-pulse"></div>
+    </div>
+    <div class="stat-card stat-gray">
+      <span class="material-symbols-outlined">logout</span>
+      <div class="stat-content">
+        <span class="stat-value">{{ stats.sessionsTerminees }}</span>
+        <span class="stat-label">{{ 'SUPERADMIN.SESSIONS.ENDED' | translate }}</span>
+      </div>
+    </div>
+    <div class="stat-card stat-red">
+      <span class="material-symbols-outlined">block</span>
+      <div class="stat-content">
+        <span class="stat-value">{{ stats.sessionsRevoquees }}</span>
+        <span class="stat-label">{{ 'SUPERADMIN.SESSIONS.REVOKED' | translate }}</span>
+      </div>
+    </div>
+    <div class="stat-card stat-orange" [class.stat-pulse-orange]="stats.signalements > 0">
+      <span class="material-symbols-outlined">warning</span>
+      <div class="stat-content">
+        <span class="stat-value">{{ stats.signalements }}</span>
+        <span class="stat-label">{{ 'SUPERADMIN.SESSIONS.ALERTS' | translate }}</span>
+      </div>
+    </div>
+    <div class="stat-card stat-purple">
+      <span class="material-symbols-outlined">history</span>
+      <div class="stat-content">
+        <span class="stat-value">{{ stats.totalConnexions }}</span>
+        <span class="stat-label">{{ 'SUPERADMIN.SESSIONS.TOTAL_CONN' | translate }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ONGLETS ═══ -->
+  <div class="onglets-bar">
+    <button class="onglet-btn" [class.actif]="ongletActif === 'actives'" (click)="changerOnglet('actives')" id="onglet-actives">
+      <span class="material-symbols-outlined">wifi</span>
+      {{ 'SUPERADMIN.SESSIONS.TAB_ACTIVE' | translate }}
+      <span class="onglet-badge green">{{ stats.sessionsActives }}</span>
+    </button>
+    <button class="onglet-btn" [class.actif]="ongletActif === 'historique'" (click)="changerOnglet('historique')" id="onglet-historique">
+      <span class="material-symbols-outlined">history</span>
+      {{ 'SUPERADMIN.SESSIONS.TAB_HISTORY' | translate }}
+    </button>
+    <button class="onglet-btn" [class.actif]="ongletActif === 'signalements'" (click)="changerOnglet('signalements')" id="onglet-signalements">
+      <span class="material-symbols-outlined">warning</span>
+      {{ 'SUPERADMIN.SESSIONS.TAB_ALERTS' | translate }}
+      <span class="onglet-badge red" *ngIf="stats.signalements > 0">{{ stats.signalements }}</span>
+    </button>
+  </div>
+
+  <!-- ═══ ONGLET : SESSIONS ACTIVES ═══ -->
+  <div *ngIf="ongletActif === 'actives'">
+
+    <!-- Filtres -->
+    <div class="filtres-bar">
+      <div class="filtre-search">
+        <span class="material-symbols-outlined">search</span>
+        <input type="text" placeholder="Rechercher par utilisateur, IP, entreprise, pays..."
+          [(ngModel)]="filtreRecherche" (input)="appliquerFiltres()" id="session-search"/>
+      </div>
+      <select [(ngModel)]="filtreAppareil" (change)="appliquerFiltres()" id="filtre-appareil" class="filtre-select">
+        <option value="">Tous les appareils</option>
+        <option value="PC">💻 PC</option>
+        <option value="Mobile">📱 Mobile</option>
+        <option value="Tablette">📟 Tablette</option>
+      </select>
+    </div>
+
+    <!-- Blocage IP rapide -->
+    <div class="bloquer-ip-bar">
+      <span class="material-symbols-outlined">block</span>
+      <input type="text" placeholder="Adresse IP à bloquer (ex: 192.168.1.45)"
+        [(ngModel)]="ipABloquer" id="input-bloquer-ip" class="ip-input"/>
+      <button class="btn-bloquer-ip" (click)="bloquerIP()" [disabled]="blocageEnCours || !ipABloquer.trim()" id="btn-bloquer-ip">
+        <span *ngIf="!blocageEnCours">🚫 Bloquer cette IP</span>
+        <span *ngIf="blocageEnCours">En cours...</span>
+      </button>
+    </div>
+
+    <!-- Loading -->
+    <div class="sa-loading" *ngIf="loading">
+      <div class="sa-spinner"></div>
+      <span>Chargement des sessions actives...</span>
+    </div>
+
+    <!-- Tableau -->
+    <div class="sessions-card" *ngIf="!loading">
+      <div class="sessions-header">
+        <span>{{ sessionsFiltrees.length }} session(s) active(s) affichée(s)</span>
+      </div>
+
+      <div class="no-sessions" *ngIf="sessionsFiltrees.length === 0">
+        <span class="material-symbols-outlined">wifi_off</span>
+        <p>Aucune session active pour le moment.</p>
+      </div>
+
+      <div class="session-row" *ngFor="let s of sessionsFiltrees">
+        <!-- Utilisateur -->
+        <div class="session-user">
+          <div class="user-avatar">{{ (s.nomUtilisateur || 'U')[0].toUpperCase() }}</div>
+          <div class="user-info">
+            <span class="user-name">{{ s.nomUtilisateur }}</span>
+            <span class="user-email">{{ s.email }}</span>
+            <span class="user-schema">{{ s.entrepriseSchema || '—' }}</span>
+          </div>
+          <span class="role-badge" [class]="getRoleClass(s.role)">{{ s.role }}</span>
+        </div>
+        <!-- Appareil -->
+        <div class="session-device">
+          <div class="device-icon">
+            <span class="material-symbols-outlined">{{ getAppareilIcon(s.typeAppareil) }}</span>
+          </div>
+          <div class="device-info">
+            <span class="device-type">{{ s.typeAppareil || 'PC' }}</span>
+            <span class="device-os">{{ s.os || '—' }}</span>
+            <span class="device-browser">{{ s.navigateur || '—' }}</span>
+            <!-- Badge appareil connu / inconnu -->
+            <span class="device-fingerprint-badge"
+                  [class.badge-connu]="s.appareilConnu === true"
+                  [class.badge-inconnu]="s.appareilConnu === false"
+                  [title]="'Empreinte : ' + (s.fingerprintCourt || '—')">
+              <span class="material-symbols-outlined fp-icon">
+                {{ s.appareilConnu ? 'verified_user' : 'device_unknown' }}
+              </span>
+              {{ s.appareilConnu ? 'Appareil connu' : 'Appareil inconnu' }}
+              <span class="fp-hash" *ngIf="s.fingerprintCourt">· {{ s.fingerprintCourt }}</span>
+            </span>
+            <!-- Badge niveau de risque -->
+            <span class="risk-badge"
+                  [class.risk-low]="(s.niveauRisque || 0) < 40"
+                  [class.risk-medium]="(s.niveauRisque || 0) >= 40 && (s.niveauRisque || 0) < 70"
+                  [class.risk-high]="(s.niveauRisque || 0) >= 70"
+                  [title]="'Score de risque calculé automatiquement'">
+              <span class="material-symbols-outlined risk-icon">
+                {{ (s.niveauRisque || 0) >= 70 ? 'gpp_bad' : (s.niveauRisque || 0) >= 40 ? 'gpp_maybe' : 'health_and_safety' }}
+              </span>
+              {{ (s.niveauRisque || 0) >= 70 ? 'Risque élevé' : (s.niveauRisque || 0) >= 40 ? 'Risque moyen' : 'Risque faible' }}
+              <strong class="risk-score">{{ s.niveauRisque || 0 }}/100</strong>
+            </span>
+            <!-- Alerte connexion inhabituelle -->
+            <span class="inhabit-warning" *ngIf="s.connexionInhabituelle">
+              <span class="material-symbols-outlined">warning</span>
+              Connexion inhabituelle
+            </span>
+          </div>
+        </div>
+
+        <!-- Réseau -->
+        <div class="session-network">
+          <div class="network-ip">
+            <span class="material-symbols-outlined">router</span>
+            {{ s.adresseIp || '—' }}
+          </div>
+          <div class="network-location" *ngIf="s.pays">
+            <span class="material-symbols-outlined">location_on</span>
+            {{ s.ville ? s.ville + ', ' : '' }}{{ s.region ? s.region + ', ' : '' }}{{ s.pays }}
+          </div>
+          <div class="network-type" *ngIf="s.typeReseau">
+            <span class="material-symbols-outlined">
+              {{ getNetworkIcon(s.typeReseau) }}
+            </span>
+            {{ s.typeReseau }}
+          </div>
+          <div class="network-fai" *ngIf="s.fournisseurInternet">
+            <span class="material-symbols-outlined">business</span>
+            {{ s.fournisseurInternet }}
+          </div>
+        </div>
+        <!-- Durée -->
+        <div class="session-time">
+          <div class="time-connected">
+            <span class="material-symbols-outlined">schedule</span>
+            Connecté depuis<br>
+            <strong>{{ dureeSession(s.dateConnexion) }}</strong>
+          </div>
+          <div class="time-date">{{ s.dateConnexion | date:'dd/MM/yyyy HH:mm' }}</div>
+        </div>
+        <!-- Actions -->
+        <div class="session-actions">
+          <button class="btn-deconnecter" (click)="ouvrirModaleDeconnexion(s)"
+            title="Forcer la déconnexion" id="btn-deconnecter-{{ s.id }}">
+            <span class="material-symbols-outlined">power_settings_new</span>
+            Déconnecter
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ONGLET : HISTORIQUE ═══ -->
+  <div *ngIf="ongletActif === 'historique'">
+    <div class="filtres-bar">
+      <div class="filtre-search">
+        <span class="material-symbols-outlined">search</span>
+        <input type="text" placeholder="Rechercher utilisateur ou IP..."
+          [(ngModel)]="filtreHistoRecherche" (input)="appliquerFiltresHisto()" id="histo-search"/>
+      </div>
+      <select [(ngModel)]="filtreHistoStatut" (change)="appliquerFiltresHisto()" id="filtre-statut" class="filtre-select">
+        <option value="">Tous les statuts</option>
+        <option value="ACTIVE">🟢 Active</option>
+        <option value="TERMINEE">⚫ Terminée</option>
+        <option value="REVOQUEE">🔴 Révoquée</option>
+        <option value="EXPIREE">🟡 Expirée</option>
+      </select>
+    </div>
+
+    <div class="sa-loading" *ngIf="loadingHisto">
+      <div class="sa-spinner"></div>
+      <span>Chargement de l'historique...</span>
+    </div>
+
+    <div class="sessions-card" *ngIf="!loadingHisto">
+      <div class="sessions-header">
+        <span>{{ historiqueFiltres.length }} connexion(s) dans l'historique</span>
+      </div>
+
+      <div class="no-sessions" *ngIf="historiqueFiltres.length === 0">
+        <span class="material-symbols-outlined">history_toggle_off</span>
+        <p>Aucune connexion dans l'historique.</p>
+      </div>
+
+      <div class="session-row" *ngFor="let s of historiqueFiltres" [class.row-signale]="s.estSignale">
+        <!-- Utilisateur -->
+        <div class="session-user">
+          <div class="user-avatar">{{ (s.nomUtilisateur || 'U')[0].toUpperCase() }}</div>
+          <div class="user-info">
+            <span class="user-name">{{ s.nomUtilisateur }}</span>
+            <span class="user-email">{{ s.email }}</span>
+          </div>
+          <span class="statut-pill" [class]="getStatutClass(s.statut)">{{ s.statut }}</span>
+        </div>
+        <!-- Appareil + IP -->
+        <div class="session-device">
+          <div class="device-info">
+            <span class="device-type">{{ s.typeAppareil || 'PC' }} · {{ s.os || '—' }}</span>
+            <span class="device-browser">{{ s.navigateur || '—' }}</span>
+            <span class="network-ip"><span class="material-symbols-outlined">router</span>{{ s.adresseIp }}</span>
+          </div>
+        </div>
+        <!-- Dates -->
+        <div class="session-time">
+          <div class="time-date">🔓 {{ s.dateConnexion | date:'dd/MM HH:mm' }}</div>
+          <div class="time-date" *ngIf="s.dateDeconnexion">🔒 {{ s.dateDeconnexion | date:'dd/MM HH:mm' }}</div>
+          <div class="motif-revoc" *ngIf="s.motifRevocation">⚠️ {{ s.motifRevocation }}</div>
+          <div class="signale-badge" *ngIf="s.estSignale">🚨 Signalé le {{ s.dateSignalement | date:'dd/MM HH:mm' }}</div>
+        </div>
+        <!-- Compte -->
+        <div class="session-actions">
+          <span class="compte-statut" [class.verrouille]="s.statutCompte === 'VERROUILLE'">
+            {{ s.statutCompte === 'VERROUILLE' ? '🔒 VERROUILLÉ' : '✅ ' + (s.statutCompte || 'ACTIF') }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ONGLET : SIGNALEMENTS ═══ -->
+  <div *ngIf="ongletActif === 'signalements'">
+    <div class="sa-loading" *ngIf="loadingSignal">
+      <div class="sa-spinner"></div>
+      <span>Chargement des signalements...</span>
+    </div>
+
+    <div class="sessions-card" *ngIf="!loadingSignal">
+      <div class="sessions-header sessions-header-red">
+        <span class="material-symbols-outlined">warning</span>
+        <span>{{ signalements.length }} connexion(s) suspecte(s) signalée(s)</span>
+      </div>
+
+      <div class="no-sessions" *ngIf="signalements.length === 0">
+        <span class="material-symbols-outlined">verified_user</span>
+        <p>Aucun signalement de connexion suspecte.</p>
+      </div>
+
+      <div class="session-row row-signale" *ngFor="let s of signalements">
+        <!-- Utilisateur + statut compte -->
+        <div class="session-user">
+          <div class="user-avatar avatar-red">{{ (s.nomUtilisateur || 'U')[0].toUpperCase() }}</div>
+          <div class="user-info">
+            <span class="user-name">{{ s.nomUtilisateur }}</span>
+            <span class="user-email">{{ s.email }}</span>
+            <span class="compte-statut" [class.verrouille]="s.statutCompte === 'VERROUILLE'">
+              {{ s.statutCompte === 'VERROUILLE' ? '🔒 Compte Verrouillé' : '⚠️ ' + (s.statutCompte || 'ACTIF') }}
+            </span>
+          </div>
+        </div>
+        <!-- Connexion suspecte -->
+        <div class="session-device">
+          <div class="device-info">
+            <span class="device-type">{{ s.typeAppareil || 'PC' }} · {{ s.os || '—' }}</span>
+            <span class="device-browser">{{ s.navigateur || '—' }}</span>
+            <span class="network-ip"><span class="material-symbols-outlined">router</span>{{ s.adresseIp }}</span>
+          </div>
+        </div>
+        <!-- Dates -->
+        <div class="session-time">
+          <div class="time-date">🔓 Connexion : {{ s.dateConnexion | date:'dd/MM/yyyy HH:mm' }}</div>
+          <div class="signale-badge">🚨 Signalé : {{ s.dateSignalement | date:'dd/MM/yyyy HH:mm' }}</div>
+        </div>
+        <!-- Actions -->
+        <div class="session-actions">
+          <button class="btn-deverrouiller" (click)="ouvrirModaleDeverrouillage(s)"
+            *ngIf="s.statutCompte === 'VERROUILLE'" id="btn-deverrouiller-{{ s.id }}">
+            <span class="material-symbols-outlined">lock_open</span>
+            Déverrouiller
+          </button>
+          <button class="btn-bloquer-ip-small" (click)="ipABloquer = s.adresseIp || ''; changerOnglet('actives')">
+            <span class="material-symbols-outlined">block</span>
+            Bloquer IP
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MODALE : CONFIRMATION DÉCONNEXION ═══ -->
+  <div class="modale-overlay" *ngIf="sessionADeconnecter" (click)="fermerModale()">
+    <div class="modale-box" (click)="$event.stopPropagation()">
+      <div class="modale-header">
+        <span class="material-symbols-outlined">warning</span>
+        <h2>Confirmer la déconnexion</h2>
+      </div>
+      <div class="modale-body">
+        <p>Vous êtes sur le point de <strong>déconnecter de force</strong> :</p>
+        <div class="modale-target">
+          <div class="user-avatar small">{{ (sessionADeconnecter.nomUtilisateur || 'U')[0].toUpperCase() }}</div>
+          <div>
+            <strong>{{ sessionADeconnecter.nomUtilisateur }}</strong><br>
+            <small>{{ sessionADeconnecter.adresseIp }} · {{ sessionADeconnecter.os }} · {{ sessionADeconnecter.navigateur }}</small>
+          </div>
+        </div>
+        <label for="motif-input" class="motif-label">Motif de la révocation :</label>
+        <input id="motif-input" type="text" class="motif-input"
+          [(ngModel)]="motifDeconnexion" placeholder="Ex: Appareil suspect, violation de politique..."/>
+      </div>
+      <div class="modale-footer">
+        <button class="btn-annuler" (click)="fermerModale()" [disabled]="deconnexionEnCours">Annuler</button>
+        <button class="btn-confirmer" (click)="confirmerDeconnexion()" [disabled]="deconnexionEnCours" id="btn-confirmer-deconnexion">
+          <span class="material-symbols-outlined" *ngIf="!deconnexionEnCours">power_settings_new</span>
+          <span *ngIf="deconnexionEnCours">En cours...</span>
+          <span *ngIf="!deconnexionEnCours">Confirmer la déconnexion</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MODALE : CONFIRMATION DÉVERROUILLAGE ═══ -->
+  <div class="modale-overlay" *ngIf="utilisateurADeverrouiller" (click)="fermerModale()">
+    <div class="modale-box" (click)="$event.stopPropagation()">
+      <div class="modale-header modale-header-green">
+        <span class="material-symbols-outlined">lock_open</span>
+        <h2>Déverrouiller le compte</h2>
+      </div>
+      <div class="modale-body">
+        <p>Vous êtes sur le point de <strong>déverrouiller</strong> le compte de :</p>
+        <div class="modale-target">
+          <div class="user-avatar small avatar-red">{{ (utilisateurADeverrouiller.nomUtilisateur || 'U')[0].toUpperCase() }}</div>
+          <div>
+            <strong>{{ utilisateurADeverrouiller.nomUtilisateur }}</strong><br>
+            <small>{{ utilisateurADeverrouiller.email }}</small><br>
+            <small>⚠️ Connexion suspecte depuis : {{ utilisateurADeverrouiller.adresseIp }}</small>
+          </div>
+        </div>
+        <p class="modale-warning">Le compte sera remis en statut <strong>ACTIF</strong>. Assurez-vous d'avoir vérifié l'identité de l'utilisateur.</p>
+      </div>
+      <div class="modale-footer">
+        <button class="btn-annuler" (click)="fermerModale()" [disabled]="deverrouillageEnCours">Annuler</button>
+        <button class="btn-confirmer btn-green" (click)="confirmerDeverrouillage()" [disabled]="deverrouillageEnCours" id="btn-confirmer-deverrouillage">
+          <span class="material-symbols-outlined" *ngIf="!deverrouillageEnCours">lock_open</span>
+          <span *ngIf="deverrouillageEnCours">En cours...</span>
+          <span *ngIf="!deverrouillageEnCours">Déverrouiller le compte</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,206 @@
+<div class="sa-page">
+
+  <!-- Header de page -->
+  <div class="sa-page-header">
+    <div class="sa-page-header-left">
+      <h1 class="sa-page-title">
+        <span class="material-symbols-outlined">space_dashboard</span>
+        {{ 'SUPERADMIN.DASHBOARD.TITLE' | translate }}
+      </h1>
+      <p class="sa-page-subtitle">{{ 'SUPERADMIN.DASHBOARD.SUBTITLE' | translate }}</p>
+    </div>
+    <div class="sa-page-header-right">
+      <div class="sa-date-badge">
+        <span class="material-symbols-outlined">calendar_today</span>
+        <span>{{ today | date:'EEEE d MMMM yyyy' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="sa-loading" *ngIf="loading">
+    <div class="sa-spinner"></div>
+    <span>{{ 'COMMON.LOADING' | translate }}</span>
+  </div>
+
+  <div *ngIf="!loading">
+
+    <!-- ═══ STATS CARDS ═══ -->
+    <div class="sa-stats-grid">
+
+      <div class="sa-stat-card sa-stat-purple">
+        <div class="sa-stat-icon">
+          <span class="material-symbols-outlined">business</span>
+        </div>
+        <div class="sa-stat-content">
+          <span class="sa-stat-value">{{ stats.totalEntreprises }}</span>
+          <span class="sa-stat-label">{{ 'SUPERADMIN.DASHBOARD.TOTAL_ENTERPRISES' | translate }}</span>
+        </div>
+        <div class="sa-stat-glow"></div>
+      </div>
+
+      <div class="sa-stat-card sa-stat-green">
+        <div class="sa-stat-icon">
+          <span class="material-symbols-outlined">check_circle</span>
+        </div>
+        <div class="sa-stat-content">
+          <span class="sa-stat-value">{{ stats.entreprisesActives }}</span>
+          <span class="sa-stat-label">{{ 'SUPERADMIN.DASHBOARD.ACTIVE_ENTERPRISES' | translate }}</span>
+        </div>
+        <div class="sa-stat-glow"></div>
+      </div>
+
+      <div class="sa-stat-card sa-stat-red">
+        <div class="sa-stat-icon">
+          <span class="material-symbols-outlined">block</span>
+        </div>
+        <div class="sa-stat-content">
+          <span class="sa-stat-value">{{ stats.entreprisesSuspendues }}</span>
+          <span class="sa-stat-label">{{ 'SUPERADMIN.DASHBOARD.SUSPENDED' | translate }}</span>
+        </div>
+        <div class="sa-stat-glow"></div>
+      </div>
+
+      <div class="sa-stat-card sa-stat-blue">
+        <div class="sa-stat-icon">
+          <span class="material-symbols-outlined">group</span>
+        </div>
+        <div class="sa-stat-content">
+          <span class="sa-stat-value">{{ stats.totalUtilisateurs }}</span>
+          <span class="sa-stat-label">{{ 'SUPERADMIN.DASHBOARD.TOTAL_USERS' | translate }}</span>
+        </div>
+        <div class="sa-stat-glow"></div>
+      </div>
+
+      <div class="sa-stat-card sa-stat-amber">
+        <div class="sa-stat-icon">
+          <span class="material-symbols-outlined">warning</span>
+        </div>
+        <div class="sa-stat-content">
+          <span class="sa-stat-value">{{ stats.logsCritiques24h }}</span>
+          <span class="sa-stat-label">{{ 'SUPERADMIN.DASHBOARD.SECURITY_ALERTS' | translate }}</span>
+        </div>
+        <div class="sa-stat-glow"></div>
+      </div>
+
+    </div>
+
+    <!-- ═══ CONTENU BAS ═══ -->
+    <div class="sa-bottom-grid">
+
+      <!-- Entreprises récentes -->
+      <div class="sa-card">
+        <div class="sa-card-header">
+          <div class="sa-card-header-left">
+            <span class="material-symbols-outlined">business</span>
+            <span>{{ 'SUPERADMIN.DASHBOARD.RECENT_ENTERPRISES' | translate }}</span>
+          </div>
+          <a routerLink="/superadmin/entreprises" class="sa-card-link">
+            {{ 'SUPERADMIN.DASHBOARD.VIEW_ALL' | translate }} <span class="material-symbols-outlined">chevron_right</span>
+          </a>
+        </div>
+        <div class="sa-card-body">
+          <div class="sa-table-wrap">
+            <table class="sa-table">
+              <thead>
+                <tr>
+                  <th>{{ 'SUPERADMIN.DASHBOARD.TH_ENTERPRISE' | translate }}</th>
+                  <th>{{ 'SUPERADMIN.DASHBOARD.TH_SCHEMA' | translate }}</th>
+                  <th>{{ 'SUPERADMIN.DASHBOARD.TH_STATUS' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let e of entreprisesRecentes">
+                  <td>
+                    <div class="sa-ent-name">
+                      <div class="sa-ent-avatar">{{ e.nomEntreprise?.[0]?.toUpperCase() || 'E' }}</div>
+                      <span>{{ e.nomEntreprise }}</span>
+                    </div>
+                  </td>
+                  <td><code class="sa-schema">{{ e.schema || e.entrepriseSchema || '—' }}</code></td>
+                  <td>
+                    <span class="sa-badge-status"
+                      [class.sa-active]="e.statut === 'ACTIVE' || e.statut === 'ACTIF'"
+                      [class.sa-suspended]="e.statut === 'SUSPENDUE' || e.statut === 'SUSPENDU'">
+                      {{ e.statut || 'ACTIVE' }}
+                    </span>
+                  </td>
+                </tr>
+                <tr *ngIf="entreprisesRecentes.length === 0">
+                  <td colspan="3" style="text-align:center; color: rgba(167,139,250,0.5)">Aucune entreprise</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Logs récents + Infos plateforme -->
+      <div class="sa-right-col">
+
+        <!-- Logs récents -->
+        <div class="sa-card sa-card-compact" *ngIf="logsRecents.length > 0">
+          <div class="sa-card-header">
+            <div class="sa-card-header-left">
+              <span class="material-symbols-outlined">policy</span>
+              <span>{{ 'SUPERADMIN.DASHBOARD.RECENT_ACTIVITY' | translate }}</span>
+            </div>
+            <a routerLink="/superadmin/audit" class="sa-card-link">
+              {{ 'SUPERADMIN.DASHBOARD.VIEW_ALL' | translate }} <span class="material-symbols-outlined">chevron_right</span>
+            </a>
+          </div>
+          <div class="sa-card-body">
+            <div class="sa-mini-log" *ngFor="let log of logsRecents" [class]="getLogClass(log.action)">
+              <span class="sa-mini-log-action">{{ log.action }}</span>
+              <span class="sa-mini-log-user">{{ log.nomUtilisateur || 'Anonyme' }}</span>
+              <span class="sa-mini-log-time">{{ log.createdAt | date:'HH:mm' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Infos plateforme -->
+        <div class="sa-card">
+          <div class="sa-card-header">
+            <div class="sa-card-header-left">
+              <span class="material-symbols-outlined">info</span>
+              <span>{{ 'SUPERADMIN.DASHBOARD.PLATFORM_INFO' | translate }}</span>
+            </div>
+          </div>
+          <div class="sa-card-body">
+            <div class="sa-info-list">
+              <div class="sa-info-row">
+                <span class="sa-info-label">{{ 'SUPERADMIN.DASHBOARD.ERP_VERSION' | translate }}</span>
+                <span class="sa-info-value sa-version">v2.0.0</span>
+              </div>
+              <div class="sa-info-row">
+                <span class="sa-info-label">{{ 'SUPERADMIN.DASHBOARD.ARCHITECTURE' | translate }}</span>
+                <span class="sa-info-value">Multi-Tenant SaaS</span>
+              </div>
+              <div class="sa-info-row">
+                <span class="sa-info-label">{{ 'SUPERADMIN.DASHBOARD.DATABASE' | translate }}</span>
+                <span class="sa-info-value">MySQL (Schema séparé)</span>
+              </div>
+              <div class="sa-info-row">
+                <span class="sa-info-label">{{ 'SUPERADMIN.DASHBOARD.BACKEND' | translate }}</span>
+                <span class="sa-info-value">Spring Boot 3</span>
+              </div>
+              <div class="sa-info-row">
+                <span class="sa-info-label">{{ 'SUPERADMIN.DASHBOARD.FRONTEND' | translate }}</span>
+                <span class="sa-info-value">Angular 17</span>
+              </div>
+              <div class="sa-info-row">
+                <span class="sa-info-label">{{ 'SUPERADMIN.DASHBOARD.SYSTEM_STATUS' | translate }}</span>
+                <span class="sa-info-value">
+                  <span class="sa-online-dot"></span>
+                  {{ 'SUPERADMIN.DASHBOARD.ONLINE' | translate }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>

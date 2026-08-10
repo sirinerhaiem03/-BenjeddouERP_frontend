@@ -1,0 +1,109 @@
+<div class="sa-page">
+  <div class="sa-page-header">
+    <div>
+      <h1 class="sa-page-title"><span class="material-symbols-outlined">settings</span>{{ 'SUPERADMIN.CONFIG.TITLE' | translate }}</h1>
+      <p class="sa-page-subtitle">{{ 'SUPERADMIN.CONFIG.SUBTITLE' | translate }}</p>
+    </div>
+  </div>
+
+  <div class="sa-alert sa-alert-success" *ngIf="saved">
+    <span class="material-symbols-outlined">check_circle</span>
+    {{ 'SUPERADMIN.CONFIG.SAVED_MSG' | translate }}
+  </div>
+
+  <div class="sa-config-grid">
+
+    <!-- Général -->
+    <div class="sa-config-card">
+      <div class="sa-config-card-header">
+        <span class="material-symbols-outlined">tune</span>
+        {{ 'SUPERADMIN.CONFIG.GENERAL_SETTINGS' | translate }}
+      </div>
+      <div class="sa-config-body">
+
+        <div class="sa-config-row">
+          <div class="sa-config-info">
+            <span class="sa-config-label">{{ 'SUPERADMIN.CONFIG.MAINTENANCE_MODE' | translate }}</span>
+            <span class="sa-config-desc">{{ 'SUPERADMIN.CONFIG.MAINTENANCE_DESC' | translate }}</span>
+          </div>
+          <label class="sa-toggle">
+            <input type="checkbox" [(ngModel)]="config.modeMaintenance" />
+            <span class="sa-toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="sa-config-row">
+          <div class="sa-config-info">
+            <span class="sa-config-label">{{ 'SUPERADMIN.CONFIG.MAX_ENT' | translate }}</span>
+            <span class="sa-config-desc">{{ 'SUPERADMIN.CONFIG.MAX_ENT_DESC' | translate }}</span>
+          </div>
+          <input type="number" [(ngModel)]="config.maxEntreprises" class="sa-config-input" />
+        </div>
+
+        <div class="sa-config-row">
+          <div class="sa-config-info">
+            <span class="sa-config-label">{{ 'SUPERADMIN.CONFIG.TRIAL_DAYS' | translate }}</span>
+            <span class="sa-config-desc">{{ 'SUPERADMIN.CONFIG.TRIAL_DAYS_DESC' | translate }}</span>
+          </div>
+          <input type="number" [(ngModel)]="config.trialDureeJours" class="sa-config-input" />
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Emails -->
+    <div class="sa-config-card">
+      <div class="sa-config-card-header">
+        <span class="material-symbols-outlined">email</span>
+        {{ 'SUPERADMIN.CONFIG.EMAIL_CONFIG' | translate }}
+      </div>
+      <div class="sa-config-body">
+        <div class="sa-form-group">
+          <label>{{ 'SUPERADMIN.CONFIG.SENDER_EMAIL' | translate }}</label>
+          <input type="email" [(ngModel)]="config.smtpFrom" class="sa-field" />
+        </div>
+      </div>
+    </div>
+
+    <!-- URLs -->
+    <div class="sa-config-card">
+      <div class="sa-config-card-header">
+        <span class="material-symbols-outlined">link</span>
+        {{ 'SUPERADMIN.CONFIG.PLATFORM_URLS' | translate }}
+      </div>
+      <div class="sa-config-body">
+        <div class="sa-form-group">
+          <label>{{ 'SUPERADMIN.CONFIG.FRONTEND_URL' | translate }}</label>
+          <input type="text" [(ngModel)]="config.urlFrontend" class="sa-field" />
+        </div>
+        <div class="sa-form-group">
+          <label>{{ 'SUPERADMIN.CONFIG.BACKEND_URL' | translate }}</label>
+          <input type="text" [(ngModel)]="config.urlBackend" class="sa-field" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Info Système -->
+    <div class="sa-config-card">
+      <div class="sa-config-card-header">
+        <span class="material-symbols-outlined">memory</span>
+        {{ 'SUPERADMIN.CONFIG.SYSTEM_INFO' | translate }}
+      </div>
+      <div class="sa-config-body">
+        <div class="sa-sys-row"><span>{{ 'SUPERADMIN.DASHBOARD.ERP_VERSION' | translate }}</span><span class="sa-sys-val">2.0.0</span></div>
+        <div class="sa-sys-row"><span>Java</span><span class="sa-sys-val">17</span></div>
+        <div class="sa-sys-row"><span>Spring Boot</span><span class="sa-sys-val">3.x</span></div>
+        <div class="sa-sys-row"><span>Angular</span><span class="sa-sys-val">17</span></div>
+        <div class="sa-sys-row"><span>{{ 'SUPERADMIN.DASHBOARD.DATABASE' | translate }}</span><span class="sa-sys-val">MySQL 8</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="sa-save-bar">
+    <button class="sa-btn-primary" (click)="sauvegarder()">
+      <span class="material-symbols-outlined">save</span>
+      {{ 'SUPERADMIN.CONFIG.SAVE_BTN' | translate }}
+    </button>
+  </div>
+</div>

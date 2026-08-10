@@ -1,0 +1,1722 @@
+<div class="commercial-wrapper">
+
+  <!-- ══ HERO BANNER DYNAMIQUE ══ -->
+  <div class="hero-banner" [style.background]="heroConfig.gradient">
+    <div class="hero-content">
+      <div class="hero-left">
+        <div class="hero-icon-wrap">
+          <span class="material-symbols-outlined hero-icon">{{ heroConfig.icon }}</span>
+        </div>
+        <div class="hero-text">
+          <h1 class="hero-title">{{ heroConfig.title }}</h1>
+          <p class="hero-desc">{{ heroConfig.desc }}</p>
+        </div>
+      </div>
+      <!-- KPI mini-cards dans le hero (6 cartes, 2 lignes) -->
+      <div class="hero-kpi-row">
+        <div class="hero-kpi-card">
+          <div class="hkpi-icon hkpi-purple">
+            <span class="material-symbols-outlined">payments</span>
+          </div>
+          <div class="hkpi-body">
+            <div class="hkpi-label">{{ 'COMMERCIAL.KPI.REVENUE' | translate }}</div>
+            <div class="hkpi-value">{{ kpis.totalCA | number:'1.3-3' }} TND</div>
+            <div class="hkpi-sub">↗ {{ 'COMMERCIAL.KPI.REVENUE_SUB' | translate }}</div>
+          </div>
+        </div>
+        <div class="hero-kpi-sep"></div>
+        <div class="hero-kpi-card">
+          <div class="hkpi-icon hkpi-blue">
+            <span class="material-symbols-outlined">shopping_cart</span>
+          </div>
+          <div class="hkpi-body">
+            <div class="hkpi-label">{{ 'COMMERCIAL.KPI.ORDERS_MONTH' | translate }}</div>
+            <div class="hkpi-value">{{ kpis.commandesMois }}</div>
+            <div class="hkpi-sub">{{ 'COMMERCIAL.KPI.ORDERS_TOTAL' | translate }} : {{ commandes.length }}</div>
+          </div>
+        </div>
+        <div class="hero-kpi-sep"></div>
+        <div class="hero-kpi-card">
+          <div class="hkpi-icon hkpi-red">
+            <span class="material-symbols-outlined">receipt_long</span>
+          </div>
+          <div class="hkpi-body">
+            <div class="hkpi-label">{{ 'COMMERCIAL.KPI.UNPAID_INVOICES' | translate }}</div>
+            <div class="hkpi-value">{{ kpis.facturesImpayees }}</div>
+            <div class="hkpi-sub">{{ 'COMMERCIAL.KPI.UNPAID_SUB' | translate }}</div>
+          </div>
+        </div>
+        <div class="hero-kpi-sep"></div>
+        <div class="hero-kpi-card">
+          <div class="hkpi-icon hkpi-green">
+            <span class="material-symbols-outlined">trending_up</span>
+          </div>
+          <div class="hkpi-body">
+            <div class="hkpi-label">{{ 'COMMERCIAL.KPI.CONVERSION_RATE' | translate }}</div>
+            <div class="hkpi-value">{{ kpis.tauxConversionDevis }}%</div>
+            <div class="hkpi-sub">{{ 'COMMERCIAL.KPI.CONVERSION_SUB' | translate }}</div>
+          </div>
+        </div>
+        <div class="hero-kpi-sep"></div>
+        <div class="hero-kpi-card">
+          <div class="hkpi-icon hkpi-orange">
+            <span class="material-symbols-outlined">people</span>
+          </div>
+          <div class="hkpi-body">
+            <div class="hkpi-label">{{ 'COMMERCIAL.KPI.ACTIVE_CLIENTS' | translate }}</div>
+            <div class="hkpi-value">{{ clients.length }}</div>
+            <div class="hkpi-sub">{{ kpis.tauxFacturation }}% {{ 'COMMERCIAL.KPI.BILLING_RATE' | translate }}</div>
+          </div>
+        </div>
+        <div class="hero-kpi-sep"></div>
+        <div class="hero-kpi-card">
+          <div class="hkpi-icon hkpi-teal">
+            <span class="material-symbols-outlined">description</span>
+          </div>
+          <div class="hkpi-body">
+            <div class="hkpi-label">{{ 'COMMERCIAL.KPI.ONGOING_QUOTES' | translate }}</div>
+            <div class="hkpi-value">{{ kpis.devisEnCours }}</div>
+            <div class="hkpi-sub">{{ 'COMMERCIAL.KPI.ONGOING_SUB' | translate }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="hero-tabs">
+      <button class="hero-tab" [class.active]="activeTab==='clients'" (click)="switchTab('clients')">
+        <span class="material-symbols-outlined">people</span> {{ 'COMMERCIAL.TABS.CLIENTS' | translate }}
+      </button>
+      <button class="hero-tab" [class.active]="activeTab==='fournisseurs'" (click)="switchTab('fournisseurs')">
+        <span class="material-symbols-outlined">local_shipping</span> {{ 'COMMERCIAL.TABS.SUPPLIERS' | translate }}
+      </button>
+      <button class="hero-tab" [class.active]="activeTab==='commandes'" (click)="switchTab('commandes')">
+        <span class="material-symbols-outlined">shopping_cart</span> {{ 'COMMERCIAL.TABS.ORDERS' | translate }}
+      </button>
+      <button class="hero-tab" [class.active]="activeTab==='factures'" (click)="switchTab('factures')">
+        <span class="material-symbols-outlined">receipt_long</span> {{ 'COMMERCIAL.TABS.INVOICES' | translate }}
+      </button>
+      <button class="hero-tab" [class.active]="activeTab==='devis'" (click)="switchTab('devis')">
+        <span class="material-symbols-outlined">description</span> {{ 'COMMERCIAL.TABS.QUOTES' | translate }}
+      </button>
+      <button class="hero-tab" [class.active]="activeTab==='promos'" (click)="switchTab('promos')">
+        <span class="material-symbols-outlined">local_offer</span> {{ 'COMMERCIAL.TABS.PROMOS' | translate }}
+      </button>
+      <button class="hero-tab" [class.active]="activeTab==='dashboard'" (click)="switchTab('dashboard')">
+        <span class="material-symbols-outlined">dashboard</span> {{ 'COMMERCIAL.TABS.DASHBOARD' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ MESSAGES ══ -->
+  <div class="com-body">
+    <div class="alert-success" *ngIf="successMsg">✅ {{ successMsg }}</div>
+    <div class="alert-error" *ngIf="errorMsg">❌ {{ errorMsg }}</div>
+
+    <!-- TAB : DEVIS                           -->
+    <!-- ══════════════════════════════════════ -->
+    <div *ngIf="activeTab === 'devis'">
+      <div class="toolbar">
+        <div class="search-bar">
+          <span class="material-symbols-outlined">search</span>
+          <input type="text" [placeholder]="'COMMERCIAL.QUOTES.SEARCH' | translate" [(ngModel)]="devisSearch" (input)="filterDevis()">
+        </div>
+        <select class="filter-select" [(ngModel)]="devisStatutFilter" (change)="filterDevis()">
+          <option value="">{{ 'COMMERCIAL.QUOTES.ALL_STATUSES' | translate }}</option>
+          <option value="DEMANDE_CLIENT">📩 Demandes clients</option>
+          <option value="BROUILLON">📝 {{ 'COMMERCIAL.QUOTES.STATUS_DRAFT' | translate }}</option>
+          <option value="ENVOYE">📤 {{ 'COMMERCIAL.QUOTES.STATUS_SENT' | translate }}</option>
+          <option value="ACCEPTE">✅ {{ 'COMMERCIAL.QUOTES.STATUS_ACCEPTED' | translate }}</option>
+          <option value="REFUSE">❌ {{ 'COMMERCIAL.QUOTES.STATUS_REFUSED' | translate }}</option>
+        </select>
+        <!-- Export buttons -->
+        <div class="export-btn-group">
+          <button class="btn-export" (click)="exportDevisCSV()" title="CSV">
+            <span class="material-symbols-outlined">table_view</span> CSV
+          </button>
+          <button class="btn-export" (click)="exportDevisPDF()" title="PDF">
+            <span class="material-symbols-outlined">picture_as_pdf</span> PDF
+          </button>
+          <button class="btn-export" (click)="exportDevisWord()" title="Word">
+            <span class="material-symbols-outlined">description</span> Word
+          </button>
+          <button class="btn-export" (click)="printDevis()" [title]="'STOCK.ACTIONS.PRINT' | translate">
+            <span class="material-symbols-outlined">print</span> {{ 'STOCK.ACTIONS.PRINT' | translate }}
+          </button>
+        </div>
+        <button class="btn btn-primary" (click)="openDevisModal()">
+          <span class="material-symbols-outlined">add</span> {{ 'COMMERCIAL.QUOTES.NEW' | translate }}
+        </button>
+      </div>
+
+      <div class="table-card" *ngIf="!isLoading; else skeleton" id="devis-table">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>{{ 'COMMERCIAL.QUOTES.NUMBER' | translate }}</th>
+              <th>{{ 'COMMERCIAL.QUOTES.CLIENT' | translate }}</th>
+              <th>{{ 'COMMERCIAL.QUOTES.DATE' | translate }}</th>
+              <th>{{ 'COMMERCIAL.QUOTES.VALIDITY' | translate }}</th>
+              <th>{{ 'COMMERCIAL.QUOTES.AMOUNT' | translate }}</th>
+              <th>{{ 'COMMERCIAL.QUOTES.STATUS' | translate }}</th>
+              <th>{{ 'COMMERCIAL.QUOTES.ACTIONS' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let d of filteredDevis"
+                [class.row-demande-client]="d.statut === 'DEMANDE_CLIENT'">
+              <td>
+                <span class="mono-text">{{ d.numeroDevis }}</span>
+                <span *ngIf="d.statut === 'DEMANDE_CLIENT'" class="demande-badge-mini" title="Demande soumise par le client">📩 Demande</span>
+              </td>
+              <td><strong>{{ d.client?.nom || '—' }}</strong></td>
+              <td>{{ d.dateDevis | date:'dd/MM/yyyy' }}</td>
+              <td>{{ d.dateValidite | date:'dd/MM/yyyy' }}</td>
+              <td><strong>{{ d.montantTotal | number:'1.3-3' }} TND</strong></td>
+              <td>
+                <span class="status-badge" [ngClass]="getDevisStatutClass(d.statut)">
+                  {{ getDevisStatutLabel(d.statut) }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <!-- QR Code de vérification fiscale -->
+                <button class="icon-btn qr-btn" (click)="printInvoiceQR(d, $event)" title="Vérification Fiscale QR Code" style="color:#0d9faa;background:rgba(13,159,170,0.12);border:1px solid rgba(13,159,170,0.3)">
+                  <span class="material-symbols-outlined">qr_code_2</span>
+                </button>
+                <!-- Voir détail -->
+                <button class="icon-btn" (click)="openDevisDetail(d)" [title]="'STOCK.ACTIONS.VIEW' | translate">
+                  <span class="material-symbols-outlined">visibility</span>
+                </button>
+                <!-- Traiter demande client : créer un vrai devis BROUILLON -->
+                <button class="icon-btn edit-btn" *ngIf="d.statut === 'DEMANDE_CLIENT'"
+                  (click)="traiterDemandeClient(d)" title="Traiter cette demande (créer un devis)" style="color:#f97316">
+                  <span class="material-symbols-outlined">edit_document</span>
+                </button>
+                <!-- Workflow statut -->
+                <button class="icon-btn edit-btn" *ngIf="d.statut === 'BROUILLON'"
+                  (click)="changerStatutDevis(d, 'ENVOYE')" [title]="'COMMERCIAL.QUOTES.MARK_SENT' | translate">
+                  <span class="material-symbols-outlined">send</span>
+                </button>
+                <button class="icon-btn edit-btn" *ngIf="d.statut === 'ENVOYE'"
+                  (click)="changerStatutDevis(d, 'ACCEPTE')" [title]="'COMMERCIAL.QUOTES.MARK_ACCEPTED' | translate" style="color:#10b981">
+                  <span class="material-symbols-outlined">check_circle</span>
+                </button>
+                <button class="icon-btn" *ngIf="d.statut === 'ENVOYE'" (click)="changerStatutDevis(d, 'REFUSE')"
+                  [title]="'COMMERCIAL.QUOTES.MARK_REFUSED' | translate" style="color:#ef4444">
+                  <span class="material-symbols-outlined">cancel</span>
+                </button>
+                <!-- Convertir en commande -->
+                <button class="icon-btn btn-convert" *ngIf="d.statut === 'ACCEPTE'"
+                  (click)="convertirDevisEnCommande(d)" [title]="'COMMERCIAL.QUOTES.CONVERT' | translate">
+                  <span class="material-symbols-outlined">shopping_cart</span>
+                </button>
+                <!-- Supprimer -->
+                <button class="icon-btn delete-btn" (click)="deleteDevis(d.id)" [title]="'FORM.DELETE' | translate">
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="filteredDevis.length === 0">
+              <td colspan="7" class="empty-row">
+                <span class="material-symbols-outlined">description</span>
+                <p>{{ 'COMMERCIAL.QUOTES.NO_QUOTES' | translate }}</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════ -->
+    <!-- TAB : CLIENTS                          -->
+    <!-- ══════════════════════════════════════ -->
+    <div *ngIf="activeTab === 'clients'">
+      <div class="toolbar">
+        <div class="search-bar">
+          <span class="material-symbols-outlined">search</span>
+          <input type="text" [placeholder]="'COMMERCIAL.CLIENTS.SEARCH' | translate" [(ngModel)]="clientSearch" list="clients-list" (input)="filterClients()">
+        </div>
+        <!-- Export buttons -->
+        <div class="export-btn-group">
+          <button class="btn-export" (click)="exportClientsCSV()" title="CSV">
+            <span class="material-symbols-outlined">table_view</span> CSV
+          </button>
+          <button class="btn-export" (click)="exportClientsPDF()" title="PDF">
+            <span class="material-symbols-outlined">picture_as_pdf</span> PDF
+          </button>
+          <button class="btn-export" (click)="exportClientsWord()" title="Word">
+            <span class="material-symbols-outlined">description</span> Word
+          </button>
+          <button class="btn-export" (click)="printClients()" [title]="'STOCK.ACTIONS.PRINT' | translate">
+            <span class="material-symbols-outlined">print</span> {{ 'STOCK.ACTIONS.PRINT' | translate }}
+          </button>
+        </div>
+        <button class="btn btn-primary" (click)="openClientModal()">
+          <span class="material-symbols-outlined">add</span> {{ 'COMMERCIAL.CLIENTS.NEW' | translate }}
+        </button>
+      </div>
+
+      <div class="table-card" *ngIf="!isLoading; else skeleton">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>{{ 'COMMERCIAL.CLIENTS.NAME' | translate }}</th>
+              <th>{{ 'COMMERCIAL.CLIENTS.EMAIL' | translate }}</th>
+              <th>{{ 'COMMERCIAL.CLIENTS.PHONE' | translate }}</th>
+              <th>{{ 'COMMERCIAL.CLIENTS.TAX_ID' | translate }}</th>
+              <th>{{ 'COMMERCIAL.CLIENTS.ADDRESS' | translate }}</th>
+              <th>{{ 'COMMERCIAL.CLIENTS.ACTIONS' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of filteredClients">
+              <td><strong>{{ c.nom }}</strong></td>
+              <td>{{ c.email }}</td>
+              <td>{{ c.telephone || '—' }}</td>
+              <td><span class="mono-text">{{ c.matriculeFiscale || '—' }}</span></td>
+              <td>{{ c.adresse || '—' }}</td>
+              <td class="actions-cell">
+                <button class="icon-btn edit-btn" (click)="openClientModal(c)" [title]="'FORM.EDIT' | translate">
+                  <span class="material-symbols-outlined">edit</span>
+                </button>
+                <button class="icon-btn delete-btn" (click)="deleteClient(c.id)" [title]="'FORM.DELETE' | translate">
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="filteredClients.length === 0">
+              <td colspan="6" class="empty-row">
+                <span class="material-symbols-outlined">people</span>
+                <p>{{ 'COMMERCIAL.CLIENTS.NO_CLIENTS' | translate }}</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════ -->
+    <!-- TAB : FOURNISSEURS                     -->
+    <!-- ══════════════════════════════════════ -->
+    <div *ngIf="activeTab === 'fournisseurs'">
+      <div class="toolbar">
+        <div class="search-bar">
+          <span class="material-symbols-outlined">search</span>
+          <input type="text" [placeholder]="'COMMERCIAL.SUPPLIERS.SEARCH' | translate" [(ngModel)]="fournisseurSearch"
+            (input)="filterFournisseurs()">
+        </div>
+        <button class="btn btn-primary" (click)="openFournisseurModal()">
+          <span class="material-symbols-outlined">add</span> {{ 'COMMERCIAL.SUPPLIERS.NEW' | translate }}
+        </button>
+      </div>
+
+      <div class="table-card" *ngIf="!isLoading; else skeleton">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>{{ 'COMMERCIAL.SUPPLIERS.NAME' | translate }}</th>
+              <th>{{ 'COMMERCIAL.SUPPLIERS.EMAIL' | translate }}</th>
+              <th>{{ 'COMMERCIAL.SUPPLIERS.PHONE' | translate }}</th>
+              <th>{{ 'COMMERCIAL.SUPPLIERS.TAX_ID' | translate }}</th>
+              <th>{{ 'COMMERCIAL.SUPPLIERS.ADDRESS' | translate }}</th>
+              <th>{{ 'COMMERCIAL.SUPPLIERS.ACTIONS' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let f of filteredFournisseurs">
+              <td><strong>{{ f.nom }}</strong></td>
+              <td>{{ f.email }}</td>
+              <td>{{ f.telephone || '—' }}</td>
+              <td><span class="mono-text">{{ f.matriculeFiscale || '—' }}</span></td>
+              <td>{{ f.adresse || '—' }}</td>
+              <td class="actions-cell">
+                <button class="icon-btn edit-btn" (click)="openFournisseurModal(f)" [title]="'FORM.EDIT' | translate">
+                  <span class="material-symbols-outlined">edit</span>
+                </button>
+                <button class="icon-btn delete-btn" (click)="deleteFournisseur(f.id)" [title]="'FORM.DELETE' | translate">
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="filteredFournisseurs.length === 0">
+              <td colspan="6" class="empty-row">
+                <span class="material-symbols-outlined">local_shipping</span>
+                <p>{{ 'COMMERCIAL.SUPPLIERS.NO_SUPPLIERS' | translate }}</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════ -->
+    <!-- TAB : COMMANDES                        -->
+    <!-- ══════════════════════════════════════ -->
+    <div *ngIf="activeTab === 'commandes'">
+      <div class="toolbar">
+        <div class="search-bar">
+          <span class="material-symbols-outlined">search</span>
+          <input type="text" [placeholder]="'COMMERCIAL.ORDERS.SEARCH' | translate" [(ngModel)]="commandeSearch"
+            (input)="filterCommandes()">
+        </div>
+        <select class="filter-select" [(ngModel)]="commandeStatutFilter" (change)="filterCommandes()">
+          <option value="">{{ 'COMMERCIAL.ORDERS.ALL_STATUSES' | translate }}</option>
+          <option value="EN_ATTENTE">⏳ {{ 'COMMERCIAL.ORDERS.STATUS_PENDING' | translate }}</option>
+          <option value="PAYEE">✅ {{ 'COMMERCIAL.ORDERS.STATUS_PAID' | translate }}</option>
+          <option value="ANNULEE">❌ {{ 'COMMERCIAL.ORDERS.STATUS_CANCELLED' | translate }}</option>
+        </select>
+        <!-- Export buttons -->
+        <div class="export-btn-group">
+          <button class="btn-export" (click)="exportCommandesCSV()" title="CSV">
+            <span class="material-symbols-outlined">table_view</span> CSV
+          </button>
+          <button class="btn-export" (click)="exportCommandesPDF()" title="PDF">
+            <span class="material-symbols-outlined">picture_as_pdf</span> PDF
+          </button>
+          <button class="btn-export" (click)="exportCommandesWord()" title="Word">
+            <span class="material-symbols-outlined">description</span> Word
+          </button>
+          <button class="btn-export" (click)="printCommandes()" [title]="'STOCK.ACTIONS.PRINT' | translate">
+            <span class="material-symbols-outlined">print</span> {{ 'STOCK.ACTIONS.PRINT' | translate }}
+          </button>
+        </div>
+        <button class="btn btn-primary" (click)="openCommandeModal()">
+          <span class="material-symbols-outlined">add</span> {{ 'COMMERCIAL.ORDERS.NEW' | translate }}
+        </button>
+      </div>
+
+      <div class="table-card" *ngIf="!isLoading; else skeleton" id="commandes-table">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>{{ 'COMMERCIAL.ORDERS.NUMBER' | translate }}</th>
+              <th>{{ 'COMMERCIAL.ORDERS.CLIENT' | translate }}</th>
+              <th>{{ 'COMMERCIAL.ORDERS.DATE' | translate }}</th>
+              <th>{{ 'COMMERCIAL.ORDERS.AMOUNT' | translate }}</th>
+              <th>{{ 'COMMERCIAL.ORDERS.STATUS' | translate }}</th>
+              <th>{{ 'COMMERCIAL.ORDERS.INVOICE' | translate }}</th>
+              <th>{{ 'COMMERCIAL.ORDERS.ACTIONS' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of filteredCommandes">
+              <td><span class="mono-text">{{ c.numeroCommande }}</span></td>
+              <td><strong>{{ c.client?.nom || '—' }}</strong></td>
+              <td>{{ c.dateCommande | date:'dd/MM/yyyy' }}</td>
+              <td><strong>{{ c.montantTotal | number:'1.3-3' }} TND</strong></td>
+              <td>
+                <span class="status-badge" [ngClass]="getStatutClass(c.statut)">
+                  {{ getStatutLabel(c.statut) }}
+                </span>
+              </td>
+              <td>
+                <button *ngIf="c.statut === 'EN_ATTENTE'" class="btn btn-sm btn-invoice" (click)="genererFacture(c.id)">
+                  <span class="material-symbols-outlined">receipt_long</span> {{ 'COMMERCIAL.ORDERS.GENERATE_INVOICE' | translate }}
+                </button>
+                <span *ngIf="c.statut === 'PAYEE'" class="text-success">✅ {{ 'COMMERCIAL.ORDERS.BILLED' | translate }}</span>
+                <span *ngIf="c.statut === 'ANNULEE'" class="text-muted">—</span>
+              </td>
+              <td class="actions-cell">
+                <button class="icon-btn" (click)="openCommandeDetail(c)" [title]="'STOCK.ACTIONS.VIEW' | translate">
+                  <span class="material-symbols-outlined">visibility</span>
+                </button>
+                <button class="icon-btn edit-btn" *ngIf="c.statut === 'EN_ATTENTE'" (click)="changerStatut(c, 'PAYEE')"
+                  [title]="'COMMERCIAL.ORDERS.MARK_PAID' | translate">
+                  <span class="material-symbols-outlined">check_circle</span>
+                </button>
+                <button class="icon-btn delete-btn" (click)="deleteCommande(c.id)" [title]="'FORM.DELETE' | translate">
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="filteredCommandes.length === 0">
+              <td colspan="7" class="empty-row">
+                <span class="material-symbols-outlined">shopping_cart</span>
+                <p>{{ 'COMMERCIAL.ORDERS.NO_ORDERS' | translate }}</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════ -->
+    <!-- TAB : FACTURES                         -->
+    <!-- ══════════════════════════════════════ -->
+    <div *ngIf="activeTab === 'factures'">
+      <div class="toolbar">
+        <div class="search-bar">
+          <span class="material-symbols-outlined">search</span>
+          <input type="text" [placeholder]="'COMMERCIAL.INVOICES.SEARCH' | translate" [(ngModel)]="factureSearch"
+            (input)="filterFactures()">
+        </div>
+        <select class="filter-select" [(ngModel)]="factureStatutFilter" (change)="filterFactures()">
+          <option value="">{{ 'COMMERCIAL.INVOICES.ALL_STATUSES' | translate }}</option>
+          <option value="EN_ATTENTE">⏳ {{ 'COMMERCIAL.INVOICES.STATUS_PENDING' | translate }}</option>
+          <option value="PAYEE">✅ {{ 'COMMERCIAL.INVOICES.STATUS_PAID' | translate }}</option>
+          <option value="IMPAYEE">🚨 {{ 'COMMERCIAL.INVOICES.STATUS_UNPAID' | translate }}</option>
+          <option value="ANNULEE">❌ {{ 'COMMERCIAL.INVOICES.STATUS_CANCELLED' | translate }}</option>
+        </select>
+        <!-- Export buttons -->
+        <div class="export-btn-group">
+          <button class="btn-export" (click)="exportFacturesCSV()" title="CSV">
+            <span class="material-symbols-outlined">table_view</span> CSV
+          </button>
+          <button class="btn-export" (click)="exportFacturesPDF()" title="PDF">
+            <span class="material-symbols-outlined">picture_as_pdf</span> PDF
+          </button>
+          <button class="btn-export" (click)="exportFacturesWord()" title="Word">
+            <span class="material-symbols-outlined">description</span> Word
+          </button>
+          <button class="btn-export" (click)="printFactures()" [title]="'STOCK.ACTIONS.PRINT' | translate">
+            <span class="material-symbols-outlined">print</span> {{ 'STOCK.ACTIONS.PRINT' | translate }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Alerte factures en retard -->
+      <div class="retard-alert" *ngIf="facturesEnRetardCount > 0">
+        <span class="material-symbols-outlined">warning</span>
+        <strong>{{ facturesEnRetardCount }} {{ 'COMMERCIAL.INVOICES.OVERDUE_ALERT' | translate }}</strong>
+        <span>{{ 'COMMERCIAL.INVOICES.OVERDUE_HINT' | translate }}</span>
+      </div>
+
+      <div class="table-card" *ngIf="!isLoading; else skeleton" id="factures-table">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>{{ 'COMMERCIAL.INVOICES.NUMBER' | translate }}</th>
+              <th>{{ 'COMMERCIAL.INVOICES.CLIENT' | translate }}</th>
+              <th>{{ 'COMMERCIAL.INVOICES.ISSUE_DATE' | translate }}</th>
+              <th>{{ 'COMMERCIAL.INVOICES.DUE_DATE' | translate }}</th>
+              <th>{{ 'COMMERCIAL.INVOICES.AMOUNT_HT' | translate }}</th>
+              <th>{{ 'COMMERCIAL.INVOICES.VAT' | translate }}</th>
+              <th>{{ 'COMMERCIAL.INVOICES.AMOUNT_TTC' | translate }}</th>
+              <th>{{ 'COMMERCIAL.INVOICES.STATUS' | translate }}</th>
+              <th>{{ 'COMMERCIAL.INVOICES.ACTIONS' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let f of filteredFactures" [class.row-retard]="isFactureEnRetard(f)">
+              <td><span class="mono-text">{{ f.numeroFacture }}</span></td>
+              <td><strong>{{ f.commande?.client?.nom || '—' }}</strong></td>
+              <td>{{ f.dateEmission | date:'dd/MM/yyyy' }}</td>
+              <td>
+                <span [class.text-retard]="isFactureEnRetard(f)">
+                  {{ f.dateEcheance | date:'dd/MM/yyyy' }}
+                  <span class="retard-badge" *ngIf="isFactureEnRetard(f)">{{ 'COMMERCIAL.INVOICES.OVERDUE' | translate }}</span>
+                </span>
+              </td>
+              <td>{{ (f.montantTotal - f.montantTva) | number:'1.3-3' }} TND</td>
+              <td>{{ f.montantTva | number:'1.3-3' }} TND</td>
+              <td><strong>{{ f.montantTotal | number:'1.3-3' }} TND</strong></td>
+              <td>
+                <span class="status-badge" [ngClass]="getStatutClass(f.statut)">
+                  {{ getStatutLabel(f.statut) }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <!-- QR Code de vérification fiscale -->
+                <button class="icon-btn qr-btn" (click)="printInvoiceQR(f, $event)" title="Vérification Fiscale QR Code" style="color:#0d9faa;background:rgba(13,159,170,0.12);border:1px solid rgba(13,159,170,0.3)">
+                  <span class="material-symbols-outlined">qr_code_2</span>
+                </button>
+                <!-- Voir / Imprimer -->
+                <button class="icon-btn" (click)="openFactureDetail(f)" [title]="'COMMERCIAL.INVOICES.PRINT_PDF' | translate">
+                  <span class="material-symbols-outlined">print</span>
+                </button>
+                <!-- Bouton Unifié de Relance Multi-Canal (Email, WhatsApp, Telegram) -->
+                <button class="icon-btn btn-relance-unifie" (click)="ouvrirModalRelance(f)" title="Envoyer / Relancer (Email, WhatsApp, Telegram)" style="color:#0d9faa;background:rgba(13,159,170,0.12);border:1px solid rgba(13,159,170,0.3)">
+                  <span class="material-symbols-outlined">send</span>
+                </button>
+                <!-- Marquer payée -->
+                <button class="icon-btn edit-btn" *ngIf="f.statut === 'EN_ATTENTE' || f.statut === 'IMPAYEE'"
+                  (click)="payerFacture(f)" [title]="'COMMERCIAL.INVOICES.MARK_PAID' | translate">
+                  <span class="material-symbols-outlined">payments</span>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="filteredFactures.length === 0">
+              <td colspan="9" class="empty-row">
+                <span class="material-symbols-outlined">receipt_long</span>
+                <p>{{ 'COMMERCIAL.INVOICES.NO_INVOICES' | translate }}</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════ -->
+    <!-- TAB : TABLEAU DE BORD                 -->
+    <!-- ══════════════════════════════════════ -->
+    <div *ngIf="activeTab === 'dashboard'" class="dashboard-wrapper">
+
+      <!-- ── Alertes opérationnelles ── -->
+      <div class="ops-alerts" *ngIf="opsAlerts.length > 0">
+        <div class="ops-alert-item" *ngFor="let a of opsAlerts" [ngClass]="'ops-' + a.type">
+          <span class="material-symbols-outlined">{{ a.icon }}</span>
+          <span>{{ a.message }}</span>
+        </div>
+      </div>
+
+      <!-- ── KPI Cards ── -->
+      <div class="kpi-grid">
+        <div class="kpi-card kpi-orange">
+          <div class="kpi-icon"><span class="material-symbols-outlined">payments</span></div>
+          <div class="kpi-body">
+            <div class="kpi-value">{{ kpis.totalCA | number:'1.0-0' }} TND</div>
+            <div class="kpi-label">{{ 'COMMERCIAL.DASHBOARD.REVENUE_TOTAL' | translate }}</div>
+            <div class="kpi-sub">{{ 'COMMERCIAL.DASHBOARD.REVENUE_SUB' | translate }}</div>
+          </div>
+        </div>
+        <div class="kpi-card kpi-blue">
+          <div class="kpi-icon"><span class="material-symbols-outlined">shopping_cart</span></div>
+          <div class="kpi-body">
+            <div class="kpi-value">{{ kpis.commandesMois }}</div>
+            <div class="kpi-label">{{ 'COMMERCIAL.DASHBOARD.ORDERS_MONTH' | translate }}</div>
+            <div class="kpi-sub">{{ currentMonthLabel }}</div>
+          </div>
+        </div>
+        <div class="kpi-card kpi-red">
+          <div class="kpi-icon"><span class="material-symbols-outlined">receipt_long</span></div>
+          <div class="kpi-body">
+            <div class="kpi-value">{{ kpis.facturesImpayees }}</div>
+            <div class="kpi-label">{{ 'COMMERCIAL.DASHBOARD.UNPAID_INVOICES' | translate }}</div>
+            <div class="kpi-sub">{{ 'COMMERCIAL.DASHBOARD.UNPAID_SUB' | translate }}</div>
+          </div>
+        </div>
+        <div class="kpi-card kpi-green">
+          <div class="kpi-icon"><span class="material-symbols-outlined">trending_up</span></div>
+          <div class="kpi-body">
+            <div class="kpi-value">{{ kpis.tauxConversionDevis }}%</div>
+            <div class="kpi-label">{{ 'COMMERCIAL.DASHBOARD.CONVERSION_RATE' | translate }}</div>
+            <div class="kpi-sub">{{ 'COMMERCIAL.DASHBOARD.CONVERSION_SUB' | translate }}</div>
+          </div>
+        </div>
+        <div class="kpi-card kpi-purple">
+          <div class="kpi-icon"><span class="material-symbols-outlined">people</span></div>
+          <div class="kpi-body">
+            <div class="kpi-value">{{ clients.length }}</div>
+            <div class="kpi-label">{{ 'COMMERCIAL.DASHBOARD.ACTIVE_CLIENTS' | translate }}</div>
+            <div class="kpi-sub">{{ 'COMMERCIAL.DASHBOARD.CLIENTS_SUB' | translate }}</div>
+          </div>
+        </div>
+        <div class="kpi-card kpi-teal">
+          <div class="kpi-icon"><span class="material-symbols-outlined">description</span></div>
+          <div class="kpi-body">
+            <div class="kpi-value">{{ kpis.devisEnCours }}</div>
+            <div class="kpi-label">{{ 'COMMERCIAL.DASHBOARD.ONGOING_QUOTES' | translate }}</div>
+            <div class="kpi-sub">{{ 'COMMERCIAL.DASHBOARD.ONGOING_SUB' | translate }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Graphiques ── -->
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">
+              <span class="material-symbols-outlined">bar_chart</span>
+              {{ 'COMMERCIAL.DASHBOARD.CHART_REVENUE' | translate }}
+            </div>
+            <span class="badge-chart">TND</span>
+          </div>
+          <div class="chart-body">
+            <canvas id="caChart" height="200"></canvas>
+          </div>
+        </div>
+        <div class="chart-card chart-card-sm">
+          <div class="chart-header">
+            <div class="chart-title">
+              <span class="material-symbols-outlined">donut_large</span>
+              {{ 'COMMERCIAL.DASHBOARD.CHART_ORDERS' | translate }}
+            </div>
+          </div>
+          <div class="chart-body chart-body-doughnut">
+            <canvas id="cmdDoughnutChart" height="220"></canvas>
+            <div class="doughnut-legend">
+              <div class="dleg-item"><span class="dleg-dot" style="background:#10b981"></span>{{ 'COMMERCIAL.DASHBOARD.ORDERS_PAID' | translate }} ({{ commandesStats.payees }})</div>
+              <div class="dleg-item"><span class="dleg-dot" style="background:#f59e0b"></span>{{ 'COMMERCIAL.DASHBOARD.ORDERS_PENDING' | translate }} ({{ commandesStats.attente }})</div>
+              <div class="dleg-item"><span class="dleg-dot" style="background:#ef4444"></span>{{ 'COMMERCIAL.DASHBOARD.ORDERS_CANCELLED' | translate }} ({{ commandesStats.annulees }})</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Ligne 2 : Top Clients + Évolution commandes ── -->
+      <div class="bottom-row">
+        <!-- Top 5 Clients -->
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <span class="material-symbols-outlined">military_tech</span>
+            {{ 'COMMERCIAL.DASHBOARD.TOP_CLIENTS' | translate }}
+          </div>
+          <table class="dash-table">
+            <thead>
+              <tr>
+                <th>{{ 'COMMERCIAL.DASHBOARD.COL_RANK' | translate }}</th>
+                <th>{{ 'COMMERCIAL.DASHBOARD.COL_CLIENT' | translate }}</th>
+                <th>{{ 'COMMERCIAL.DASHBOARD.COL_ORDERS' | translate }}</th>
+                <th>{{ 'COMMERCIAL.DASHBOARD.COL_REVENUE' | translate }}</th>
+                <th>{{ 'COMMERCIAL.DASHBOARD.COL_SHARE' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let c of top5Clients; let i = index">
+                <td>
+                  <span class="rank-badge" [ngClass]="'rank-' + (i+1)">{{ i+1 }}</span>
+                </td>
+                <td><strong>{{ c.nom }}</strong></td>
+                <td>{{ c.nbCommandes }}</td>
+                <td><strong>{{ c.ca | number:'1.0-0' }} TND</strong></td>
+                <td>
+                  <div class="progress-bar-wrap">
+                    <div class="progress-bar-fill" [style.width.%]="c.part"></div>
+                    <span>{{ c.part | number:'1.0-0' }}%</span>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="top5Clients.length === 0">
+                <td colspan="5" class="empty-row">
+                  <span class="material-symbols-outlined">people</span>
+                  <p>{{ 'COMMERCIAL.DASHBOARD.NO_CLIENT_DATA' | translate }}</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Dernières activités -->
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <span class="material-symbols-outlined">history</span>
+            {{ 'COMMERCIAL.DASHBOARD.RECENT_ACTIVITY' | translate }}
+          </div>
+          <div class="activity-list">
+            <div class="activity-item" *ngFor="let a of recentActivities">
+              <div class="act-icon" [ngClass]="'act-' + a.type">
+                <span class="material-symbols-outlined">{{ a.icon }}</span>
+              </div>
+              <div class="act-body">
+                <div class="act-title">{{ a.label }}</div>
+                <div class="act-sub">{{ a.date | date:'dd/MM/yyyy' }} — {{ a.client }}</div>
+              </div>
+              <span class="act-amount" *ngIf="a.montant">{{ a.montant | number:'1.0-0' }} TND</span>
+            </div>
+            <div *ngIf="recentActivities.length === 0" class="empty-row">
+              <span class="material-symbols-outlined">history_toggle_off</span>
+              <p>{{ 'COMMERCIAL.DASHBOARD.NO_ACTIVITY' | translate }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══ SKELETON ══ -->
+    <ng-template #skeleton>
+      <div class="skeleton-table">
+        <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5]"></div>
+      </div>
+    </ng-template>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- MODAL : CLIENT                                         -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="modal-backdrop" *ngIf="showClientModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2>{{ isEditingClient ? ('COMMERCIAL.CLIENTS.EDIT' | translate) : ('COMMERCIAL.CLIENTS.NEW' | translate) }}</h2>
+      <button class="close-btn" (click)="closeClientModal()"><span
+          class="material-symbols-outlined">close</span></button>
+    </div>
+    <form [formGroup]="clientForm" (ngSubmit)="saveClient()">
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label>{{ 'COMMERCIAL.CLIENTS.NAME' | translate }} *</label>
+            <input type="text" formControlName="nom" list="clients-list" [placeholder]="'COMMERCIAL.CLIENTS.NAME_PH' | translate">
+          </div>
+          <div class="form-group">
+            <label>{{ 'COMMERCIAL.CLIENTS.EMAIL' | translate }} *
+              <span class="valid-badge valid-ok"  *ngIf="emailClientValide === true">{{ 'COMMERCIAL.CLIENTS.VALID' | translate }}</span>
+              <span class="valid-badge valid-err" *ngIf="emailClientValide === false">{{ 'COMMERCIAL.CLIENTS.INVALID' | translate }}</span>
+            </label>
+            <input type="email" formControlName="email" placeholder="contact@societe.com"
+              [class.field-ok]="emailClientValide === true"
+              [class.field-err]="emailClientValide === false"
+              (input)="verifierEmailClient($any($event.target).value)">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>{{ 'COMMERCIAL.CLIENTS.PHONE' | translate }}
+              <span class="valid-badge valid-ok"  *ngIf="telClientValide === true">{{ 'COMMERCIAL.CLIENTS.VALID' | translate }}</span>
+              <span class="valid-badge valid-err" *ngIf="telClientValide === false">{{ 'COMMERCIAL.CLIENTS.INVALID' | translate }}</span>
+            </label>
+            <input type="text" formControlName="telephone" placeholder="+216 XX XXX XXX"
+              [class.field-ok]="telClientValide === true"
+              [class.field-err]="telClientValide === false"
+              (input)="verifierTelClient($any($event.target).value)">
+          </div>
+          <div class="form-group">
+            <label>{{ 'COMMERCIAL.CLIENTS.TAX_ID' | translate }}
+              <span class="valid-badge valid-ok"  *ngIf="matriculeValide === true">{{ 'COMMERCIAL.CLIENTS.VALID' | translate }}</span>
+              <span class="valid-badge valid-err" *ngIf="matriculeValide === false">{{ 'COMMERCIAL.CLIENTS.INVALID_FORMAT' | translate }}</span>
+            </label>
+            <input type="text" formControlName="matriculeFiscale" placeholder="1234567ABC"
+              [class.field-ok]="matriculeValide === true"
+              [class.field-err]="matriculeValide === false"
+              (input)="verifierMatricule($any($event.target).value)">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>{{ 'COMMERCIAL.CLIENTS.ADDRESS' | translate }}</label>
+          <!-- N°4 — Dictionnaire IA sur le champ Adresse -->
+          <app-ai-textarea
+            [label]="'COMMERCIAL.CLIENTS.ADDRESS' | translate"
+            [placeholder]="'COMMERCIAL.CLIENTS.ADDRESS_PH' | translate"
+            [rows]="3"
+            contexte="adresse postale d'un client professionnel"
+            formControlName="adresse"
+          ></app-ai-textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeClientModal()">{{ 'COMMERCIAL.CLIENTS.CANCEL' | translate }}</button>
+        <button type="submit" class="btn btn-primary" [disabled]="clientForm.invalid">
+          {{ isEditingClient ? ('COMMERCIAL.CLIENTS.SAVE_EDIT' | translate) : ('COMMERCIAL.CLIENTS.SAVE' | translate) }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- MODAL : FOURNISSEUR                                    -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="modal-backdrop" *ngIf="showFournisseurModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2>{{ isEditingFournisseur ? ('COMMERCIAL.SUPPLIERS.EDIT' | translate) : ('COMMERCIAL.SUPPLIERS.NEW' | translate) }}</h2>
+      <button class="close-btn" (click)="closeFournisseurModal()"><span
+          class="material-symbols-outlined">close</span></button>
+    </div>
+    <form [formGroup]="fournisseurForm" (ngSubmit)="saveFournisseur()">
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label>{{ 'COMMERCIAL.SUPPLIERS.NAME' | translate }} *</label>
+            <input type="text" formControlName="nom" list="fournisseurs-list" [placeholder]="'COMMERCIAL.SUPPLIERS.NAME_PH' | translate">
+          </div>
+          <div class="form-group">
+            <label>{{ 'COMMERCIAL.SUPPLIERS.EMAIL' | translate }} *</label>
+            <input type="email" formControlName="email" placeholder="contact@fournisseur.com">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>{{ 'COMMERCIAL.SUPPLIERS.PHONE' | translate }}</label>
+            <input type="text" formControlName="telephone" placeholder="+216 XX XXX XXX">
+          </div>
+          <div class="form-group">
+            <label>{{ 'COMMERCIAL.SUPPLIERS.TAX_ID' | translate }}</label>
+            <input type="text" formControlName="matriculeFiscale" placeholder="1234567MAM000">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>{{ 'COMMERCIAL.SUPPLIERS.ADDRESS' | translate }}</label>
+          <textarea formControlName="adresse" rows="2" [placeholder]="'COMMERCIAL.SUPPLIERS.ADDRESS_PH' | translate"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeFournisseurModal()">{{ 'COMMERCIAL.SUPPLIERS.CANCEL' | translate }}</button>
+        <button type="submit" class="btn btn-primary" [disabled]="fournisseurForm.invalid">
+          {{ isEditingFournisseur ? ('COMMERCIAL.SUPPLIERS.SAVE_EDIT' | translate) : ('COMMERCIAL.SUPPLIERS.SAVE' | translate) }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- MODAL : NOUVELLE COMMANDE                              -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="modal-backdrop" *ngIf="showCommandeModal">
+  <div class="modal-card modal-xl">
+    <div class="modal-header">
+      <h2>🛒 {{ 'COMMERCIAL.ORDERS.NEW' | translate }}</h2>
+      <button class="close-btn" (click)="closeCommandeModal()"><span
+          class="material-symbols-outlined">close</span></button>
+    </div>
+    <form [formGroup]="commandeForm" (ngSubmit)="saveCommande()">
+      <div class="modal-body">
+        <div class="form-group">
+          <label>{{ 'COMMERCIAL.ORDERS.CLIENT' | translate }} *</label>
+          <select formControlName="clientId">
+            <option value="">{{ 'COMMERCIAL.ORDERS.SELECT_CLIENT' | translate }}</option>
+            <option *ngFor="let c of clients" [value]="c.id">{{ c.nom }} · {{ c.email }}</option>
+          </select>
+        </div>
+
+        <h3 class="lignes-title">{{ 'COMMERCIAL.ORDERS.ORDER_LINES' | translate }}</h3>
+        <div formArrayName="lignes">
+          <div class="ligne-commande" *ngFor="let ligne of lignes.controls; let i = index" [formGroupName]="i">
+            <div class="ligne-fields">
+              <div class="form-group">
+                <label>{{ 'COMMERCIAL.ORDERS.PRODUCT' | translate }} *</label>
+                <select formControlName="produitId">
+                  <option value="">{{ 'COMMERCIAL.ORDERS.SELECT_PRODUCT' | translate }}</option>
+                  <option *ngFor="let p of products" [value]="p.id">
+                    {{ p.nom }} · {{ p.prixUnitaire | number:'1.3-3' }} TND
+                  </option>
+                </select>
+              </div>
+              <div class="form-group form-group-sm">
+                <label>{{ 'COMMERCIAL.ORDERS.QTY' | translate }} *</label>
+                <input type="number" formControlName="quantite" min="1">
+              </div>
+              <div class="form-group form-group-sm">
+                <label>{{ 'COMMERCIAL.ORDERS.DISCOUNT' | translate }} (%)</label>
+                <input type="number" formControlName="remise" min="0" max="100">
+              </div>
+              <div class="ligne-total">
+                <label>{{ 'COMMERCIAL.ORDERS.TOTAL' | translate }}</label>
+                <strong>{{ calcLigneTotal(ligne) | number:'1.3-3' }} TND</strong>
+              </div>
+            </div>
+            <button type="button" class="icon-btn delete-btn" (click)="removeLigne(i)" *ngIf="lignes.length > 1">
+              <span class="material-symbols-outlined">remove_circle</span>
+            </button>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-outline add-ligne-btn" (click)="addLigne()">
+          <span class="material-symbols-outlined">add</span> {{ 'COMMERCIAL.ORDERS.ADD_PRODUCT' | translate }}
+        </button>
+
+        <div class="total-commande">
+          <span>{{ 'COMMERCIAL.ORDERS.TOTAL_HT' | translate }}</span>
+          <strong>{{ calcCommandeTotal() | number:'1.3-3' }} TND</strong>
+        </div>
+
+        <!-- ── Code Promo ── -->
+        <div class="promo-section">
+          <div class="promo-label">
+            <span class="material-symbols-outlined">local_offer</span>
+            <strong>{{ 'COMMERCIAL.ORDERS.PROMO_CODE' | translate }}</strong>
+            <span class="promo-hint">{{ 'COMMERCIAL.ORDERS.PROMO_OPTIONAL' | translate }}</span>
+          </div>
+          <div class="promo-input-row">
+            <input type="text" [(ngModel)]="codePromoInput" [ngModelOptions]="{standalone: true}"
+              placeholder="Ex: SUMMER20, WELCOME10…" style="text-transform:uppercase;"
+              (keyup.enter)="verifierCodePromo()" (input)="promoVerifResult=null">
+            <button type="button" class="btn-verify-promo" (click)="verifierCodePromo()" [disabled]="promoVerifLoading">
+              <span class="material-symbols-outlined" *ngIf="!promoVerifLoading">check_circle</span>
+              <span class="material-symbols-outlined spinning" *ngIf="promoVerifLoading">autorenew</span>
+              {{ 'COMMERCIAL.ORDERS.PROMO_VERIFY' | translate }}
+            </button>
+            <button type="button" class="btn-clear-promo" *ngIf="codePromoInput" (click)="effacerCodePromo()">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+          <!-- Résultat vérification -->
+          <div class="promo-result promo-valid" *ngIf="promoVerifResult?.valide">
+            <span class="material-symbols-outlined">check_circle</span>
+            <div>
+              <strong>{{ promoVerifResult.message }}</strong>
+              <div class="promo-savings">
+                {{ 'COMMERCIAL.ORDERS.PROMO_DISCOUNT_APPLIED' | translate }} <strong>-{{ promoVerifResult.remiseCalculee | number:'1.3-3' }} TND</strong>
+                &nbsp;|&nbsp; {{ 'COMMERCIAL.ORDERS.PROMO_FINAL_TOTAL' | translate }} <strong class="promo-final-price">{{ commandeTotalAvecPromo | number:'1.3-3' }} TND</strong>
+              </div>
+            </div>
+          </div>
+          <div class="promo-result promo-invalid" *ngIf="promoVerifResult && !promoVerifResult.valide">
+            <span class="material-symbols-outlined">cancel</span>
+            <span>{{ promoVerifResult.message }}</span>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeCommandeModal()">{{ 'MODAL.CANCEL' | translate }}</button>
+        <button type="submit" class="btn btn-primary" [disabled]="commandeForm.invalid">
+          <span class="material-symbols-outlined">shopping_cart</span> {{ 'COMMERCIAL.ORDERS.CREATE_ORDER' | translate }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- MODAL : DÉTAIL COMMANDE                                -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="modal-backdrop" *ngIf="showCommandeDetailModal && selectedCommande">
+  <div class="modal-card modal-xl">
+    <div class="modal-header">
+      <h2>📋 {{ selectedCommande.numeroCommande }}</h2>
+      <button class="close-btn" (click)="closeCommandeDetail()"><span
+          class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-meta">
+        <div class="meta-item"><span class="meta-label">{{ 'COMMERCIAL.ORDERS.CLIENT' | translate }}</span><span class="meta-val">{{
+            selectedCommande.client?.nom }}</span></div>
+        <div class="meta-item"><span class="meta-label">{{ 'COMMERCIAL.ORDERS.DATE' | translate }}</span><span class="meta-val">{{
+            selectedCommande.dateCommande | date:'dd/MM/yyyy HH:mm' }}</span></div>
+        <div class="meta-item"><span class="meta-label">{{ 'COMMERCIAL.ORDERS.STATUS' | translate }}</span>
+          <span class="status-badge" [ngClass]="getStatutClass(selectedCommande.statut)">{{
+            getStatutLabel(selectedCommande.statut) }}</span>
+        </div>
+        <div class="meta-item"><span class="meta-label">{{ 'COMMERCIAL.ORDERS.AMOUNT' | translate }}</span><span class="meta-val"><strong>{{
+              selectedCommande.montantTotal | number:'1.3-3' }} TND</strong></span></div>
+      </div>
+
+      <h3 class="lignes-title">{{ 'COMMERCIAL.ORDERS.DETAIL_LINES' | translate }}</h3>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ 'COMMERCIAL.ORDERS.PRODUCT' | translate }}</th>
+            <th>{{ 'COMMERCIAL.ORDERS.REFERENCE' | translate }}</th>
+            <th>{{ 'COMMERCIAL.ORDERS.UNIT_PRICE' | translate }}</th>
+            <th>{{ 'COMMERCIAL.ORDERS.QTY' | translate }}</th>
+            <th>{{ 'COMMERCIAL.ORDERS.DISCOUNT' | translate }}</th>
+            <th>{{ 'COMMERCIAL.ORDERS.TOTAL' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let l of selectedCommandeLignes">
+            <td><strong>{{ l.produit?.nom }}</strong></td>
+            <td><span class="mono-text">{{ l.produit?.reference }}</span></td>
+            <td>{{ l.prixUnitaire | number:'1.3-3' }} TND</td>
+            <td>{{ l.quantite }}</td>
+            <td>{{ l.remise }}%</td>
+            <td><strong>{{ (l.prixUnitaire * l.quantite * (1 - l.remise/100)) | number:'1.3-3' }} TND</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="closeCommandeDetail()">{{ 'MODAL.CLOSE' | translate }}</button>
+      <button *ngIf="selectedCommande.statut === 'EN_ATTENTE'" class="btn btn-primary"
+        (click)="genererFacture(selectedCommande.id); closeCommandeDetail()">
+        <span class="material-symbols-outlined">receipt_long</span> {{ 'COMMERCIAL.ORDERS.GENERATE_INVOICE_BTN' | translate }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- MODAL : DÉTAIL FACTURE (Aperçu imprimable)             -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="modal-backdrop" *ngIf="showFactureDetailModal && selectedFacture">
+  <div class="modal-card modal-xl invoice-modal-card">
+
+    <!-- Zone d'Action (Ne s'imprime pas) -->
+    <div class="modal-header no-print invoice-actions-header">
+      <div class="header-titles">
+        <h2>🧾 {{ 'COMMERCIAL.INVOICES.PREVIEW_TITLE' | translate }}</h2>
+        <p class="subtitle">{{ 'COMMERCIAL.INVOICES.PREVIEW_SUBTITLE' | translate }}</p>
+      </div>
+      <div class="header-buttons">
+        <button class="btn btn-secondary" (click)="closeFactureDetail()">
+          <span class="material-symbols-outlined">close</span> {{ 'COMMERCIAL.INVOICES.CLOSE' | translate }}
+        </button>
+        <button *ngIf="selectedFacture.statut === 'EN_ATTENTE' || selectedFacture.statut === 'IMPAYEE'"
+          class="btn btn-success" (click)="payerFacture(selectedFacture); closeFactureDetail()">
+          <span class="material-symbols-outlined">payments</span> {{ 'COMMERCIAL.INVOICES.MARK_PAID' | translate }}
+        </button>
+        <button class="btn btn-primary" (click)="envoyerFactureEmail(selectedFacture)">
+          <span class="material-symbols-outlined">mail</span> {{ 'COMMERCIAL.INVOICES.SEND_EMAIL' | translate }}
+        </button>
+        <button class="btn btn-print" (click)="imprimerFacture()">
+          <span class="material-symbols-outlined">print</span> {{ 'COMMERCIAL.INVOICES.PRINT_PDF' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Zone de la Facture (S'imprime) -->
+    <div class="modal-body facture-print-container" id="facture-document">
+
+      <!-- En-tête de la facture -->
+      <div class="invoice-header">
+        <div class="company-details">
+          <div class="brand-logo">
+            <span class="material-symbols-outlined">insights</span>
+            <span class="brand-name">BENJEDDOU ERP</span>
+          </div>
+          <p class="company-address">123 Avenue de l'Innovation</p>
+          <p class="company-address">1002 Tunis, Tunisie</p>
+          <p class="company-contact">contact&#64;benjeddou-erp.com | +216 71 123 456</p>
+          <p class="company-tax">{{ 'COMMERCIAL.INVOICES.TAX_ID' | translate }} 1234567X/A/M/000</p>
+        </div>
+
+        <div class="invoice-meta">
+          <h1 class="invoice-title">{{ 'COMMERCIAL.INVOICES.INVOICE_WORD' | translate }}</h1>
+          <div class="invoice-number">{{ selectedFacture.numeroFacture }}</div>
+
+          <div class="meta-grid">
+            <div class="meta-box">
+              <span class="meta-label">{{ 'COMMERCIAL.INVOICES.ISSUE_DATE_LABEL' | translate }}</span>
+              <span class="meta-value">{{ selectedFacture.dateEmission | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="meta-box highlight-box">
+              <span class="meta-label">{{ 'COMMERCIAL.INVOICES.DUE_DATE_LABEL' | translate }}</span>
+              <span class="meta-value">{{ selectedFacture.dateEcheance | date:'dd/MM/yyyy' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Informations du Client -->
+      <div class="invoice-billing-section">
+        <div class="billing-to">
+          <h3>{{ 'COMMERCIAL.INVOICES.BILLED_TO' | translate }}</h3>
+          <div class="client-card">
+            <h4 class="client-name">{{ selectedFacture.commande?.client?.nom }}</h4>
+            <p *ngIf="selectedFacture.commande?.client?.adresse">{{ selectedFacture.commande?.client?.adresse }}</p>
+            <p><span class="material-symbols-outlined icon-sm">mail</span> {{ selectedFacture.commande?.client?.email }}
+            </p>
+            <p *ngIf="selectedFacture.commande?.client?.telephone"><span
+                class="material-symbols-outlined icon-sm">call</span> {{ selectedFacture.commande?.client?.telephone }}
+            </p>
+            <p class="client-mf" *ngIf="selectedFacture.commande?.client?.matriculeFiscale">
+              <strong>{{ 'COMMERCIAL.INVOICES.TAX_ID' | translate }}</strong> {{ selectedFacture.commande?.client?.matriculeFiscale }}
+            </p>
+          </div>
+        </div>
+        <div class="billing-status">
+          <h3>{{ 'COMMERCIAL.INVOICES.STATUS_LABEL' | translate }}</h3>
+          <div class="status-stamp" [ngClass]="getStatutClass(selectedFacture.statut)">
+            {{ getStatutLabel(selectedFacture.statut) | uppercase }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Tableau des Lignes -->
+      <div class="invoice-table-container">
+        <table class="invoice-table">
+          <thead>
+            <tr>
+              <th>{{ 'COMMERCIAL.INVOICES.DESCRIPTION' | translate }}</th>
+              <th class="text-center">{{ 'COMMERCIAL.INVOICES.ORDER_REF' | translate }}</th>
+              <th class="text-center">{{ 'COMMERCIAL.INVOICES.ORDER_DATE' | translate }}</th>
+              <th class="text-right">{{ 'COMMERCIAL.INVOICES.VAT' | translate }}</th>
+              <th class="text-right">{{ 'COMMERCIAL.INVOICES.AMOUNT_HT' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <strong>{{ 'COMMERCIAL.INVOICES.SERVICES_LINE' | translate }}</strong>
+                <p class="item-desc">{{ 'COMMERCIAL.INVOICES.SERVICES_DESC' | translate }}</p>
+              </td>
+              <td class="text-center mono">{{ selectedFacture.commande?.numeroCommande }}</td>
+              <td class="text-center">{{ selectedFacture.commande?.dateCommande | date:'dd/MM/yyyy' }}</td>
+              <td class="text-right">19%</td>
+              <td class="text-right">{{ (selectedFacture.montantTotal - selectedFacture.montantTva) | number:'1.3-3' }}
+                TND</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Résumé des Totaux -->
+      <div class="invoice-summary-section">
+        <div class="invoice-notes">
+          <h4>{{ 'COMMERCIAL.INVOICES.PAYMENT_CONDITIONS' | translate }}</h4>
+          <p>{{ 'COMMERCIAL.INVOICES.PAYMENT_TEXT' | translate }}</p>
+          <div class="bank-details">
+            <strong>{{ 'COMMERCIAL.INVOICES.BANK_DETAILS' | translate }}</strong> 08 001 1234567890123 45<br>
+            <strong>{{ 'COMMERCIAL.INVOICES.BANK_NAME' | translate }}</strong> BIAT - Agence Centre Ville
+          </div>
+        </div>
+
+        <div class="invoice-totals">
+          <div class="total-line">
+            <span>{{ 'COMMERCIAL.INVOICES.TOTAL_HT' | translate }}</span>
+            <span>{{ (selectedFacture.montantTotal - selectedFacture.montantTva) | number:'1.3-3' }} TND</span>
+          </div>
+          <div class="total-line">
+            <span>{{ 'COMMERCIAL.INVOICES.TOTAL_VAT' | translate }}</span>
+            <span>{{ selectedFacture.montantTva | number:'1.3-3' }} TND</span>
+          </div>
+          <div class="total-line grand-total">
+            <span>{{ 'COMMERCIAL.INVOICES.TOTAL_TTC' | translate }}</span>
+            <span class="amount">{{ selectedFacture.montantTotal | number:'1.3-3' }} TND</span>
+          </div>
+          <!-- N°7 — Montant en lettres -->
+          <div class="montant-lettres-block">
+            <div class="ml-label">
+              <span class="material-symbols-outlined">format_list_numbered</span>
+              {{ 'COMMERCIAL.INVOICES.AMOUNT_IN_WORDS' | translate }}
+            </div>
+            <div class="ml-fr">{{ selectedFacture.montantTotal | nombreLettres:'TND':'fr' }}</div>
+            <div class="ml-ar" dir="rtl">{{ selectedFacture.montantTotal | nombreLettres:'TND':'ar' }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pied de page de la facture -->
+      <div class="invoice-footer">
+        <div class="signature-block">
+          <p>{{ 'COMMERCIAL.INVOICES.DIGITAL_SIGNATURE' | translate }}</p>
+          <div class="signature-hash">{{ selectedFacture.signatureNumerique }}</div>
+        </div>
+        <p class="thank-you">{{ 'COMMERCIAL.INVOICES.THANK_YOU' | translate }}</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- MODAL : NOUVEAU DEVIS                                  -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="modal-backdrop" *ngIf="showDevisModal">
+  <div class="modal-card modal-xl">
+    <div class="modal-header">
+      <h2>📋 {{ 'COMMERCIAL.QUOTES.NEW' | translate }}</h2>
+      <button class="close-btn" (click)="closeDevisModal()"><span
+          class="material-symbols-outlined">close</span></button>
+    </div>
+    <form [formGroup]="devisForm" (ngSubmit)="saveDevis()">
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label>{{ 'COMMERCIAL.QUOTES.CLIENT' | translate }} *</label>
+            <select formControlName="clientId">
+              <option value="">{{ 'COMMERCIAL.QUOTES.SELECT_CLIENT' | translate }}</option>
+              <option *ngFor="let c of clients" [value]="c.id">{{ c.nom }} · {{ c.email }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- N°4 — Dictionnaire IA sur les Notes/Remarques du devis -->
+        <div class="form-group">
+          <app-ai-textarea
+            [label]="'COMMERCIAL.QUOTES.NOTES_LABEL' | translate"
+            [placeholder]="'COMMERCIAL.QUOTES.NOTES_PH' | translate"
+            [rows]="3"
+            contexte="notes et conditions particulières d'un devis commercial"
+            formControlName="notes"
+          ></app-ai-textarea>
+        </div>
+
+
+        <!-- N°5 — Calendrier intelligent intégré dans le devis -->
+        <div class="form-row">
+          <div class="form-group">
+            <app-smart-datepicker
+              [label]="'COMMERCIAL.QUOTES.DATE_LABEL' | translate"
+              [(ngModel)]="dateDevisStr"
+              [ngModelOptions]="{standalone: true}"
+              (dateChange)="onDateDevisChange($event)"
+              [required]="true"
+            ></app-smart-datepicker>
+          </div>
+          <div class="form-group">
+            <app-smart-datepicker
+              [label]="'COMMERCIAL.QUOTES.VALIDITY_LABEL' | translate"
+              [(ngModel)]="dateValiditeStr"
+              [ngModelOptions]="{standalone: true}"
+              (dateChange)="onDateValiditeChange($event)"
+              [required]="true"
+            ></app-smart-datepicker>
+          </div>
+        </div>
+
+        <h3 class="lignes-title">{{ 'COMMERCIAL.QUOTES.DETAIL_LINES' | translate }}</h3>
+        <div formArrayName="lignes">
+          <div class="ligne-commande" *ngFor="let ligne of devisLignes.controls; let i = index" [formGroupName]="i">
+            <div class="ligne-fields">
+              <div class="form-group">
+                <label>{{ 'COMMERCIAL.ORDERS.PRODUCT' | translate }} *</label>
+                <select formControlName="produitId">
+                  <option value="">{{ 'COMMERCIAL.QUOTES.SELECT_PRODUCT' | translate }}</option>
+                  <option *ngFor="let p of products" [value]="p.id">
+                    {{ p.nom }} · {{ p.prixUnitaire | number:'1.3-3' }} TND
+                  </option>
+                </select>
+              </div>
+              <div class="form-group form-group-sm">
+                <label>{{ 'COMMERCIAL.ORDERS.QTY' | translate }} *</label>
+                <input type="number" formControlName="quantite" min="1">
+              </div>
+              <div class="form-group form-group-sm">
+                <label>{{ 'COMMERCIAL.ORDERS.DISCOUNT' | translate }} (%)</label>
+                <input type="number" formControlName="remise" min="0" max="100">
+              </div>
+              <div class="ligne-total">
+                <label>{{ 'COMMERCIAL.ORDERS.TOTAL' | translate }}</label>
+                <strong>{{ calcDevisLigneTotal(ligne) | number:'1.3-3' }} TND</strong>
+              </div>
+            </div>
+            <button type="button" class="icon-btn delete-btn" (click)="removeDevisLigne(i)"
+              *ngIf="devisLignes.length > 1">
+              <span class="material-symbols-outlined">remove_circle</span>
+            </button>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-outline add-ligne-btn" (click)="addDevisLigne()">
+          <span class="material-symbols-outlined">add</span> {{ 'COMMERCIAL.QUOTES.ADD_PRODUCT' | translate }}
+        </button>
+
+        <div class="total-commande">
+          <span>{{ 'COMMERCIAL.QUOTES.TOTAL_HT' | translate }}</span>
+          <strong>{{ calcDevisTotal() | number:'1.3-3' }} TND</strong>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeDevisModal()">{{ 'MODAL.CANCEL' | translate }}</button>
+        <button type="submit" class="btn btn-primary" [disabled]="devisForm.invalid">
+          <span class="material-symbols-outlined">description</span> {{ 'COMMERCIAL.QUOTES.CREATE_QUOTE' | translate }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- MODAL : DÉTAIL DEVIS                                   -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="modal-backdrop" *ngIf="showDevisDetailModal && selectedDevis">
+  <div class="modal-card modal-xl">
+    <div class="modal-header">
+      <h2>📋 {{ selectedDevis.numeroDevis }}</h2>
+      <button class="close-btn" (click)="closeDevisDetail()"><span
+          class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-meta">
+        <div class="meta-item"><span class="meta-label">{{ 'COMMERCIAL.QUOTES.CLIENT' | translate }}</span><span class="meta-val">{{ selectedDevis.client?.nom
+            }}</span></div>
+        <div class="meta-item"><span class="meta-label">{{ 'COMMERCIAL.QUOTES.DATE' | translate }}</span><span class="meta-val">{{ selectedDevis.dateDevis |
+            date:'dd/MM/yyyy' }}</span></div>
+        <div class="meta-item"><span class="meta-label">{{ 'COMMERCIAL.QUOTES.VALIDITY' | translate }}</span><span class="meta-val">{{
+            selectedDevis.dateValidite | date:'dd/MM/yyyy' }}</span></div>
+        <div class="meta-item"><span class="meta-label">{{ 'COMMERCIAL.QUOTES.STATUS' | translate }}</span>
+          <span class="status-badge" [ngClass]="getDevisStatutClass(selectedDevis.statut)">{{
+            getDevisStatutLabel(selectedDevis.statut) }}</span>
+        </div>
+        <div class="meta-item"><span class="meta-label">{{ 'COMMERCIAL.QUOTES.AMOUNT' | translate }}</span><span class="meta-val"><strong>{{
+              selectedDevis.montantTotal | number:'1.3-3' }} TND</strong></span></div>
+      </div>
+      <p *ngIf="selectedDevis.notes" class="devis-notes"><em>📝 {{ selectedDevis.notes }}</em></p>
+
+      <h3 class="lignes-title">{{ 'COMMERCIAL.QUOTES.DETAIL_LINES' | translate }}</h3>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ 'COMMERCIAL.ORDERS.PRODUCT' | translate }}</th>
+            <th>{{ 'COMMERCIAL.ORDERS.REFERENCE' | translate }}</th>
+            <th>{{ 'COMMERCIAL.ORDERS.UNIT_PRICE' | translate }}</th>
+            <th>{{ 'COMMERCIAL.ORDERS.QTY' | translate }}</th>
+            <th>{{ 'COMMERCIAL.ORDERS.DISCOUNT' | translate }}</th>
+            <th>{{ 'COMMERCIAL.ORDERS.TOTAL' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let l of selectedDevisLignes">
+            <td><strong>{{ l.produit?.nom }}</strong></td>
+            <td><span class="mono-text">{{ l.produit?.reference }}</span></td>
+            <td>{{ l.prixUnitaire | number:'1.3-3' }} TND</td>
+            <td>{{ l.quantite }}</td>
+            <td>{{ l.remise }}%</td>
+            <td><strong>{{ (l.prixUnitaire * l.quantite * (1 - l.remise/100)) | number:'1.3-3' }} TND</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="closeDevisDetail()">{{ 'MODAL.CLOSE' | translate }}</button>
+      <button *ngIf="selectedDevis.statut === 'BROUILLON'" class="btn btn-primary"
+        (click)="changerStatutDevis(selectedDevis, 'ENVOYE'); closeDevisDetail()">
+        <span class="material-symbols-outlined">send</span> {{ 'COMMERCIAL.QUOTES.MARK_SENT' | translate }}
+      </button>
+      <button *ngIf="selectedDevis.statut === 'ENVOYE'" class="btn btn-success"
+        (click)="changerStatutDevis(selectedDevis, 'ACCEPTE'); closeDevisDetail()">
+        <span class="material-symbols-outlined">check_circle</span> {{ 'COMMERCIAL.QUOTES.MARK_ACCEPTED' | translate }}
+      </button>
+      <button *ngIf="selectedDevis.statut === 'ACCEPTE'" class="btn btn-primary"
+        (click)="convertirDevisEnCommande(selectedDevis); closeDevisDetail()">
+        <span class="material-symbols-outlined">shopping_cart</span> {{ 'COMMERCIAL.QUOTES.CONVERT' | translate }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- ONGLET : PROMOTIONS & CODES PROMO                             -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="com-body" *ngIf="activeTab==='promos'">
+  <div class="tab-content">
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="search-bar">
+        <span class="material-symbols-outlined">search</span>
+        <input type="text" [(ngModel)]="promoSearch" (input)="filterPromos()" [placeholder]="'COMMERCIAL.PROMOS.SEARCH' | translate">
+      </div>
+      <select class="filter-select" [(ngModel)]="promoStatutFilter" (change)="filterPromos()">
+        <option value="">{{ 'COMMERCIAL.PROMOS.ALL_STATUSES' | translate }}</option>
+        <option value="ACTIF">✅ {{ 'COMMERCIAL.PROMOS.STATUS_ACTIVE' | translate }}</option>
+        <option value="EXPIRE">❌ {{ 'COMMERCIAL.PROMOS.STATUS_EXPIRED' | translate }}</option>
+        <option value="EPUISE">⚠️ {{ 'COMMERCIAL.PROMOS.STATUS_EXHAUSTED' | translate }}</option>
+        <option value="DESACTIVE">⏸️ {{ 'COMMERCIAL.PROMOS.STATUS_DISABLED' | translate }}</option>
+        <option value="PLANIFIE">🗓️ {{ 'COMMERCIAL.PROMOS.STATUS_SCHEDULED' | translate }}</option>
+      </select>
+      <button class="btn btn-primary" (click)="openCreatePromoModal()">
+        <span class="material-symbols-outlined">add</span> {{ 'COMMERCIAL.PROMOS.NEW' | translate }}
+      </button>
+    </div>
+
+    <!-- Grille cartes promo -->
+    <div class="promo-grid" *ngIf="!isLoading; else skeleton">
+      <div class="promo-card" *ngFor="let p of filteredPromos" [class.promo-inactive]="!p.actif">
+        <!-- Badge statut -->
+        <div class="promo-card-header">
+          <span class="status-badge" [ngClass]="getPromoStatutClass(p.statut)">{{ getPromoStatutLabel(p.statut)
+            }}</span>
+          <div class="promo-card-actions">
+            <button class="icon-btn" (click)="openEditPromoModal(p)" [title]="'FORM.EDIT' | translate">
+              <span class="material-symbols-outlined">edit</span>
+            </button>
+            <button class="icon-btn" (click)="togglePromo(p)" [title]="p.actif ? ('COMMERCIAL.PROMOS.DISABLE' | translate) : ('COMMERCIAL.PROMOS.ENABLE' | translate)">
+              <span class="material-symbols-outlined">{{ p.actif ? 'pause_circle' : 'play_circle' }}</span>
+            </button>
+            <button class="icon-btn delete-btn" (click)="deletePromo(p.id)" [title]="'FORM.DELETE' | translate">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Code + Remise principale -->
+        <div class="promo-main">
+          <div class="promo-code-display">{{ p.code }}</div>
+          <div class="promo-discount-badge" [class.discount-pct]="p.typeRemise==='POURCENTAGE'"
+            [class.discount-fix]="p.typeRemise!=='POURCENTAGE'">
+            {{ getPromoLabel(p) }}
+          </div>
+        </div>
+
+        <p class="promo-description" *ngIf="p.description">{{ p.description }}</p>
+
+        <!-- Méta informations -->
+        <div class="promo-meta">
+          <div class="promo-meta-item" *ngIf="p.montantMinimum > 0">
+            <span class="material-symbols-outlined">shopping_bag</span>
+            <span>{{ 'COMMERCIAL.PROMOS.MIN' | translate }} {{ p.montantMinimum | number:'1.3-3' }} TND</span>
+          </div>
+          <div class="promo-meta-item" *ngIf="p.plafondRemise">
+            <span class="material-symbols-outlined">shield</span>
+            <span>{{ 'COMMERCIAL.PROMOS.CAP' | translate }} {{ p.plafondRemise | number:'1.3-3' }} TND</span>
+          </div>
+          <div class="promo-meta-item" *ngIf="p.dateFin">
+            <span class="material-symbols-outlined">event</span>
+            <span>{{ 'COMMERCIAL.PROMOS.EXPIRES' | translate }} {{ p.dateFin | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+
+        <!-- Barre d'utilisation -->
+        <div class="promo-usage" *ngIf="p.utilisationsMax">
+          <div class="promo-usage-header">
+            <span>{{ 'COMMERCIAL.PROMOS.USES' | translate }}</span>
+            <span><strong>{{ p.utilisationsActuelles }}</strong> / {{ p.utilisationsMax }}</span>
+          </div>
+          <div class="promo-usage-bar">
+            <div class="promo-usage-fill" [style.width.%]="(p.utilisationsActuelles / p.utilisationsMax) * 100"
+              [class.usage-danger]="(p.utilisationsActuelles / p.utilisationsMax) >= 0.8">
+            </div>
+          </div>
+        </div>
+        <div class="promo-usage-unlimited" *ngIf="!p.utilisationsMax">
+          <span class="material-symbols-outlined">all_inclusive</span> {{ 'COMMERCIAL.PROMOS.UNLIMITED' | translate }}
+          <span *ngIf="p.utilisationsActuelles > 0" class="promo-used-count">({{ p.utilisationsActuelles }}
+            {{ 'COMMERCIAL.PROMOS.USED' | translate }})</span>
+        </div>
+      </div>
+
+      <!-- Vide -->
+      <div class="empty-promos" *ngIf="filteredPromos.length === 0">
+        <span class="material-symbols-outlined">local_offer</span>
+        <h3>{{ 'COMMERCIAL.PROMOS.NO_PROMOS' | translate }}</h3>
+        <p>{{ 'COMMERCIAL.PROMOS.NO_PROMOS_SUB' | translate }}</p>
+        <button class="btn btn-primary" style="width:auto;margin:0 auto;" (click)="openCreatePromoModal()">
+          <span class="material-symbols-outlined">add</span> {{ 'COMMERCIAL.PROMOS.CREATE_BTN' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Skeleton -->
+    <ng-template #skeleton>
+      <div class="skeleton-table">
+        <div class="skeleton-row" *ngFor="let i of [1,2,3]"></div>
+      </div>
+    </ng-template>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- MODAL : CONFIRMATION CONVERSION DEVIS → COMMANDE      -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="modal-backdrop" *ngIf="showConversionModal">
+  <div class="modal-card modal-conversion">
+    <div class="conv-header">
+      <div class="conv-header-icon">
+        <span class="material-symbols-outlined">swap_horiz</span>
+      </div>
+      <div>
+        <div class="conv-header-title">{{ 'COMMERCIAL.CONVERSION.TITLE' | translate }}</div>
+        <div class="conv-header-sub">{{ 'COMMERCIAL.CONVERSION.SUBTITLE' | translate }}</div>
+      </div>
+      <button class="close-btn" (click)="fermerModalConversion()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="conv-body" *ngIf="devisAConvertir">
+      <div class="conv-info-banner">
+        <span class="material-symbols-outlined">info</span>
+        {{ 'COMMERCIAL.CONVERSION.INFO' | translate }}
+      </div>
+      <div class="conv-devis-summary">
+        <div class="conv-row">
+          <span class="conv-label">{{ 'COMMERCIAL.CONVERSION.QUOTE_NUMBER' | translate }}</span>
+          <span class="conv-value mono">{{ devisAConvertir.numeroDevis }}</span>
+        </div>
+        <div class="conv-row">
+          <span class="conv-label">{{ 'COMMERCIAL.CONVERSION.CLIENT' | translate }}</span>
+          <span class="conv-value"><strong>{{ devisAConvertir.client?.nom || '—' }}</strong></span>
+        </div>
+        <div class="conv-row">
+          <span class="conv-label">{{ 'COMMERCIAL.CONVERSION.AMOUNT' | translate }}</span>
+          <span class="conv-value amount">{{ devisAConvertir.montantTotal | number:'1.3-3' }} TND</span>
+        </div>
+        <div class="conv-row">
+          <span class="conv-label">{{ 'COMMERCIAL.CONVERSION.STATUS' | translate }}</span>
+          <span class="status-badge badge-success">{{ 'COMMERCIAL.CONVERSION.STATUS_ACCEPTED' | translate }}</span>
+        </div>
+      </div>
+      <div class="conv-arrow">
+        <span class="material-symbols-outlined">arrow_downward</span>
+        <span>{{ 'COMMERCIAL.CONVERSION.WILL_BECOME' | translate }}</span>
+      </div>
+      <div class="conv-result-preview">
+        <span class="material-symbols-outlined">shopping_cart</span>
+        <div>
+          <div class="conv-result-title">{{ 'COMMERCIAL.CONVERSION.NEW_ORDER' | translate }}</div>
+          <div class="conv-result-sub">{{ 'COMMERCIAL.CONVERSION.NEW_ORDER_STATUS' | translate }} · {{ 'COMMERCIAL.CONVERSION.CLIENT' | translate }} : {{ devisAConvertir.client?.nom }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer conv-footer">
+      <button class="btn btn-secondary" (click)="fermerModalConversion()" [disabled]="conversionLoading">{{ 'COMMERCIAL.CONVERSION.CANCEL' | translate }}</button>
+      <button class="btn btn-convert-confirm" (click)="confirmerConversion()" [disabled]="conversionLoading">
+        <span class="material-symbols-outlined" *ngIf="!conversionLoading">swap_horiz</span>
+        <span class="material-symbols-outlined spin-anim" *ngIf="conversionLoading">autorenew</span>
+        {{ conversionLoading ? ('COMMERCIAL.CONVERSION.IN_PROGRESS' | translate) : ('COMMERCIAL.CONVERSION.CONFIRM' | translate) }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- MODAL : SUCCÈS CONVERSION                             -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="modal-backdrop" *ngIf="showConversionSuccessModal">
+  <div class="modal-card modal-success-conv">
+    <div class="success-conv-body">
+      <div class="success-icon-wrap">
+        <span class="material-symbols-outlined">check_circle</span>
+      </div>
+      <h2 class="success-title">{{ 'COMMERCIAL.CONVERSION.SUCCESS_TITLE' | translate }}</h2>
+      <p class="success-desc">{{ 'COMMERCIAL.CONVERSION.SUCCESS_DESC' | translate }}</p>
+      <div class="success-cmd-badge" *ngIf="commandeCreee">
+        <span class="material-symbols-outlined">shopping_cart</span>
+        <span>{{ commandeCreee.numeroCommande }}</span>
+      </div>
+      <p class="success-hint">{{ 'COMMERCIAL.CONVERSION.SUCCESS_HINT' | translate }}</p>
+    </div>
+    <div class="modal-footer success-conv-footer">
+      <button class="btn btn-secondary" (click)="fermerSuccessModal()">{{ 'COMMERCIAL.CONVERSION.STAY' | translate }}</button>
+      <button class="btn btn-primary" (click)="allerVersCommandes()">
+        <span class="material-symbols-outlined">shopping_cart</span>
+        {{ 'COMMERCIAL.CONVERSION.GO_ORDERS' | translate }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- MODAL : CRÉER / MODIFIER CODE PROMO                          -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="modal-backdrop" *ngIf="showPromoModal">
+  <div class="modal-card modal-large">
+    <div class="modal-header">
+      <h2>
+        <span class="material-symbols-outlined" style="vertical-align:middle;margin-right:8px">local_offer</span>
+        {{ isEditingPromo ? ('COMMERCIAL.PROMOS.EDIT' | translate) : ('COMMERCIAL.PROMOS.CREATE' | translate) }}
+      </h2>
+      <button class="close-btn" (click)="closePromoModal()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <form [formGroup]="promoForm" (ngSubmit)="savePromo()">
+      <div class="modal-body">
+
+        <!-- Ligne 1 : Code + Type de remise -->
+        <div class="form-row">
+          <div class="form-group">
+            <label>{{ 'COMMERCIAL.PROMOS.CODE_LABEL' | translate }} <small style="color:#94a3b8">{{ 'COMMERCIAL.PROMOS.CODE_HINT' | translate }}</small></label>
+            <input type="text"
+                   formControlName="code"
+                   placeholder="CODE123"
+                   style="text-transform:uppercase;letter-spacing:2px;font-weight:700"
+                   (input)="forceUpperCode()"
+                   [class.field-err]="promoForm.get('code')?.invalid && promoForm.get('code')?.touched">
+            <span class="field-hint" *ngIf="promoForm.get('code')?.errors?.['pattern'] && promoForm.get('code')?.touched">
+              {{ 'COMMERCIAL.PROMOS.CODE_ERROR' | translate }}
+            </span>
+          </div>
+          <div class="form-group">
+            <label>{{ 'COMMERCIAL.PROMOS.DISCOUNT_TYPE' | translate }}</label>
+            <select formControlName="typeRemise">
+              <option value="POURCENTAGE">{{ 'COMMERCIAL.PROMOS.TYPE_PERCENT' | translate }}</option>
+              <option value="MONTANT_FIXE">{{ 'COMMERCIAL.PROMOS.TYPE_FIXED' | translate }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Ligne 2 : Valeur + Montant minimum -->
+        <div class="form-row">
+          <div class="form-group">
+            <label>
+              {{ 'COMMERCIAL.PROMOS.VALUE' | translate }}
+              <small style="color:#94a3b8">
+                {{ promoForm.get('typeRemise')?.value === 'POURCENTAGE' ? '(en %)' : '(en TND)' }}
+              </small>
+            </label>
+            <input type="number" formControlName="valeur" min="0.001" step="0.001"
+                   [placeholder]="promoForm.get('typeRemise')?.value === 'POURCENTAGE' ? 'ex: 15 → 15%' : 'ex: 50 → 50 TND'"
+                   [class.field-err]="promoForm.get('valeur')?.invalid && promoForm.get('valeur')?.touched">
+          </div>
+          <div class="form-group">
+            <label>{{ 'COMMERCIAL.PROMOS.MIN_ORDER' | translate }}</label>
+            <input type="number" formControlName="montantMinimum" min="0" step="0.001" [placeholder]="'COMMERCIAL.PROMOS.MIN_ORDER_PH' | translate">
+          </div>
+        </div>
+
+        <!-- Ligne 3 : Plafond + Utilisations max -->
+        <div class="form-row">
+          <div class="form-group">
+            <label>{{ 'COMMERCIAL.PROMOS.DISCOUNT_CAP' | translate }} <small style="color:#94a3b8">{{ 'COMMERCIAL.PROMOS.OPTIONAL' | translate }}</small></label>
+            <input type="number" formControlName="plafondRemise" min="0" step="0.001"
+                   [placeholder]="'COMMERCIAL.PROMOS.CAP_PH' | translate">
+          </div>
+          <div class="form-group">
+            <label>{{ 'COMMERCIAL.PROMOS.MAX_USES' | translate }} <small style="color:#94a3b8">{{ 'COMMERCIAL.PROMOS.OPTIONAL' | translate }}</small></label>
+            <input type="number" formControlName="utilisationsMax" min="1" step="1"
+                   [placeholder]="'COMMERCIAL.PROMOS.MAX_USES_PH' | translate">
+          </div>
+        </div>
+
+        <!-- Ligne 4 : Dates de validité -->
+        <div class="form-row">
+          <div class="form-group">
+            <label>{{ 'COMMERCIAL.PROMOS.START_DATE' | translate }} <small style="color:#94a3b8">{{ 'COMMERCIAL.PROMOS.OPTIONAL' | translate }}</small></label>
+            <input type="datetime-local" formControlName="dateDebut">
+          </div>
+          <div class="form-group">
+            <label>{{ 'COMMERCIAL.PROMOS.END_DATE' | translate }} <small style="color:#94a3b8">{{ 'COMMERCIAL.PROMOS.OPTIONAL' | translate }}</small></label>
+            <input type="datetime-local" formControlName="dateFin">
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label>{{ 'COMMERCIAL.PROMOS.DESCRIPTION' | translate }} <small style="color:#94a3b8">{{ 'COMMERCIAL.PROMOS.DESC_HINT' | translate }}</small></label>
+          <input type="text" formControlName="description"
+                 [placeholder]="'COMMERCIAL.PROMOS.DESC_PH' | translate">
+        </div>
+
+        <!-- Erreur de sauvegarde visible dans le modal -->
+        <div *ngIf="promoSaveError" style="
+          background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;
+          padding:12px 16px;color:#dc2626;font-size:0.875rem;
+          display:flex;align-items:center;gap:8px;margin-top:8px">
+          <span class="material-symbols-outlined" style="font-size:18px">error</span>
+          <span>{{ promoSaveError }}</span>
+        </div>
+
+      </div><!-- /modal-body -->
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closePromoModal()">{{ 'COMMERCIAL.PROMOS.CANCEL' | translate }}</button>
+        <button type="submit" class="btn btn-primary" [disabled]="promoForm.invalid">
+          <span class="material-symbols-outlined">{{ isEditingPromo ? 'save' : 'add_circle' }}</span>
+          {{ isEditingPromo ? ('COMMERCIAL.PROMOS.SAVE' | translate) : ('COMMERCIAL.PROMOS.CREATE_CODE' | translate) }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- MODAL UNIFIÉ : CHOIX DU CANAL DE RELANCE              -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="modal-backdrop" *ngIf="showModalRelance && factureRelanceSelectionnee" (click)="fermerModalRelance()" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(15,23,42,0.75);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:9999999">
+  <div (click)="$event.stopPropagation()" style="width:420px;max-width:90vw;background:#ffffff;border-radius:20px;border:1px solid #cbd5e1;box-shadow:0 25px 60px rgba(0,0,0,0.45);padding:24px;position:relative;z-index:10000000;animation:modalSlideUp 0.3s cubic-bezier(0.16,1,0.3,1)">
+    
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;border-bottom:1px solid #f1f5f9;padding-bottom:12px">
+      <h3 style="margin:0;font-size:1.1rem;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:8px">
+        <span class="material-symbols-outlined" style="color:#0d9faa">campaign</span>
+        Canal de Relance Client
+      </h3>
+      <button (click)="fermerModalRelance()" style="background:none;border:none;font-size:24px;color:#64748b;cursor:pointer;line-height:1">&times;</button>
+    </div>
+
+    <p style="font-size:0.85rem;color:#64748b;margin:0 0 20px 0">
+      Sélectionnez la méthode d'envoi pour la facture <strong style="color:#0d9faa">{{ factureRelanceSelectionnee.numeroFacture }}</strong> au client <strong>{{ factureRelanceSelectionnee.commande?.client?.nom || 'Client' }}</strong> :
+    </p>
+
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <!-- 📧 Option Email -->
+      <button (click)="choisirCanalRelance('EMAIL')" style="display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:14px;border:1.5px solid #e2e8f0;background:#ffffff;cursor:pointer;transition:all 0.2s;text-align:left">
+        <div style="width:42px;height:42px;border-radius:12px;background:rgba(13,159,170,0.12);color:#0d9faa;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <span class="material-symbols-outlined">email</span>
+        </div>
+        <div>
+          <div style="font-weight:700;font-size:0.9rem;color:#1e293b">Envoyer par Email</div>
+          <div style="font-size:0.75rem;color:#64748b">Envoi direct de la facture avec PDF certifié par courriel</div>
+        </div>
+      </button>
+
+      <!-- 📲 Option WhatsApp -->
+      <button (click)="choisirCanalRelance('WHATSAPP')" style="display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:14px;border:1.5px solid #bbf7d0;background:#f0fdf4;cursor:pointer;transition:all 0.2s;text-align:left">
+        <div style="width:42px;height:42px;border-radius:12px;background:#25D366;color:#ffffff;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 10px rgba(37,211,102,0.3)">
+          <span class="material-symbols-outlined">chat</span>
+        </div>
+        <div>
+          <div style="font-weight:700;font-size:0.9rem;color:#15803d">Relancer sur WhatsApp Web</div>
+          <div style="font-size:0.75rem;color:#166534">Ouvre WhatsApp avec message pré-rempli & lien de paiement</div>
+        </div>
+      </button>
+
+      <!-- ✈️ Option Telegram -->
+      <button (click)="choisirCanalRelance('TELEGRAM')" style="display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:14px;border:1.5px solid #bae6fd;background:#f0f9ff;cursor:pointer;transition:all 0.2s;text-align:left">
+        <div style="width:42px;height:42px;border-radius:12px;background:#0088cc;color:#ffffff;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 10px rgba(0,136,204,0.3)">
+          <span class="material-symbols-outlined">send</span>
+        </div>
+        <div>
+          <div style="font-weight:700;font-size:0.9rem;color:#0369a1">Partager sur Telegram</div>
+          <div style="font-size:0.75rem;color:#075985">Partage instantané du lien de la facture sur Telegram</div>
+        </div>
+      </button>
+    </div>
+
+  </div>
+</div>

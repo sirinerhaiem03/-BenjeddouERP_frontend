@@ -1,0 +1,158 @@
+<div class="sa-page">
+
+  <!-- ── En-tête ──────────────────────────────────────────────────────── -->
+  <div class="sa-page-header">
+    <div>
+      <h1 class="sa-page-title">
+        <span class="material-symbols-outlined">shield</span>
+        {{ 'SUPERADMIN.SECURITE.TITLE' | translate }}
+      </h1>
+      <p class="sa-page-subtitle">{{ 'SUPERADMIN.SECURITE.SUBTITLE' | translate }}</p>
+    </div>
+    <button class="btn-refresh" (click)="chargerStatutSecurite()" [disabled]="loadingStatus">
+      <span class="material-symbols-outlined" [class.spin]="loadingStatus">refresh</span>
+      {{ 'SUPERADMIN.SECURITE.REFRESH' | translate }}
+    </button>
+  </div>
+
+  <!-- ── Grille principale ─────────────────────────────────────────────── -->
+  <div class="sec-grid">
+
+    <!-- ═══ 1. RESET COMPTES DÉMO ═══ -->
+    <div class="sec-card">
+      <div class="sec-card-header">
+        <span class="material-symbols-outlined">person_refresh</span>
+        {{ 'SUPERADMIN.SECURITE.DEMO_TITLE' | translate }}
+      </div>
+      <div class="sec-card-body">
+        <p class="sec-desc">
+          {{ 'SUPERADMIN.SECURITE.DEMO_DESC' | translate }}
+        </p>
+
+        <!-- Table des comptes démo -->
+        <div class="demo-accounts-table">
+          <div class="demo-row header">
+            <span>{{ 'SUPERADMIN.SECURITE.TH_USER' | translate }}</span>
+            <span>{{ 'SUPERADMIN.SECURITE.TH_PWD' | translate }}</span>
+            <span>{{ 'SUPERADMIN.SECURITE.TH_ROLE' | translate }}</span>
+          </div>
+          <div class="demo-row"><span>superadmin</span><span class="pwd">superadmin123</span><span class="role sa">SUPERADMIN</span></div>
+          <div class="demo-row"><span>admin</span><span class="pwd">admin123</span><span class="role admin">ADMIN</span></div>
+          <div class="demo-row"><span>commercial</span><span class="pwd">admin123</span><span class="role com">COMMERCIAL</span></div>
+          <div class="demo-row"><span>comptable</span><span class="pwd">admin123</span><span class="role cpt">COMPTABLE</span></div>
+          <div class="demo-row"><span>stock</span><span class="pwd">admin123</span><span class="role stk">STOCK</span></div>
+          <div class="demo-row"><span>client_demo</span><span class="pwd">admin123</span><span class="role cli">CLIENT</span></div>
+        </div>
+
+        <!-- Confirmation dialog -->
+        <div class="confirm-box" *ngIf="showConfirmReset">
+          <span class="material-symbols-outlined warn-icon">warning</span>
+          <p>{{ 'SUPERADMIN.SECURITE.CONFIRM_MSG' | translate }}</p>
+          <div class="confirm-actions">
+            <button class="btn-cancel" (click)="annulerReset()">{{ 'SUPERADMIN.SECURITE.CANCEL' | translate }}</button>
+            <button class="btn-danger" (click)="confirmerReset()" [disabled]="loadingReset">
+              <span class="material-symbols-outlined" *ngIf="!loadingReset">lock_reset</span>
+              <span class="material-symbols-outlined spin" *ngIf="loadingReset">progress_activity</span>
+              {{ 'SUPERADMIN.SECURITE.CONFIRM_BTN' | translate }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Bouton reset -->
+        <button class="btn-warning" (click)="demanderConfirmReset()" [disabled]="loadingReset || showConfirmReset" *ngIf="!showConfirmReset">
+          <span class="material-symbols-outlined" *ngIf="!loadingReset">lock_reset</span>
+          <span class="material-symbols-outlined spin" *ngIf="loadingReset">progress_activity</span>
+          {{ loadingReset ? ('SUPERADMIN.SECURITE.RESETTING' | translate) : ('SUPERADMIN.SECURITE.RESET_BTN' | translate) }}
+        </button>
+
+        <!-- Message résultat -->
+        <div class="feedback-msg" [class.succes]="msgReset?.type === 'succes'" [class.erreur]="msgReset?.type === 'erreur'" *ngIf="msgReset">
+          {{ msgReset.texte }}
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ 2. SAUVEGARDES SÉCURISÉES ═══ -->
+    <div class="sec-card">
+      <div class="sec-card-header">
+        <span class="material-symbols-outlined">backup</span>
+        {{ 'SUPERADMIN.SECURITE.BACKUP_TITLE' | translate }}
+        <span class="badge-info">AES-256-GCM + GZIP</span>
+      </div>
+      <div class="sec-card-body">
+        <p class="sec-desc">
+          {{ 'SUPERADMIN.SECURITE.BACKUP_DESC' | translate }}
+        </p>
+
+        <div class="backup-info-row">
+          <div class="binfo"><span class="material-symbols-outlined">schedule</span><span>{{ 'SUPERADMIN.SECURITE.DAILY_2AM' | translate }}</span></div>
+          <div class="binfo"><span class="material-symbols-outlined">lock</span><span>AES-256-GCM</span></div>
+          <div class="binfo"><span class="material-symbols-outlined">compress</span><span>GZIP</span></div>
+          <div class="binfo"><span class="material-symbols-outlined">auto_delete</span><span>{{ 'SUPERADMIN.SECURITE.ROTATION_30D' | translate }}</span></div>
+        </div>
+
+        <!-- Boutons actions -->
+        <div class="backup-actions">
+          <button class="btn-primary" (click)="declencherSauvegarde()" [disabled]="loadingBackup">
+            <span class="material-symbols-outlined" *ngIf="!loadingBackup">cloud_upload</span>
+            <span class="material-symbols-outlined spin" *ngIf="loadingBackup">progress_activity</span>
+            {{ loadingBackup ? ('SUPERADMIN.SECURITE.BACKUP_IN_PROGRESS' | translate) : ('SUPERADMIN.SECURITE.BACKUP_BTN' | translate) }}
+          </button>
+
+          <button class="btn-secondary" (click)="chargerListeSauvegardes()" [disabled]="loadingListe">
+            <span class="material-symbols-outlined" *ngIf="!loadingListe">folder_open</span>
+            <span class="material-symbols-outlined spin" *ngIf="loadingListe">progress_activity</span>
+            {{ 'SUPERADMIN.SECURITE.VIEW_BACKUPS' | translate }}
+          </button>
+
+          <button class="btn-outline-danger" (click)="nettoyerSauvegardes()" [disabled]="loadingNettoyer">
+            <span class="material-symbols-outlined" *ngIf="!loadingNettoyer">auto_delete</span>
+            <span class="material-symbols-outlined spin" *ngIf="loadingNettoyer">progress_activity</span>
+            {{ 'SUPERADMIN.SECURITE.CLEAN_30D' | translate }}
+          </button>
+        </div>
+
+        <!-- Message résultat backup -->
+        <div class="feedback-msg" [class.succes]="msgBackup?.type === 'succes'" [class.erreur]="msgBackup?.type === 'erreur'" *ngIf="msgBackup">
+          {{ msgBackup.texte }}
+        </div>
+
+        <div class="feedback-msg" [class.succes]="msgNettoyer?.type === 'succes'" [class.erreur]="msgNettoyer?.type === 'erreur'" *ngIf="msgNettoyer">
+          {{ msgNettoyer.texte }}
+        </div>
+
+        <!-- Dernière sauvegarde -->
+        <div class="last-backup" *ngIf="derniereBackup">
+          <div class="last-bk-header">
+            <span class="material-symbols-outlined">check_circle</span>
+            {{ 'SUPERADMIN.SECURITE.LAST_BACKUP' | translate }}
+          </div>
+          <div class="last-bk-details">
+            <span>📄 {{ derniereBackup.fichier }}</span>
+            <span>📦 {{ derniereBackup.tailleKo || derniereBackup.tailleMo }} Ko</span>
+            <span>🔐 {{ derniereBackup.chiffrement }}</span>
+          </div>
+        </div>
+
+        <!-- Liste des sauvegardes -->
+        <div class="sauvegardes-liste" *ngIf="montrerListe">
+          <div class="liste-header">
+            <span>📁 {{ 'SUPERADMIN.SECURITE.AVAILABLE_BACKUPS' | translate }} ({{ listeSauvegardes.length }})</span>
+          </div>
+          <div class="liste-vide" *ngIf="listeSauvegardes.length === 0 && !loadingListe">
+            {{ 'SUPERADMIN.SECURITE.NO_BACKUPS' | translate }}
+          </div>
+          <div class="backup-item" *ngFor="let b of listeSauvegardes">
+            <span class="material-symbols-outlined file-icon">lock</span>
+            <div class="backup-item-info">
+              <span class="backup-name">{{ b.fichier }}</span>
+              <span class="backup-meta">{{ b.tailleMo }} Mo — {{ formatDate(b.dateCreation) }}</span>
+            </div>
+            <span class="badge-enc">{{ b.algorithme }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

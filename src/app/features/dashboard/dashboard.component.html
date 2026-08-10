@@ -1,0 +1,862 @@
+<div class="dashboard-container">
+  <!-- Top Welcome Banner (masqué pour admin qui a son propre hero) -->
+  <div class="welcome-banner" *ngIf="user && userRole !== 'ADMIN'">
+    <h1>{{ 'DASHBOARD.WELCOME' | translate }} {{ user.prenom }}!</h1>
+    <p>{{ 'DASHBOARD.OVERVIEW' | translate }}</p>
+  </div>
+
+
+  <!-- ========================================================= -->
+  <!-- ADMIN DASHBOARD — Design Premium                         -->
+  <!-- ========================================================= -->
+  <ng-container *ngIf="userRole === 'ADMIN'">
+
+    <!-- ── HERO BANNER ── -->
+    <div class="adm-hero">
+      <div class="adm-orb adm-orb-1"></div>
+      <div class="adm-orb adm-orb-2"></div>
+      <div class="adm-orb adm-orb-3"></div>
+      <div class="adm-hero-left">
+        <div class="adm-hero-badge">
+          <span class="material-symbols-outlined">shield_person</span>
+          Administrateur Système
+        </div>
+        <h1 class="adm-hero-title">Bienvenue, <span class="adm-hero-name">{{ user?.prenom }}</span> 👋</h1>
+        <p class="adm-hero-sub">Vue d'ensemble de votre système &bull; Mis à jour en temps réel</p>
+        <div class="adm-hero-date">
+          <span class="material-symbols-outlined">calendar_today</span>
+          <span>{{ today | date:'EEEE d MMMM yyyy' }}</span>
+        </div>
+      </div>
+      <div class="adm-hero-stats" *ngIf="adminStats">
+        <div class="adm-hero-stat">
+          <span class="adm-hero-stat-num">{{ adminStats.totalUsers }}</span>
+          <span class="adm-hero-stat-lbl">Utilisateurs</span>
+        </div>
+        <div class="adm-hero-stat-sep"></div>
+        <div class="adm-hero-stat">
+          <span class="adm-hero-stat-num adm-clr-green">{{ adminStats.activeUsers }}</span>
+          <span class="adm-hero-stat-lbl">Actifs</span>
+        </div>
+        <div class="adm-hero-stat-sep"></div>
+        <div class="adm-hero-stat">
+          <span class="adm-hero-stat-num adm-clr-amber">{{ adminStats.pendingKyc }}</span>
+          <span class="adm-hero-stat-lbl">En attente</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── KPI CARDS ── -->
+    <div class="adm-kpi-grid" *ngIf="adminStats">
+
+      <!-- Utilisateurs -->
+      <div class="adm-kpi-card adm-kpi-purple">
+        <div class="adm-kpi-accent"></div>
+        <div class="adm-kpi-row">
+          <div class="adm-kpi-icon">
+            <span class="material-symbols-outlined">group</span>
+          </div>
+          <div class="adm-kpi-chip adm-chip-up">
+            <span class="material-symbols-outlined">trending_up</span>
+            <span>{{ adminStats.activeUsers }} actifs</span>
+          </div>
+        </div>
+        <div class="adm-kpi-num">{{ adminStats.totalUsers }}</div>
+        <div class="adm-kpi-lbl">{{ 'DASHBOARD.ADMIN_USERS' | translate }}</div>
+        <div class="adm-kpi-progress"><div class="adm-kpi-fill"
+          [style.width.%]="adminStats.totalUsers ? (adminStats.activeUsers / adminStats.totalUsers * 100) : 0"></div></div>
+        <div class="adm-kpi-foot">
+          {{ adminStats.totalUsers ? ((adminStats.activeUsers / adminStats.totalUsers * 100) | number:'1.0-0') : 0 }}% actifs
+        </div>
+      </div>
+
+      <!-- Chiffre d'affaires -->
+      <div class="adm-kpi-card adm-kpi-emerald">
+        <div class="adm-kpi-accent"></div>
+        <div class="adm-kpi-row">
+          <div class="adm-kpi-icon">
+            <span class="material-symbols-outlined">payments</span>
+          </div>
+          <div class="adm-kpi-chip adm-chip-up">
+            <span class="material-symbols-outlined">trending_up</span>
+            <span>Ce mois</span>
+          </div>
+        </div>
+        <div class="adm-kpi-num">{{ adminStats.totalRevenue | number:'1.0-0' }}</div>
+        <div class="adm-kpi-lbl">CA Global &nbsp;<small>TND</small></div>
+        <div class="adm-kpi-progress"><div class="adm-kpi-fill" style="width:72%"></div></div>
+        <div class="adm-kpi-foot">72% de l'objectif mensuel</div>
+      </div>
+
+      <!-- KYC -->
+      <div class="adm-kpi-card adm-kpi-amber">
+        <div class="adm-kpi-accent"></div>
+        <div class="adm-kpi-row">
+          <div class="adm-kpi-icon">
+            <span class="material-symbols-outlined">verified_user</span>
+          </div>
+          <div class="adm-kpi-chip" [ngClass]="adminStats.pendingKyc > 0 ? 'adm-chip-warn' : 'adm-chip-ok'">
+            <span class="material-symbols-outlined">{{ adminStats.pendingKyc > 0 ? 'warning' : 'check_circle' }}</span>
+            <span>{{ adminStats.pendingKyc > 0 ? 'À vérifier' : 'Tout OK' }}</span>
+          </div>
+        </div>
+        <div class="adm-kpi-num">{{ adminStats.pendingKyc }}</div>
+        <div class="adm-kpi-lbl">{{ 'DASHBOARD.ADMIN_KYC_PENDING' | translate }}</div>
+        <div class="adm-kpi-progress"><div class="adm-kpi-fill" style="width:30%"></div></div>
+        <div class="adm-kpi-foot">Vérifications requises</div>
+      </div>
+
+      <!-- Transactions -->
+      <div class="adm-kpi-card adm-kpi-blue">
+        <div class="adm-kpi-accent"></div>
+        <div class="adm-kpi-row">
+          <div class="adm-kpi-icon">
+            <span class="material-symbols-outlined">receipt_long</span>
+          </div>
+          <div class="adm-kpi-chip adm-chip-neutral">
+            <span class="material-symbols-outlined">sync</span>
+            <span>Journaux</span>
+          </div>
+        </div>
+        <div class="adm-kpi-num">{{ adminStats.totalTransactions }}</div>
+        <div class="adm-kpi-lbl">{{ 'DASHBOARD.ADMIN_TRANS' | translate }}</div>
+        <div class="adm-kpi-progress"><div class="adm-kpi-fill" style="width:58%"></div></div>
+        <div class="adm-kpi-foot">Enregistrées ce mois</div>
+      </div>
+    </div>
+
+    <!-- ── GRAPHIQUES ── -->
+    <div class="adm-charts-grid">
+      <div class="adm-chart-card glass-card">
+        <div class="adm-chart-hdr">
+          <div class="adm-chart-info">
+            <div class="adm-chart-dot" style="background:#7c3aed"></div>
+            <div>
+              <h3>{{ 'DASHBOARD.CHART_CA_GLOBAL' | translate }}</h3>
+              <p>Évolution du chiffre d'affaires global</p>
+            </div>
+          </div>
+          <span class="adm-chip-pill adm-pill-purple">{{ 'DASHBOARD.BADGE_REVENUES_2026' | translate }}</span>
+        </div>
+        <div class="adm-chart-body"><canvas id="adminRevenueChart" #adminRevenueChart></canvas></div>
+      </div>
+      <div class="adm-chart-card glass-card">
+        <div class="adm-chart-hdr">
+          <div class="adm-chart-info">
+            <div class="adm-chart-dot" style="background:#3b82f6"></div>
+            <div>
+              <h3>{{ 'DASHBOARD.CHART_USERS_ROLE' | translate }}</h3>
+              <p>Distribution des accès par rôle</p>
+            </div>
+          </div>
+          <span class="adm-chip-pill adm-pill-blue">{{ 'DASHBOARD.BADGE_ROLES' | translate }}</span>
+        </div>
+        <div class="adm-chart-body"><canvas id="adminRoleChart" #adminRoleChart></canvas></div>
+      </div>
+    </div>
+
+    <!-- ── BOTTOM : LOGS + ACTIONS RAPIDES ── -->
+    <div class="adm-bottom-grid">
+
+      <!-- Journal d'activité – timeline -->
+      <div class="adm-panel glass-card">
+        <div class="adm-panel-hdr">
+          <div>
+            <h3>{{ 'DASHBOARD.ADMIN_SYS_LOG' | translate }}</h3>
+            <p>{{ 'DASHBOARD.ADMIN_SYS_LOG_SUB' | translate }}</p>
+          </div>
+          <div class="adm-panel-icon">
+            <span class="material-symbols-outlined">terminal</span>
+          </div>
+        </div>
+        <div class="adm-timeline">
+          <div class="adm-tl-item"
+               *ngFor="let log of systemLogs; let last = last"
+               [ngClass]="'adm-tl-' + log.type">
+            <div class="adm-tl-line" [class.adm-tl-last]="last"></div>
+            <div class="adm-tl-dot">
+              <span class="material-symbols-outlined">
+                {{ log.type === 'danger' ? 'gpp_bad' : (log.type === 'warning' ? 'warning_amber' : 'task_alt') }}
+              </span>
+            </div>
+            <div class="adm-tl-body">
+              <p class="adm-tl-msg"><strong>&#64;{{ log.user }}</strong>: {{ log.action }}</p>
+              <span class="adm-tl-time">
+                <span class="material-symbols-outlined">schedule</span>{{ log.time }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions Rapides -->
+      <div class="adm-panel glass-card">
+        <div class="adm-panel-hdr">
+          <div>
+            <h3>{{ 'DASHBOARD.ADMIN_QUICK_ACTIONS' | translate }}</h3>
+            <p>{{ 'DASHBOARD.ADMIN_QUICK_ACTIONS_SUB' | translate }}</p>
+          </div>
+        </div>
+        <div class="adm-qa-grid">
+          <div class="adm-qa-card" *ngFor="let action of quickActions" [routerLink]="action.link">
+            <div class="adm-qa-icon" [ngClass]="'adm-qi-' + action.color">
+              <span class="material-symbols-outlined">{{ action.icon }}</span>
+            </div>
+            <span class="adm-qa-label">{{ action.label }}</span>
+            <span class="material-symbols-outlined adm-qa-arrow">chevron_right</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ========================================== -->
+  <!-- COMMERCIAL DASHBOARD                       -->
+  <!-- ========================================== -->
+  <ng-container *ngIf="userRole === 'COMMERCIAL'">
+    <!-- KPI Cards — données réelles -->
+    <div class="grid-cols-1 grid-cols-4-md kpi-grid">
+      <!-- CA Total -->
+      <div class="kpi-card glass-card hover-glow">
+        <div class="kpi-icon-wrapper sales-icon-bg">
+          <span class="material-symbols-outlined">payments</span>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-title">{{ 'DASHBOARD.COMMERCIAL_CA' | translate }}</span>
+          <span class="kpi-value">{{ commercialKpis.totalCA | number:'1.3-3' }} TND</span>
+          <span class="kpi-trend trend-up">
+            <span class="material-symbols-outlined">trending_up</span>
+            <span>{{ 'DASHBOARD.COMMERCIAL_ORDERS_PAID' | translate }}</span>
+          </span>
+        </div>
+      </div>
+      <!-- Commandes ce mois -->
+      <div class="kpi-card glass-card hover-glow">
+        <div class="kpi-icon-wrapper clients-icon-bg">
+          <span class="material-symbols-outlined">shopping_cart</span>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-title">{{ 'DASHBOARD.COMMERCIAL_ORDERS_MONTH' | translate }}</span>
+          <span class="kpi-value">{{ commercialKpis.commandesMois }}</span>
+          <span class="kpi-trend trend-neutral">
+            <span>{{ 'DASHBOARD.TOTAL_PREFIX' | translate }} : {{ commercialKpis.totalCommandes }}</span>
+          </span>
+        </div>
+      </div>
+      <!-- Factures en attente -->
+      <div class="kpi-card glass-card hover-glow">
+        <div class="kpi-icon-wrapper invoices-icon-bg">
+          <span class="material-symbols-outlined">receipt_long</span>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-title">{{ 'DASHBOARD.COMMERCIAL_INVOICES_PENDING' | translate }}</span>
+          <span class="kpi-value">{{ commercialKpis.facturesEnAttente }}</span>
+          <span class="kpi-trend trend-neutral">
+            <span>{{ 'DASHBOARD.TOTAL_PREFIX' | translate }} : {{ commercialKpis.totalFactures }} {{ 'DASHBOARD.INVOICES_LABEL' | translate }}</span>
+          </span>
+        </div>
+      </div>
+      <!-- Clients -->
+      <div class="kpi-card glass-card hover-glow">
+        <div class="kpi-icon-wrapper products-icon-bg" style="background: linear-gradient(135deg, #10b981, #059669);">
+          <span class="material-symbols-outlined">group</span>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-title">{{ 'DASHBOARD.COMMERCIAL_ACTIVE_CLIENTS' | translate }}</span>
+          <span class="kpi-value">{{ commercialKpis.totalClients }}</span>
+          <span class="kpi-trend trend-up">
+            <span>{{ commercialKpis.tauxFacturation }}% {{ 'DASHBOARD.BILLING_RATE_LABEL' | translate }}</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Graphiques CA & Commandes ── -->
+    <div class="grid-cols-1 grid-cols-2-md charts-grid">
+      <div class="chart-card glass-card">
+        <div class="chart-header">
+          <h3>📊 {{ 'DASHBOARD.COMMERCIAL_CHART_CA' | translate }}</h3>
+          <span class="badge badge-success">{{ 'DASHBOARD.COMMERCIAL_CHART_CA_BADGE' | translate }}</span>
+        </div>
+        <div class="chart-body">
+          <canvas id="dashCaChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card glass-card">
+        <div class="chart-header">
+          <h3>📈 {{ 'DASHBOARD.COMMERCIAL_CHART_ORDERS' | translate }}</h3>
+          <span class="badge badge-success">{{ 'DASHBOARD.COMMERCIAL_CHART_ORDERS_BADGE' | translate }}</span>
+        </div>
+        <div class="chart-body">
+          <canvas id="dashCmdChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Graphiques avancés — Répartition & Top Clients ── -->
+    <div class="grid-cols-1 grid-cols-2-md charts-grid">
+      <div class="chart-card glass-card">
+        <div class="chart-header">
+          <h3>🍩 {{ 'DASHBOARD.COMMERCIAL_CHART_PRODUCTS' | translate }}</h3>
+          <span class="badge badge-info">{{ 'DASHBOARD.THIS_MONTH' | translate }}</span>
+        </div>
+        <div class="chart-body">
+          <canvas id="dashRepartitionChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card glass-card">
+        <div class="chart-header">
+          <h3>🏆 {{ 'DASHBOARD.COMMERCIAL_CHART_TOP10' | translate }}</h3>
+          <span class="badge badge-info">{{ 'DASHBOARD.BY_CA' | translate }}</span>
+        </div>
+        <div class="chart-body" style="height: 280px;">
+          <canvas id="dashTopClientsChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Graphiques avancés — Stock & Trésorerie ── -->
+    <div class="grid-cols-1 grid-cols-2-md charts-grid">
+      <div class="chart-card glass-card">
+        <div class="chart-header">
+          <h3>📦 {{ 'DASHBOARD.COMMERCIAL_CHART_STOCK' | translate }}</h3>
+          <span class="badge badge-warning">{{ 'DASHBOARD.CHART_STOCK_BADGE' | translate }}</span>
+        </div>
+        <div class="chart-body">
+          <canvas id="dashStockFlowChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card glass-card">
+        <div class="chart-header">
+          <h3>💰 {{ 'DASHBOARD.COMMERCIAL_CHART_TREASURY' | translate }}</h3>
+          <span class="badge badge-warning">{{ 'DASHBOARD.CHART_TREASURY_BADGE' | translate }}</span>
+        </div>
+        <div class="chart-body">
+          <canvas id="dashTresorerieChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Alertes & Tâches ── -->
+    <div class="grid-cols-1 grid-cols-3-md kpi-grid">
+      <div class="kpi-card glass-card hover-glow" style="border-left: 4px solid #ef4444;">
+        <div class="kpi-icon-wrapper" style="background: linear-gradient(135deg, #ef4444, #b91c1c);">
+          <span class="material-symbols-outlined">receipt_long</span>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-title">{{ 'DASHBOARD.UNPAID_INVOICES' | translate }}</span>
+          <span class="kpi-value" style="color: #ef4444;">{{ commercialKpis.facturesEnAttente }}</span>
+          <span class="kpi-trend trend-down"><span>{{ 'DASHBOARD.TO_FOLLOW_UP' | translate }}</span></span>
+        </div>
+      </div>
+      <div class="kpi-card glass-card hover-glow" style="border-left: 4px solid #f59e0b;">
+        <div class="kpi-icon-wrapper" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+          <span class="material-symbols-outlined">shopping_cart</span>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-title">{{ 'DASHBOARD.PENDING_ORDERS' | translate }}</span>
+          <span class="kpi-value" style="color: #f59e0b;">{{ commercialKpis.commandesMois }}</span>
+          <span class="kpi-trend trend-neutral"><span>{{ 'DASHBOARD.THIS_MONTH' | translate }}</span></span>
+        </div>
+      </div>
+      <div class="kpi-card glass-card hover-glow" style="border-left: 4px solid #10b981;">
+        <div class="kpi-icon-wrapper" style="background: linear-gradient(135deg, #10b981, #059669);">
+          <span class="material-symbols-outlined">trending_up</span>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-title">{{ 'DASHBOARD.BILLING_RATE' | translate }}</span>
+          <span class="kpi-value" style="color: #10b981;">{{ commercialKpis.tauxFacturation }}%</span>
+          <span class="kpi-trend trend-up"><span>{{ 'DASHBOARD.COMMERCIAL_ORDERS_PAID' | translate }}</span></span>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+
+  <!-- ========================================== -->
+  <!-- COMPTABLE DASHBOARD                        -->
+  <!-- ========================================== -->
+  <ng-container *ngIf="userRole === 'COMPTABLE'">
+    <!-- KPI Cards Grid -->
+    <div class="grid-cols-1 grid-cols-4-md kpi-grid">
+      <div class="kpi-card glass-card hover-glow">
+        <div class="kpi-icon-wrapper sales-icon-bg" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+          <span class="material-symbols-outlined">account_balance_wallet</span>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-title">{{ 'DASHBOARD.COMPTABLE_REVENUE' | translate }}</span>
+          <span class="kpi-value">32 400 TND</span>
+          <span class="kpi-trend trend-up">
+            <span>{{ 'DASHBOARD.PAID' | translate }}</span>
+          </span>
+        </div>
+      </div>
+      <div class="kpi-card glass-card hover-glow">
+        <div class="kpi-icon-wrapper invoices-icon-bg" style="background: linear-gradient(135deg, #ef4444, #b91c1c);">
+          <span class="material-symbols-outlined">receipt</span>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-title">{{ 'DASHBOARD.COMPTABLE_UNPAID' | translate }}</span>
+          <span class="kpi-value">30 950 TND</span>
+          <span class="kpi-trend trend-down">
+            <span>{{ 'DASHBOARD.PENDING' | translate }}</span>
+          </span>
+        </div>
+      </div>
+      <div class="kpi-card glass-card hover-glow">
+        <div class="kpi-icon-wrapper products-icon-bg" style="background: linear-gradient(135deg, #10b981, #059669);">
+          <span class="material-symbols-outlined">percent</span>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-title">{{ 'DASHBOARD.COMPTABLE_TVA' | translate }}</span>
+          <span class="kpi-value">6 156 TND</span>
+          <span class="kpi-trend trend-neutral">
+            <span>{{ 'DASHBOARD.THIS_MONTH' | translate }}</span>
+          </span>
+        </div>
+      </div>
+      <div class="kpi-card glass-card hover-glow">
+        <div class="kpi-icon-wrapper clients-icon-bg" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
+          <span class="material-symbols-outlined">donut_large</span>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-title">{{ 'DASHBOARD.COMPTABLE_RECOVERY' | translate }}</span>
+          <span class="kpi-value">51.1%</span>
+          <span class="kpi-trend trend-neutral">
+            <span>Taux global</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="grid-cols-1 grid-cols-2-md charts-grid">
+      <div class="chart-card glass-card">
+        <div class="chart-header">
+          <h3>Flux Financier (Encaissé vs Impayé)</h3>
+          <span class="badge badge-warning">2026</span>
+        </div>
+        <div class="chart-body">
+          <canvas #comptableFlowChart></canvas>
+        </div>
+      </div>
+      <div class="chart-card glass-card">
+        <div class="chart-header">
+          <h3>{{ 'DASHBOARD.COMPTABLE_METHODS' | translate }}</h3>
+          <span class="badge badge-warning">Méthodes</span>
+        </div>
+        <div class="chart-body">
+          <canvas #comptableMethodChart></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Details -->
+    <div class="grid-cols-1 grid-cols-2-md details-grid">
+      <!-- Factures en attente -->
+      <div class="details-card glass-card">
+        <div class="details-header">
+          <div>
+            <h3>Factures en Attente</h3>
+            <p class="subtitle">Factures non réglées approchant de l'échéance</p>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>N° Facture</th>
+                <th>Client</th>
+                <th>Montant</th>
+                <th>Échéance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let invoice of pendingInvoices">
+                <td class="order-id" style="color: #f59e0b !important;">{{ invoice.id }}</td>
+                <td>{{ invoice.client }}</td>
+                <td class="amount">{{ invoice.amount | number:'1.2-2' }} TND</td>
+                <td>
+                  <span class="badge badge-warning" style="font-size: 0.75rem;">
+                    {{ invoice.delay }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- Derniers encaissements -->
+      <div class="details-card glass-card">
+        <div class="details-header">
+          <div>
+            <h3>Derniers Encaissements</h3>
+            <p class="subtitle">Historique récent des paiements reçus</p>
+          </div>
+        </div>
+        <div class="stock-alerts-list">
+          <div class="stock-alert-item" *ngFor="let pay of recentPayments">
+            <div class="alert-info">
+              <span class="material-symbols-outlined stock-icon" style="color: #10b981;">check_circle</span>
+              <div style="display: flex; flex-direction: column;">
+                <span class="product-name" style="font-weight: 600;">{{ pay.client }}</span>
+                <span class="subtitle" style="font-size: 0.75rem;">Réf: {{ pay.ref }} | Mode: {{ pay.method }}</span>
+              </div>
+            </div>
+            <div class="alert-action" style="flex-direction: column; align-items: flex-end;">
+              <span class="amount" style="color: #10b981;">+{{ pay.amount | number:'1.2-2' }} TND</span>
+              <span class="subtitle" style="font-size: 0.75rem;">Le {{ pay.date }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ========================================== -->
+  <!-- STOCK DASHBOARD — GESTIONNAIRE DE STOCK    -->
+  <!-- ========================================== -->
+  <ng-container *ngIf="userRole === 'STOCK'">
+
+    <!-- ── Hero Banner ── -->
+    <div class="stock-dash-hero">
+      <div class="sdh-left">
+        <div class="sdh-icon-wrap">
+          <span class="material-symbols-outlined">warehouse</span>
+        </div>
+        <div>
+          <div class="sdh-badge">
+            <span class="material-symbols-outlined" style="font-size:13px">verified</span>
+            Tableau de bord · Gestion des Stocks
+          </div>
+          <h2 class="sdh-title">Bonjour, {{ user?.prenom }} 👋</h2>
+          <p class="sdh-sub">Voici l'état de votre stock en temps réel.</p>
+        </div>
+      </div>
+      <div class="sdh-meta">
+        <span class="material-symbols-outlined">schedule</span>
+        {{ today | date:'EEEE d MMMM yyyy':'':'fr' }}
+      </div>
+    </div>
+
+    <!-- ── 4 KPI Cards ── -->
+    <div class="sdh-kpi-grid" *ngIf="!stockLoading; else kpiSkeleton">
+
+      <div class="sdh-kpi-card sdh-kpi-blue">
+        <div class="sdh-kpi-icon"><span class="material-symbols-outlined">account_balance_wallet</span></div>
+        <div class="sdh-kpi-body">
+          <span class="sdh-kpi-val">{{ realTotalStockValue | number:'1.0-0' }} <small>TND</small></span>
+          <span class="sdh-kpi-lbl">Valeur totale du stock</span>
+          <span class="sdh-kpi-sub">Quantité × Prix d'achat</span>
+        </div>
+        <span class="sdh-kpi-trend up"><span class="material-symbols-outlined">trending_up</span></span>
+      </div>
+
+      <div class="sdh-kpi-card sdh-kpi-green">
+        <div class="sdh-kpi-icon"><span class="material-symbols-outlined">inventory_2</span></div>
+        <div class="sdh-kpi-body">
+          <span class="sdh-kpi-val">{{ realActiveProducts }} <small>/ {{ realProducts.length }}</small></span>
+          <span class="sdh-kpi-lbl">Produits actifs</span>
+          <span class="sdh-kpi-sub">Stock disponible</span>
+        </div>
+        <span class="sdh-kpi-trend neutral"><span class="material-symbols-outlined">category</span></span>
+      </div>
+
+      <div class="sdh-kpi-card sdh-kpi-red" [class.sdh-pulse]="realAlertCount > 0">
+        <div class="sdh-kpi-icon"><span class="material-symbols-outlined">warning_amber</span></div>
+        <div class="sdh-kpi-body">
+          <span class="sdh-kpi-val">{{ realAlertCount }}</span>
+          <span class="sdh-kpi-lbl">Articles en alerte</span>
+          <span class="sdh-kpi-sub">{{ realAlertCount === 0 ? '✓ Stock optimal' : 'Réappro requis' }}</span>
+        </div>
+        <span class="sdh-kpi-trend" [class.down]="realAlertCount > 0" [class.up]="realAlertCount === 0">
+          <span class="material-symbols-outlined">{{ realAlertCount > 0 ? 'notification_important' : 'check_circle' }}</span>
+        </span>
+      </div>
+
+      <div class="sdh-kpi-card sdh-kpi-purple">
+        <div class="sdh-kpi-icon"><span class="material-symbols-outlined">bar_chart</span></div>
+        <div class="sdh-kpi-body">
+          <span class="sdh-kpi-val">{{ realMonthMovementsValue | number:'1.0-0' }} <small>TND</small></span>
+          <span class="sdh-kpi-lbl">Entrées du mois</span>
+          <span class="sdh-kpi-sub">Réapprovisionnements</span>
+        </div>
+        <span class="sdh-kpi-trend up"><span class="material-symbols-outlined">trending_up</span></span>
+      </div>
+
+    </div>
+
+    <!-- ── Skeleton loader ── -->
+    <ng-template #kpiSkeleton>
+      <div class="sdh-kpi-grid">
+        <div class="sdh-kpi-card sdh-skeleton" *ngFor="let i of [1,2,3,4]"></div>
+      </div>
+    </ng-template>
+
+    <!-- ── Quick Actions ── -->
+    <div class="sdh-quick-actions">
+      <a routerLink="/dashboard/products" [queryParams]="{tab:'products'}" class="sdh-action-btn sdh-action-blue">
+        <span class="material-symbols-outlined">inventory_2</span>
+        <span>Catalogue</span>
+      </a>
+      <a routerLink="/dashboard/products" [queryParams]="{tab:'warehouses'}" class="sdh-action-btn sdh-action-green">
+        <span class="material-symbols-outlined">warehouse</span>
+        <span>Entrepôts</span>
+      </a>
+      <a routerLink="/dashboard/products" [queryParams]="{tab:'movements'}" class="sdh-action-btn sdh-action-orange">
+        <span class="material-symbols-outlined">swap_horiz</span>
+        <span>Mouvements</span>
+      </a>
+      <a routerLink="/dashboard/products" [queryParams]="{tab:'inventories'}" class="sdh-action-btn sdh-action-purple">
+        <span class="material-symbols-outlined">checklist</span>
+        <span>Inventaires</span>
+      </a>
+    </div>
+
+    <!-- ── 2 Columns: Alerts + Recent Movements ── -->
+    <div class="sdh-bottom-grid">
+
+      <!-- Alert Products Table -->
+      <div class="sdh-panel glass-card">
+        <div class="sdh-panel-header">
+          <div>
+            <h3>🚨 Produits en Alerte</h3>
+            <p class="subtitle">Articles sous le seuil minimum de stock</p>
+          </div>
+          <span class="badge badge-danger" *ngIf="realAlertCount > 0">{{ realAlertCount }} alerte{{ realAlertCount > 1 ? 's' : '' }}</span>
+          <span class="badge badge-success" *ngIf="realAlertCount === 0">Tout est OK ✓</span>
+        </div>
+        <div class="sdh-empty" *ngIf="realAlertProducts.length === 0">
+          <span class="material-symbols-outlined">check_circle</span>
+          <p>Aucune rupture de stock détectée</p>
+        </div>
+        <div class="sdh-alert-list" *ngIf="realAlertProducts.length > 0">
+          <div class="sdh-alert-row" *ngFor="let p of realAlertProducts">
+            <div class="sdh-alert-info">
+              <span class="sdh-alert-icon"><span class="material-symbols-outlined">inventory_2</span></span>
+              <div>
+                <span class="sdh-alert-name">{{ p.nom }}</span>
+                <span class="sdh-alert-ref">{{ p.reference }} · Min: {{ p.seuilStockMin }}</span>
+              </div>
+            </div>
+            <div class="sdh-alert-qty">
+              <span class="sdh-qty-badge" [class.sdh-qty-zero]="p.quantiteStock === 0">{{ p.quantiteStock }}</span>
+              <span class="badge badge-danger" style="font-size:0.7rem;">Réappro</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Movements -->
+      <div class="sdh-panel glass-card">
+        <div class="sdh-panel-header">
+          <div>
+            <h3>📋 Mouvements Récents</h3>
+            <p class="subtitle">Journal des derniers flux d'inventaire</p>
+          </div>
+          <span class="badge badge-info">{{ realMovements.length }} total</span>
+        </div>
+        <div class="sdh-empty" *ngIf="recentRealMovements.length === 0">
+          <span class="material-symbols-outlined">swap_horiz</span>
+          <p>Aucun mouvement enregistré</p>
+        </div>
+        <div class="sdh-mov-list" *ngIf="recentRealMovements.length > 0">
+          <div class="sdh-mov-row" *ngFor="let m of recentRealMovements">
+            <span class="sdh-mov-icon" [class.sdh-mov-in]="m.typeMouvement === 'ENTREE'" [class.sdh-mov-out]="m.typeMouvement === 'SORTIE'">
+              <span class="material-symbols-outlined">{{ m.typeMouvement === 'ENTREE' ? 'arrow_downward' : 'arrow_upward' }}</span>
+            </span>
+            <div class="sdh-mov-info">
+              <span class="sdh-mov-prod">{{ m.produit?.nom || 'Produit inconnu' }}</span>
+              <span class="sdh-mov-date">{{ m.dateMouvement | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <span class="sdh-mov-qty" [class.sdh-mov-in]="m.typeMouvement === 'ENTREE'" [class.sdh-mov-out]="m.typeMouvement === 'SORTIE'">
+              {{ m.typeMouvement === 'ENTREE' ? '+' : '-' }}{{ m.quantite }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </ng-container>
+
+  <!-- ========================================== -->
+  <!-- DASHBOARD CLIENT (Portail Client)          -->
+  <!-- ========================================== -->
+  <ng-container *ngIf="userRole === 'USER' || userRole === 'CLIENT'">
+
+    <!-- Hero de bienvenue Client -->
+    <div class="client-hero-wrap">
+      <div class="client-hero-card">
+        <div class="client-hero-left">
+          <div class="client-avatar">{{ user?.prenom?.charAt(0) || 'C' }}</div>
+          <div class="client-hero-info">
+            <div class="client-welcome-label">Bienvenue sur votre espace</div>
+            <h1 class="client-hero-name">{{ user?.prenom }} {{ user?.nom }}</h1>
+            <div class="client-hero-badge">
+              <span class="material-symbols-outlined" style="font-size:14px">verified</span>
+              Client ERP — Portail Privé
+            </div>
+          </div>
+        </div>
+        <div class="client-hero-right">
+          <div class="client-date-box">
+            <div class="client-date-day">{{ today | date:'dd' }}</div>
+            <div class="client-date-month">{{ today | date:'MMMM yyyy' }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Accès rapides -->
+    <div class="client-section-title">Accès rapide</div>
+    <div class="client-quick-grid">
+      <a routerLink="/dashboard/client-factures" class="client-quick-card client-qc-orange">
+        <div class="cqc-icon"><span class="material-symbols-outlined">receipt_long</span></div>
+        <div class="cqc-body">
+          <div class="cqc-title">Mes Factures</div>
+          <div class="cqc-desc">Consultez et téléchargez vos factures</div>
+        </div>
+        <span class="material-symbols-outlined cqc-arrow">arrow_forward_ios</span>
+      </a>
+
+      <a routerLink="/dashboard/client-devis" class="client-quick-card client-qc-blue">
+        <div class="cqc-icon"><span class="material-symbols-outlined">description</span></div>
+        <div class="cqc-body">
+          <div class="cqc-title">Mes Devis</div>
+          <div class="cqc-desc">Consultez et répondez à vos devis</div>
+        </div>
+        <span class="material-symbols-outlined cqc-arrow">arrow_forward_ios</span>
+      </a>
+
+      <a routerLink="/dashboard/client-commandes" class="client-quick-card client-qc-green">
+        <div class="cqc-icon"><span class="material-symbols-outlined">local_shipping</span></div>
+        <div class="cqc-body">
+          <div class="cqc-title">Mes Commandes</div>
+          <div class="cqc-desc">Suivez l'état de vos commandes</div>
+        </div>
+        <span class="material-symbols-outlined cqc-arrow">arrow_forward_ios</span>
+      </a>
+
+      <a routerLink="/dashboard/client-profil" class="client-quick-card client-qc-purple">
+        <div class="cqc-icon"><span class="material-symbols-outlined">manage_accounts</span></div>
+        <div class="cqc-body">
+          <div class="cqc-title">Mon Profil</div>
+          <div class="cqc-desc">Gérez vos informations personnelles</div>
+        </div>
+        <span class="material-symbols-outlined cqc-arrow">arrow_forward_ios</span>
+      </a>
+    </div>
+
+    <!-- Info box -->
+    <div class="client-info-box">
+      <span class="material-symbols-outlined" style="color:#3b82f6;font-size:22px;flex-shrink:0">info</span>
+      <p>Utilisez le menu de navigation à gauche pour accéder à toutes les sections de votre espace client. Pour toute question, contactez votre commercial référent.</p>
+    </div>
+
+  </ng-container>
+</div>
+
+<style>
+/* ── Client Dashboard Styles ── */
+.client-hero-wrap { margin-bottom: 24px; }
+.client-hero-card {
+  background: linear-gradient(135deg, #0a0f1e 0%, #0f1f2e 55%, #0d5c61 100%) !important;
+  border-radius: 20px !important; padding: 28px 36px !important;
+  display: flex !important; align-items: center !important; justify-content: space-between !important;
+  position: relative !important; overflow: hidden !important; gap: 20px !important;
+  box-shadow: 0 10px 40px rgba(10,15,30,0.35) !important;
+  border: 1px solid rgba(255,255,255,0.06) !important;
+}
+.client-hero-card::before {
+  content: '' !important; position: absolute !important;
+  width: 380px; height: 380px;
+  background: radial-gradient(circle, rgba(13,200,215,0.15) 0%, transparent 70%) !important;
+  top: -100px; right: -60px; border-radius: 50%;
+}
+.client-hero-card::after {
+  content: ''; position: absolute;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(249,115,22,0.1) 0%, transparent 70%);
+  bottom: -60px; left: 20%; border-radius: 50%;
+}
+.client-hero-left { display: flex !important; align-items: center !important; gap: 20px !important; position: relative !important; z-index: 1 !important; }
+.client-avatar {
+  width: 68px !important; height: 68px !important; border-radius: 18px !important; flex-shrink: 0 !important;
+  background: linear-gradient(135deg, #f97316, #ea580c) !important;
+  display: flex !important; align-items: center !important; justify-content: center !important;
+  font-size: 1.7rem !important; font-weight: 900 !important; color: white !important;
+  box-shadow: 0 8px 24px rgba(249,115,22,0.45) !important;
+  border: 2px solid rgba(255,255,255,0.2) !important;
+}
+.client-welcome-label {
+  font-size: 0.72rem !important; color: rgba(255,255,255,0.5) !important;
+  font-weight: 700 !important; text-transform: uppercase !important;
+  letter-spacing: 0.09em !important; margin-bottom: 5px !important;
+  display: block !important;
+}
+.client-hero-name {
+  font-size: 1.6rem !important; font-weight: 800 !important;
+  color: white !important; margin: 0 0 10px !important;
+  letter-spacing: -0.02em !important; display: block !important;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+}
+.client-hero-badge {
+  display: inline-flex !important; align-items: center !important; gap: 6px !important;
+  background: rgba(13,200,215,0.12) !important; border: 1px solid rgba(13,200,215,0.3) !important;
+  color: #5eead4 !important; padding: 5px 14px !important; border-radius: 999px !important;
+  font-size: 0.72rem !important; font-weight: 700 !important;
+  letter-spacing: 0.03em !important;
+}
+.client-hero-right { position: relative !important; z-index: 1 !important; text-align: right !important; }
+.client-date-box {
+  background: rgba(255,255,255,0.07) !important; border: 1px solid rgba(255,255,255,0.12) !important;
+  border-radius: 16px !important; padding: 16px 24px !important; text-align: center !important;
+  backdrop-filter: blur(12px) !important;
+}
+.client-date-day { font-size: 2.2rem !important; font-weight: 900 !important; color: #34d399 !important; line-height: 1 !important; }
+.client-date-month { font-size: 0.75rem !important; color: rgba(255,255,255,0.45) !important; text-transform: capitalize !important; margin-top: 5px !important; font-weight: 600 !important; }
+
+.client-section-title {
+  font-size: 0.75rem !important; font-weight: 800 !important;
+  text-transform: uppercase !important; letter-spacing: 0.09em !important;
+  color: #64748b !important; margin-bottom: 16px !important;
+  display: flex !important; align-items: center !important; gap: 8px !important;
+}
+
+.client-quick-grid { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 14px !important; margin-bottom: 24px !important; }
+.client-quick-card {
+  display: flex !important; align-items: center !important; gap: 16px !important;
+  background: white !important; border: 1.5px solid #e8eef5 !important;
+  border-radius: 16px !important; padding: 18px 20px !important;
+  text-decoration: none !important; color: inherit !important;
+  box-shadow: 0 2px 8px rgba(15,23,42,0.05) !important;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s !important;
+  cursor: pointer !important;
+}
+.client-quick-card:hover { transform: translateY(-3px) !important; box-shadow: 0 8px 28px rgba(15,23,42,0.12) !important; }
+.client-qc-orange:hover { border-color: #f97316 !important; background: linear-gradient(135deg, #fff7ed, white) !important; }
+.client-qc-blue:hover   { border-color: #3b82f6 !important; background: linear-gradient(135deg, #eff6ff, white) !important; }
+.client-qc-green:hover  { border-color: #10b981 !important; background: linear-gradient(135deg, #f0fdf4, white) !important; }
+.client-qc-purple:hover { border-color: #8b5cf6 !important; background: linear-gradient(135deg, #f5f3ff, white) !important; }
+
+.cqc-icon { width: 48px !important; height: 48px !important; border-radius: 14px !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; }
+.cqc-icon .material-symbols-outlined { font-size: 24px !important; color: white !important; }
+.client-qc-orange .cqc-icon { background: linear-gradient(135deg, #f97316, #ea580c) !important; box-shadow: 0 4px 14px rgba(249,115,22,0.4) !important; }
+.client-qc-blue   .cqc-icon { background: linear-gradient(135deg, #3b82f6, #2563eb) !important; box-shadow: 0 4px 14px rgba(59,130,246,0.4) !important; }
+.client-qc-green  .cqc-icon { background: linear-gradient(135deg, #10b981, #059669) !important; box-shadow: 0 4px 14px rgba(16,185,129,0.4) !important; }
+.client-qc-purple .cqc-icon { background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important; box-shadow: 0 4px 14px rgba(139,92,246,0.4) !important; }
+
+.cqc-body { flex: 1 !important; }
+.cqc-title { font-size: 0.95rem !important; font-weight: 800 !important; color: #0f172a !important; margin-bottom: 3px !important; }
+.cqc-desc  { font-size: 0.78rem !important; color: #94a3b8 !important; }
+.cqc-arrow { font-size: 14px !important; color: #cbd5e1 !important; transition: transform 0.2s !important; margin-left: auto !important; }
+.client-quick-card:hover .cqc-arrow { transform: translateX(4px) !important; color: #94a3b8 !important; }
+
+.client-info-box {
+  display: flex !important; align-items: flex-start !important; gap: 14px !important;
+  background: linear-gradient(135deg, #eff6ff, #dbeafe) !important;
+  border: 1px solid #bfdbfe !important; border-radius: 14px !important; padding: 16px 20px !important;
+}
+.client-info-box p { font-size: 0.875rem !important; color: #1e40af !important; margin: 0 !important; line-height: 1.6 !important; }
+</style>
+

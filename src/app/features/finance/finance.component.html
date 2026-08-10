@@ -1,0 +1,472 @@
+<div class="finance-wrapper">
+
+  <!-- ══ HERO BANNER ══ -->
+  <div class="hero-banner" style="background:linear-gradient(135deg,#1e293b 0%,#0f2952 60%,#1d4ed8 100%);">
+    <div class="hero-content">
+      <div class="hero-left">
+        <div class="hero-icon-wrap" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);">
+          <span class="material-symbols-outlined hero-icon">account_balance</span>
+        </div>
+        <div class="hero-text">
+          <h1 class="hero-title">{{ 'FINANCE.TITLE' | translate }}</h1>
+          <p class="hero-desc">{{ 'FINANCE.SUBTITLE' | translate }}</p>
+        </div>
+      </div>
+      <!-- KPI mini-cards -->
+      <div class="hero-kpi-row">
+        <div class="hero-kpi-card">
+          <div class="hkpi-icon hkpi-green"><span class="material-symbols-outlined">trending_up</span></div>
+          <div class="hkpi-body">
+            <div class="hkpi-label">{{ 'FINANCE.KPI.REVENUE' | translate }}</div>
+            <div class="hkpi-value">{{ kpis.totalProduits | number:'1.0-0' }} TND</div>
+            <div class="hkpi-sub">{{ 'FINANCE.KPI.REVENUE_SUB' | translate }}</div>
+          </div>
+        </div>
+        <div class="hero-kpi-sep"></div>
+        <div class="hero-kpi-card">
+          <div class="hkpi-icon hkpi-red"><span class="material-symbols-outlined">trending_down</span></div>
+          <div class="hkpi-body">
+            <div class="hkpi-label">{{ 'FINANCE.KPI.CHARGES' | translate }}</div>
+            <div class="hkpi-value">{{ kpis.totalCharges | number:'1.0-0' }} TND</div>
+            <div class="hkpi-sub">{{ 'FINANCE.KPI.CHARGES_SUB' | translate }}</div>
+          </div>
+        </div>
+        <div class="hero-kpi-sep"></div>
+        <div class="hero-kpi-card">
+          <div class="hkpi-icon hkpi-blue"><span class="material-symbols-outlined">account_balance_wallet</span></div>
+          <div class="hkpi-body">
+            <div class="hkpi-label">{{ 'FINANCE.KPI.NET' | translate }}</div>
+            <div class="hkpi-value" [style.color]="kpis.beneficeNet >= 0 ? '#86efac' : '#fca5a5'">
+              {{ kpis.beneficeNet | number:'1.0-0' }} TND
+            </div>
+            <div class="hkpi-sub">{{ kpis.beneficeNet >= 0 ? ('FINANCE.KPI.NET_SUB_POS' | translate) : ('FINANCE.KPI.NET_SUB_NEG' | translate) }}</div>
+          </div>
+        </div>
+        <div class="hero-kpi-sep"></div>
+        <div class="hero-kpi-card">
+          <div class="hkpi-icon hkpi-orange"><span class="material-symbols-outlined">receipt_long</span></div>
+          <div class="hkpi-body">
+            <div class="hkpi-label">{{ 'FINANCE.KPI.VAT' | translate }}</div>
+            <div class="hkpi-value">{{ kpis.tvaAVerser | number:'1.3-3' }} TND</div>
+            <div class="hkpi-sub">{{ 'FINANCE.KPI.VAT_SUB' | translate }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-tabs">
+      <button class="hero-tab" [class.active]="activeTab==='dashboard'" (click)="switchTab('dashboard')">
+        <span class="material-symbols-outlined">dashboard</span> {{ 'FINANCE.TABS.DASHBOARD' | translate }}
+      </button>
+      <button class="hero-tab" [class.active]="activeTab==='tresorerie'" (click)="switchTab('tresorerie')">
+        <span class="material-symbols-outlined">account_balance_wallet</span> {{ 'FINANCE.TABS.TREASURY' | translate }}
+      </button>
+      <button class="hero-tab" [class.active]="activeTab==='ecritures'" (click)="switchTab('ecritures')">
+        <span class="material-symbols-outlined">menu_book</span> {{ 'FINANCE.TABS.ENTRIES' | translate }}
+      </button>
+      <button class="hero-tab" [class.active]="activeTab==='tva'" (click)="switchTab('tva')">
+        <span class="material-symbols-outlined">receipt_long</span> {{ 'FINANCE.TABS.VAT' | translate }}
+      </button>
+      <button class="hero-tab" [class.active]="activeTab==='resultat'" (click)="switchTab('resultat')">
+        <span class="material-symbols-outlined">bar_chart</span> {{ 'FINANCE.TABS.RESULT' | translate }}
+      </button>
+      <button class="hero-tab" [class.active]="activeTab==='calcul'" (click)="switchTab('calcul')">
+        <span class="material-symbols-outlined">calculate</span> {{ 'FINANCE.TABS.CALC' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <div class="com-body">
+    <div class="alert-success" *ngIf="successMsg">✅ {{ successMsg }}</div>
+    <div class="alert-error"   *ngIf="errorMsg">❌ {{ errorMsg }}</div>
+
+    <!-- ═══════════════════════ DASHBOARD ═══════════════════════ -->
+    <div *ngIf="activeTab === 'dashboard'">
+      <div class="section-header">
+        <h2 class="section-title"><span class="material-symbols-outlined">dashboard</span> {{ 'FINANCE.DASHBOARD.TITLE' | translate }}</h2>
+      </div>
+      <div class="kpi-grid-4">
+        <div class="kpi-card kpi-green">
+          <div class="kpi-icon"><span class="material-symbols-outlined">trending_up</span></div>
+          <div class="kpi-body">
+            <div class="kpi-value">{{ kpis.totalProduits | number:'1.3-3' }}</div>
+            <div class="kpi-label">{{ 'FINANCE.DASHBOARD.REVENUE_LABEL' | translate }}</div>
+            <div class="kpi-sub">{{ 'FINANCE.DASHBOARD.REVENUE_SUB' | translate }}</div>
+          </div>
+        </div>
+        <div class="kpi-card kpi-red">
+          <div class="kpi-icon"><span class="material-symbols-outlined">trending_down</span></div>
+          <div class="kpi-body">
+            <div class="kpi-value">{{ kpis.totalCharges | number:'1.3-3' }}</div>
+            <div class="kpi-label">{{ 'FINANCE.DASHBOARD.CHARGES_LABEL' | translate }}</div>
+            <div class="kpi-sub">{{ 'FINANCE.DASHBOARD.CHARGES_SUB' | translate }}</div>
+          </div>
+        </div>
+        <div class="kpi-card" [ngClass]="kpis.beneficeNet >= 0 ? 'kpi-green' : 'kpi-red'">
+          <div class="kpi-icon">
+            <span class="material-symbols-outlined">{{ kpis.beneficeNet >= 0 ? 'sentiment_satisfied' : 'sentiment_dissatisfied' }}</span>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-value">{{ kpis.beneficeNet | number:'1.3-3' }}</div>
+            <div class="kpi-label">{{ 'FINANCE.DASHBOARD.NET_LABEL' | translate }}</div>
+            <div class="kpi-sub">{{ kpis.beneficeNet >= 0 ? ('FINANCE.DASHBOARD.NET_POS' | translate) : ('FINANCE.DASHBOARD.NET_NEG' | translate) }}</div>
+          </div>
+        </div>
+        <div class="kpi-card kpi-orange">
+          <div class="kpi-icon"><span class="material-symbols-outlined">warning</span></div>
+          <div class="kpi-body">
+            <div class="kpi-value">{{ kpis.montantImpayes | number:'1.3-3' }}</div>
+            <div class="kpi-label">{{ 'FINANCE.DASHBOARD.UNPAID_LABEL' | translate }}</div>
+            <div class="kpi-sub">{{ kpis.facturesEnAttente }} {{ 'FINANCE.DASHBOARD.UNPAID_SUB' | translate }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TVA résumé -->
+      <div class="tva-summary-row">
+        <div class="tva-card">
+          <span class="material-symbols-outlined tva-icon">receipt_long</span>
+          <div class="tva-label">{{ 'FINANCE.DASHBOARD.TVA_COLLECTED' | translate }}</div>
+          <div class="tva-value tva-green">{{ kpis.tvaCollectee | number:'1.3-3' }} TND</div>
+          <div class="tva-sub">{{ 'FINANCE.DASHBOARD.TVA_COLLECTED_SUB' | translate }}</div>
+        </div>
+        <div class="tva-arrow"><span class="material-symbols-outlined">remove</span></div>
+        <div class="tva-card">
+          <span class="material-symbols-outlined tva-icon" style="color:#3b82f6;">receipt</span>
+          <div class="tva-label">{{ 'FINANCE.DASHBOARD.TVA_DEDUCTIBLE' | translate }}</div>
+          <div class="tva-value tva-blue">{{ kpis.tvaDeductible | number:'1.3-3' }} TND</div>
+          <div class="tva-sub">{{ 'FINANCE.DASHBOARD.TVA_DEDUCTIBLE_SUB' | translate }}</div>
+        </div>
+        <div class="tva-arrow"><span class="material-symbols-outlined">drag_handle</span></div>
+        <div class="tva-card tva-highlight">
+          <span class="material-symbols-outlined tva-icon" style="color:#f97316;">payments</span>
+          <div class="tva-label">{{ 'FINANCE.DASHBOARD.TVA_NET' | translate }}</div>
+          <div class="tva-value tva-orange">{{ kpis.tvaAVerser | number:'1.3-3' }} TND</div>
+          <div class="tva-sub">{{ 'FINANCE.DASHBOARD.TVA_NET_SUB' | translate }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════ TRÉSORERIE ═══════════════════════ -->
+    <div *ngIf="activeTab === 'tresorerie'">
+      <div class="section-header">
+        <h2 class="section-title"><span class="material-symbols-outlined">account_balance_wallet</span> {{ 'FINANCE.TREASURY.TITLE' | translate }}</h2>
+      </div>
+
+      <div class="solde-banner" [ngClass]="soldeCourant >= 0 ? 'solde-positif' : 'solde-negatif'">
+        <span class="material-symbols-outlined">{{ soldeCourant >= 0 ? 'check_circle' : 'warning' }}</span>
+        <div>
+          <div class="solde-label">{{ 'FINANCE.TREASURY.BALANCE_LABEL' | translate }}</div>
+          <div class="solde-value">{{ soldeCourant | number:'1.3-3' }} TND</div>
+        </div>
+      </div>
+
+      <div class="tresorerie-table" *ngIf="tresorerieData">
+        <table class="data-table">
+          <thead><tr>
+            <th>{{ 'FINANCE.TREASURY.COL_PERIOD' | translate }}</th>
+            <th class="text-green">{{ 'FINANCE.TREASURY.COL_IN' | translate }}</th>
+            <th class="text-red">{{ 'FINANCE.TREASURY.COL_OUT' | translate }}</th>
+            <th>{{ 'FINANCE.TREASURY.COL_BALANCE' | translate }}</th>
+          </tr></thead>
+          <tbody>
+            <tr *ngFor="let label of tresorerieData.labels; let i = index">
+              <td><strong>{{ label }}</strong></td>
+              <td class="montant text-green">{{ tresorerieData.entrees[i] | number:'1.3-3' }}</td>
+              <td class="montant text-red">{{ tresorerieData.sorties[i] | number:'1.3-3' }}</td>
+              <td class="montant" [style.color]="(tresorerieData.entrees[i] - tresorerieData.sorties[i]) >= 0 ? '#15803d' : '#b91c1c'">
+                {{ (tresorerieData.entrees[i] - tresorerieData.sorties[i]) | number:'1.3-3' }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════ PIÈCES COMPTABLES ═══════════════════════ -->
+    <div *ngIf="activeTab === 'ecritures'">
+      <div class="toolbar">
+        <div class="search-bar">
+          <span class="material-symbols-outlined">search</span>
+          <input type="text" [placeholder]="'FINANCE.ENTRIES.SEARCH' | translate" [(ngModel)]="ecritureSearch" (input)="filterEcritures()">
+        </div>
+        <select class="filter-select" [(ngModel)]="ecritureTypeFilter" (change)="filterEcritures()">
+          <option value="">{{ 'FINANCE.ENTRIES.ALL_TYPES' | translate }}</option>
+          <option value="VENTE">Vente</option>
+          <option value="ACHAT">Achat</option>
+          <option value="TRESORERIE">Trésorerie</option>
+          <option value="SALAIRE">Salaire</option>
+          <option value="CHARGE">Charge</option>
+          <option value="AUTRE">Autre</option>
+        </select>
+        <!-- Export buttons -->
+        <div class="export-btn-group">
+          <button class="btn-export" (click)="exportEcrituresCSV()" title="CSV Excel">
+            <span class="material-symbols-outlined">table_view</span> CSV
+          </button>
+          <button class="btn-export" (click)="exportEcrituresPDF()" title="Export PDF">
+            <span class="material-symbols-outlined">picture_as_pdf</span> PDF
+          </button>
+          <button class="btn-export" (click)="exportEcrituresWord()" title="Export Word">
+            <span class="material-symbols-outlined">description</span> Word
+          </button>
+          <button class="btn-export" (click)="printEcritures()" title="Imprimer">
+            <span class="material-symbols-outlined">print</span>
+          </button>
+        </div>
+        <button class="btn-primary" (click)="ouvrirNouvelleEcriture()">
+          <span class="material-symbols-outlined">add</span> {{ 'FINANCE.ENTRIES.NEW' | translate }}
+        </button>
+      </div>
+
+      <div class="table-wrap" *ngIf="ecrituresFiltrees.length > 0; else noEc" id="ecritures-table">
+        <table class="data-table">
+          <thead><tr>
+            <th>{{ 'FINANCE.ENTRIES.COL_NUMBER' | translate }}</th>
+            <th>{{ 'FINANCE.ENTRIES.COL_DATE' | translate }}</th>
+            <th>{{ 'FINANCE.ENTRIES.COL_LABEL' | translate }}</th>
+            <th>{{ 'FINANCE.ENTRIES.COL_TYPE' | translate }}</th>
+            <th>{{ 'FINANCE.ENTRIES.COL_DIRECTION' | translate }}</th>
+            <th>{{ 'FINANCE.ENTRIES.COL_AMOUNT' | translate }}</th>
+            <th>{{ 'FINANCE.ENTRIES.COL_ACCOUNT' | translate }}</th>
+            <th>{{ 'FINANCE.ENTRIES.COL_STATUS' | translate }}</th>
+            <th>{{ 'FINANCE.ENTRIES.COL_ACTIONS' | translate }}</th>
+          </tr></thead>
+          <tbody>
+            <tr *ngFor="let e of ecrituresFiltrees">
+              <td><span class="mono">{{ e.numeroEcriture }}</span></td>
+              <td>{{ e.dateEcriture | date:'dd/MM/yyyy' }}</td>
+              <td>{{ e.libelle }}</td>
+              <td><span class="badge badge-type">{{ e.typeEcriture }}</span></td>
+              <td><span class="badge" [ngClass]="getSensClass(e.sens)">{{ e.sens }}</span></td>
+              <td class="montant">{{ e.montant | number:'1.3-3' }} TND</td>
+              <td><span class="mono">{{ e.compteComptable || '—' }}</span></td>
+              <td><span class="badge" [ngClass]="getStatutEcritureClass(e.statut)">{{ e.statut }}</span></td>
+              <td class="actions-cell">
+                <button class="btn-icon btn-green" [title]="'FINANCE.ENTRIES.VALIDATE' | translate" *ngIf="e.statut === 'BROUILLON'" (click)="validerEcriture(e)">
+                  <span class="material-symbols-outlined">check_circle</span>
+                </button>
+                <button class="btn-icon btn-red" [title]="'FINANCE.ENTRIES.DELETE' | translate" *ngIf="e.statut === 'BROUILLON'" (click)="confirmerSuppression(e)">
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ng-template #noEc>
+        <div class="empty-state">
+          <span class="material-symbols-outlined">menu_book</span>
+          <p>{{ 'FINANCE.ENTRIES.NO_ENTRIES' | translate }}</p>
+          <button class="btn-primary" (click)="ouvrirNouvelleEcriture()">{{ 'FINANCE.ENTRIES.CREATE' | translate }}</button>
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- ═══════════════════════ DÉCLARATION TVA ═══════════════════════ -->
+    <div *ngIf="activeTab === 'tva'">
+      <div class="section-header">
+        <h2 class="section-title"><span class="material-symbols-outlined">receipt_long</span> {{ 'FINANCE.VAT.TITLE' | translate }}</h2>
+      </div>
+      <div class="tva-periode-selector">
+        <select class="form-control" [(ngModel)]="moisSelectionne" (change)="loadDeclarationTva()">
+          <option *ngFor="let m of moisOptions" [ngValue]="m.val">{{ m.label }}</option>
+        </select>
+        <select class="form-control" [(ngModel)]="anneeSelectionnee" (change)="loadDeclarationTva()">
+          <option *ngFor="let a of anneeOptions" [ngValue]="a">{{ a }}</option>
+        </select>
+        <button class="btn-primary" (click)="loadDeclarationTva()">
+          <span class="material-symbols-outlined">refresh</span> {{ 'FINANCE.VAT.CALC' | translate }}
+        </button>
+      </div>
+
+      <div class="declaration-card" *ngIf="declarationTva">
+        <div class="declaration-header">
+          <h3>{{ 'FINANCE.RESULT.TITLE' | translate }} — {{ declarationTva.periode }}</h3>
+          <span class="badge badge-tva">Taux {{ declarationTva.tauxTva }}</span>
+        </div>
+        <div class="declaration-grid">
+          <div class="decl-row">
+            <div class="decl-label"><span class="material-symbols-outlined">point_of_sale</span> {{ 'FINANCE.VAT.CA_MONTH' | translate }}</div>
+            <div class="decl-val">{{ declarationTva.chiffreAffairesMois | number:'1.3-3' }} TND</div>
+          </div>
+          <div class="decl-row tva-collectee">
+            <div class="decl-label"><span class="material-symbols-outlined">add_circle</span> {{ 'FINANCE.VAT.TVA_SALES' | translate }}</div>
+            <div class="decl-val">+ {{ declarationTva.tvaCollectee | number:'1.3-3' }} TND</div>
+          </div>
+          <div class="decl-row">
+            <div class="decl-label"><span class="material-symbols-outlined">shopping_bag</span> {{ 'FINANCE.VAT.PURCHASES_MONTH' | translate }}</div>
+            <div class="decl-val">{{ declarationTva.achatsMois | number:'1.3-3' }} TND</div>
+          </div>
+          <div class="decl-row tva-deductible">
+            <div class="decl-label"><span class="material-symbols-outlined">remove_circle</span> {{ 'FINANCE.VAT.TVA_PURCHASES' | translate }}</div>
+            <div class="decl-val">- {{ declarationTva.tvaDeductible | number:'1.3-3' }} TND</div>
+          </div>
+          <div class="decl-row decl-total" [ngClass]="declarationTva.tvaAVerser > 0 ? 'tva-a-verser' : 'tva-a-reporter'">
+            <div class="decl-label">
+              <span class="material-symbols-outlined">{{ declarationTva.tvaAVerser > 0 ? 'payments' : 'savings' }}</span>
+              {{ declarationTva.tvaAVerser > 0 ? ('FINANCE.VAT.TVA_TO_PAY' | translate) : ('FINANCE.VAT.TVA_CREDIT' | translate) }}
+            </div>
+            <div class="decl-val decl-total-val">
+              {{ (declarationTva.tvaAVerser > 0 ? declarationTva.tvaAVerser : declarationTva.tvaAReporter) | number:'1.3-3' }} TND
+            </div>
+          </div>
+        </div>
+        <p class="decl-note">
+          <span class="material-symbols-outlined">info</span>
+          {{ 'FINANCE.VAT.NOTE' | translate }}
+        </p>
+        <!-- P2 : Export TVA XML -->
+        <div class="decl-export-row">
+          <button class="btn-export-xml" (click)="exporterTvaXml()">
+            <span class="material-symbols-outlined">file_download</span>
+            {{ 'FINANCE.VAT.EXPORT_XML' | translate }}
+          </button>
+          <span class="decl-export-hint">Fichier : DeclarationTVA_{{ moisSelectionne | number:'2.0-0' }}_{{ anneeSelectionnee }}.xml</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════ COMPTE DE RÉSULTAT ═══════════════════════ -->
+    <div *ngIf="activeTab === 'resultat'">
+      <div class="section-header">
+        <h2 class="section-title"><span class="material-symbols-outlined">bar_chart</span> {{ 'FINANCE.RESULT.TITLE' | translate }}</h2>
+        <div class="annee-selector">
+          <select class="form-control" [(ngModel)]="anneeSelectionnee" (change)="loadCompteResultat()">
+            <option *ngFor="let a of anneeOptions" [ngValue]="a">{{ a }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="resultat-card" *ngIf="compteResultat">
+        <div class="resultat-header">
+          <h3>{{ 'FINANCE.RESULT.TITLE' | translate }} {{ compteResultat.annee }}</h3>
+          <span class="badge" [ngClass]="compteResultat.positif ? 'badge-positif' : 'badge-negatif'">
+            {{ compteResultat.positif ? ('FINANCE.RESULT.POSITIVE' | translate) : ('FINANCE.RESULT.NEGATIVE' | translate) }}
+          </span>
+        </div>
+        <table class="resultat-table">
+          <tbody>
+            <tr class="produits-row">
+              <td><strong>{{ 'FINANCE.RESULT.INCOME_TITLE' | translate }}</strong></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td class="indent">{{ 'FINANCE.RESULT.INCOME_LINE' | translate }}</td>
+              <td class="montant text-green">{{ compteResultat.produits | number:'1.3-3' }} TND</td>
+            </tr>
+            <tr class="subtotal">
+              <td><strong>{{ 'FINANCE.RESULT.INCOME_TOTAL' | translate }}</strong></td>
+              <td class="montant text-green"><strong>{{ compteResultat.produits | number:'1.3-3' }} TND</strong></td>
+            </tr>
+            <tr class="charges-row">
+              <td><strong>{{ 'FINANCE.RESULT.CHARGES_TITLE' | translate }}</strong></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td class="indent">{{ 'FINANCE.RESULT.CHARGES_LINE' | translate }}</td>
+              <td class="montant text-red">{{ compteResultat.charges | number:'1.3-3' }} TND</td>
+            </tr>
+            <tr class="subtotal">
+              <td><strong>{{ 'FINANCE.RESULT.CHARGES_TOTAL' | translate }}</strong></td>
+              <td class="montant text-red"><strong>{{ compteResultat.charges | number:'1.3-3' }} TND</strong></td>
+            </tr>
+            <tr class="resultat-row" [ngClass]="compteResultat.positif ? 'res-positif' : 'res-negatif'">
+              <td><strong>{{ 'FINANCE.RESULT.NET_RESULT' | translate }}</strong></td>
+              <td class="montant"><strong>{{ compteResultat.resultatNet | number:'1.3-3' }} TND</strong></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="taux-marge">
+          <span class="material-symbols-outlined">percent</span>
+          {{ 'FINANCE.RESULT.MARGIN_RATE' | translate }} <strong>{{ compteResultat.tauxMarge }}%</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════ MOTEUR DE CALCUL ═══════════════════════ -->
+    <div *ngIf="activeTab === 'calcul'">
+      <app-moteur-calcul></app-moteur-calcul>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ MODALE NOUVELLE ÉCRITURE ══ -->
+<div class="modal-overlay" *ngIf="showEcritureModal" (click)="showEcritureModal=false">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-header-icon" style="background:linear-gradient(135deg,#1d4ed8,#1e40af);">
+        <span class="material-symbols-outlined">menu_book</span>
+      </div>
+      <div><h3>{{ 'FINANCE.MODAL.NEW_ENTRY_TITLE' | translate }}</h3><p>{{ 'FINANCE.MODAL.NEW_ENTRY_SUB' | translate }}</p></div>
+      <button class="modal-close" (click)="showEcritureModal=false"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">{{ 'FINANCE.MODAL.LABEL' | translate }}</label>
+        <input class="form-control" type="text" [(ngModel)]="ecritureForm.libelle" [placeholder]="'FINANCE.MODAL.LABEL_PH' | translate">
+      </div>
+      <div class="form-row-2">
+        <div class="form-group">
+          <label class="form-label">{{ 'FINANCE.MODAL.TYPE' | translate }}</label>
+          <select class="form-control" [(ngModel)]="ecritureForm.typeEcriture">
+            <option value="VENTE">Vente</option>
+            <option value="ACHAT">Achat</option>
+            <option value="TRESORERIE">Trésorerie</option>
+            <option value="SALAIRE">Salaire</option>
+            <option value="CHARGE">Charge</option>
+            <option value="AUTRE">Autre</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">{{ 'FINANCE.MODAL.DIRECTION' | translate }}</label>
+          <select class="form-control" [(ngModel)]="ecritureForm.sens">
+            <option value="DEBIT">{{ 'FINANCE.MODAL.DEBIT' | translate }}</option>
+            <option value="CREDIT">{{ 'FINANCE.MODAL.CREDIT' | translate }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group">
+          <label class="form-label">{{ 'FINANCE.MODAL.AMOUNT' | translate }}</label>
+          <input class="form-control" type="number" step="0.001" [(ngModel)]="ecritureForm.montant">
+        </div>
+        <div class="form-group">
+          <label class="form-label">{{ 'FINANCE.MODAL.ACCOUNT' | translate }}</label>
+          <input class="form-control" type="text" [(ngModel)]="ecritureForm.compteComptable" [placeholder]="'FINANCE.MODAL.ACCOUNT_PH' | translate">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">{{ 'FINANCE.MODAL.REF' | translate }}</label>
+        <input class="form-control" type="text" [(ngModel)]="ecritureForm.referencePiece" [placeholder]="'FINANCE.MODAL.REF_PH' | translate">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="showEcritureModal=false">{{ 'FINANCE.MODAL.CANCEL' | translate }}</button>
+      <button class="btn-primary" (click)="soumettreEcriture()" [disabled]="loading">
+        <span class="material-symbols-outlined">save</span>
+        {{ loading ? ('FINANCE.MODAL.SAVING' | translate) : ('FINANCE.MODAL.SAVE' | translate) }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODALE SUPPRESSION ══ -->
+<div class="modal-overlay" *ngIf="showDeleteModal" (click)="showDeleteModal=false">
+  <div class="modal-box modal-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-header-icon" style="background:linear-gradient(135deg,#ef4444,#dc2626);">
+        <span class="material-symbols-outlined">delete</span>
+      </div>
+      <div><h3>{{ 'FINANCE.MODAL.DELETE_TITLE' | translate }}</h3></div>
+      <button class="modal-close" (click)="showDeleteModal=false"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.9rem;color:#475569;">{{ 'FINANCE.MODAL.DELETE_CONFIRM' | translate }} <strong>{{ selectedEcriture?.numeroEcriture }}</strong> ?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="showDeleteModal=false">{{ 'FINANCE.MODAL.CANCEL' | translate }}</button>
+      <button class="btn-danger" (click)="supprimerEcriture()">{{ 'FINANCE.MODAL.DELETE_BTN' | translate }}</button>
+    </div>
+  </div>
+</div>

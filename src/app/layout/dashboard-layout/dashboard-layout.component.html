@@ -1,0 +1,730 @@
+<!-- ════════════════════════════════════════════════════════════ -->
+<!--  APP LAYOUT                                                 -->
+<!-- ════════════════════════════════════════════════════════════ -->
+<div class="app-layout"
+  [class.sidebar-collapsed]="!sidebarOpen"
+  [class.sidebar-right]="sidebarPosition === 'right'"
+  [class.no-animations]="!animationsEnabled"
+  [attr.data-theme-preset]="activeThemePreset">
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!--  SIDEBAR PREMIUM                                          -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <aside class="app-sidebar" [class.sidebar-stock]="isStockRole"
+    [style.background]="themeService.currentTheme.sidebarColor">
+
+    <!-- ── Sidebar Header (Logo) ── -->
+    <div class="sidebar-brand">
+      <ng-container *ngIf="themeService.currentTheme.logoUrl; else defaultLogoIcon">
+        <img [src]="themeService.currentTheme.logoUrl" alt="Logo" class="sidebar-logo-img" />
+      </ng-container>
+      <ng-template #defaultLogoIcon>
+        <div class="sidebar-brand-icon">
+          <span class="material-symbols-outlined">insights</span>
+        </div>
+      </ng-template>
+      <div class="sidebar-brand-text" *ngIf="sidebarOpen">
+        <span class="brand-name">{{ themeService.currentTheme.logoText || 'BENJEDDOU' }}</span>
+        <span class="brand-sub">ERP Platform</span>
+      </div>
+      <button class="sidebar-collapse-btn" (click)="toggleSidebar()"
+        [title]="sidebarOpen ? ('NAV.COLLAPSE' | translate) : ('NAV.EXPAND' | translate)">
+        <span class="material-symbols-outlined">{{ sidebarOpen ? 'chevron_left' : 'chevron_right' }}</span>
+      </button>
+    </div>
+
+    <!-- ── Navigation ── -->
+    <nav class="sidebar-nav">
+      <div class="nav-section-label" *ngIf="sidebarOpen">{{ 'NAV.NAVIGATION' | translate }}</div>
+      <ul>
+
+        <!-- ── Tableau de Bord ── -->
+        <li>
+          <a routerLink="home" routerLinkActive="active" class="nav-item nav-main-link"
+            [title]="!sidebarOpen ? ('NAV.DASHBOARD' | translate) : null">
+            <span class="nav-icon material-symbols-outlined">dashboard</span>
+            <span class="nav-label" *ngIf="sidebarOpen">{{ 'NAV.DASHBOARD' | translate }}</span>
+            <span class="nav-active-indicator"></span>
+          </a>
+        </li>
+
+        <!-- ── GESTION COMMERCIALE ── -->
+        <ng-container *ngIf="hasRole('ROLE_ADMIN') || hasRole('ROLE_COMMERCIAL')">
+          <li class="nav-group">
+            <button class="nav-group-toggle" (click)="toggleGroup('commercial')" [class.open]="isGroupOpen('commercial')"
+              [title]="!sidebarOpen ? ('NAV.COMMERCIAL' | translate) : null">
+              <span class="nav-group-left">
+                <span class="nav-icon nav-group-icon material-symbols-outlined">storefront</span>
+                <span class="nav-label" *ngIf="sidebarOpen">{{ 'NAV.COMMERCIAL' | translate }}</span>
+              </span>
+              <span class="nav-chevron material-symbols-outlined" *ngIf="sidebarOpen">expand_more</span>
+            </button>
+            <ul class="nav-submenu" [class.submenu-open]="isGroupOpen('commercial') && sidebarOpen">
+              <li><a routerLink="commercial" [queryParams]="{tab: 'clients'}" class="nav-sub-link">
+                <span class="material-symbols-outlined">people</span><span>{{ 'NAV.CLIENTS' | translate }}</span>
+              </a></li>
+              <li><a routerLink="commercial" [queryParams]="{tab: 'fournisseurs'}" class="nav-sub-link">
+                <span class="material-symbols-outlined">local_shipping</span><span>{{ 'NAV.SUPPLIERS' | translate }}</span>
+              </a></li>
+              <li><a routerLink="commercial" [queryParams]="{tab: 'devis'}" class="nav-sub-link">
+                <span class="material-symbols-outlined">description</span><span>{{ 'NAV.QUOTES' | translate }}</span>
+              </a></li>
+              <li><a routerLink="commercial" [queryParams]="{tab: 'commandes'}" class="nav-sub-link">
+                <span class="material-symbols-outlined">shopping_cart</span><span>{{ 'NAV.ORDERS' | translate }}</span>
+              </a></li>
+              <li><a routerLink="commercial" [queryParams]="{tab: 'factures'}" class="nav-sub-link">
+                <span class="material-symbols-outlined">receipt_long</span><span>{{ 'NAV.INVOICES' | translate }}</span>
+              </a></li>
+            </ul>
+          </li>
+        </ng-container>
+
+        <!-- ── STOCK & INVENTAIRE ── -->
+        <ng-container *ngIf="hasRole('ROLE_ADMIN') || hasRole('ROLE_COMMERCIAL') || hasRole('ROLE_STOCK')">
+          <li class="nav-group">
+            <button class="nav-group-toggle" (click)="toggleGroup('stock')" [class.open]="isGroupOpen('stock')"
+              [title]="!sidebarOpen ? ('NAV.STOCK' | translate) : null">
+              <span class="nav-group-left">
+                <span class="nav-icon nav-group-icon material-symbols-outlined">inventory_2</span>
+                <span class="nav-label" *ngIf="sidebarOpen">{{ 'NAV.STOCK' | translate }}</span>
+                <span class="alert-badge-sm" *ngIf="alertCount > 0">{{ alertCount > 9 ? '9+' : alertCount }}</span>
+              </span>
+              <span class="nav-chevron material-symbols-outlined" *ngIf="sidebarOpen">expand_more</span>
+            </button>
+            <ul class="nav-submenu" [class.submenu-open]="isGroupOpen('stock') && sidebarOpen">
+              <li><a routerLink="products" [queryParams]="{tab: 'products'}" class="nav-sub-link">
+                <span class="material-symbols-outlined">inventory_2</span><span>{{ 'NAV.PRODUCTS' | translate }}</span>
+                <span class="alert-badge" *ngIf="alertCount > 0">{{ alertCount > 9 ? '9+' : alertCount }}</span>
+              </a></li>
+              <li><a routerLink="products" [queryParams]="{tab: 'warehouses'}" class="nav-sub-link">
+                <span class="material-symbols-outlined">warehouse</span><span>{{ 'NAV.WAREHOUSES' | translate }}</span>
+              </a></li>
+              <li><a routerLink="products" [queryParams]="{tab: 'movements'}" class="nav-sub-link">
+                <span class="material-symbols-outlined">swap_horiz</span><span>{{ 'NAV.MOVEMENTS' | translate }}</span>
+              </a></li>
+              <li><a routerLink="products" [queryParams]="{tab: 'inventories'}" class="nav-sub-link">
+                <span class="material-symbols-outlined">checklist</span><span>{{ 'NAV.INVENTORIES' | translate }}</span>
+              </a></li>
+            </ul>
+          </li>
+        </ng-container>
+
+        <!-- ── ACHATS ── -->
+        <ng-container *ngIf="hasRole('ROLE_ADMIN') || hasRole('ROLE_ACHAT')">
+          <li class="nav-group">
+            <button class="nav-group-toggle" (click)="toggleGroup('achats')" [class.open]="isGroupOpen('achats')"
+              [title]="!sidebarOpen ? ('NAV.PURCHASES' | translate) : null">
+              <span class="nav-group-left">
+                <span class="nav-icon nav-group-icon material-symbols-outlined">shopping_bag</span>
+                <span class="nav-label" *ngIf="sidebarOpen">{{ 'NAV.PURCHASES' | translate }}</span>
+              </span>
+              <span class="nav-chevron material-symbols-outlined" *ngIf="sidebarOpen">expand_more</span>
+            </button>
+            <ul class="nav-submenu" [class.submenu-open]="isGroupOpen('achats') && sidebarOpen">
+              <li><a routerLink="achats" [queryParams]="{tab: 'commandes'}" class="nav-sub-link">
+                <span class="material-symbols-outlined">receipt</span><span>{{ 'NAV.PURCHASE_ORDERS' | translate }}</span>
+              </a></li>
+              <li><a routerLink="achats" [queryParams]="{tab: 'receptions'}" class="nav-sub-link">
+                <span class="material-symbols-outlined">inventory</span><span>{{ 'NAV.RECEPTIONS' | translate }}</span>
+              </a></li>
+              <li><a routerLink="achats" [queryParams]="{tab: 'fournisseurs'}" class="nav-sub-link">
+                <span class="material-symbols-outlined">local_shipping</span><span>{{ 'NAV.SUPPLIERS' | translate }}</span>
+              </a></li>
+            </ul>
+          </li>
+        </ng-container>
+
+        <!-- ── FINANCE ── -->
+        <ng-container *ngIf="hasRole('ROLE_ADMIN') || hasRole('ROLE_COMPTABLE')">
+          <li class="nav-group">
+            <button class="nav-group-toggle" (click)="toggleGroup('finance')" [class.open]="isGroupOpen('finance')"
+              [title]="!sidebarOpen ? ('NAV.FINANCE' | translate) : null">
+              <span class="nav-group-left">
+                <span class="nav-icon nav-group-icon material-symbols-outlined">account_balance</span>
+                <span class="nav-label" *ngIf="sidebarOpen">{{ 'NAV.FINANCE' | translate }}</span>
+              </span>
+              <span class="nav-chevron material-symbols-outlined" *ngIf="sidebarOpen">expand_more</span>
+            </button>
+            <ul class="nav-submenu" [class.submenu-open]="isGroupOpen('finance') && sidebarOpen">
+              <li><a routerLink="finance" [queryParams]="{tab: 'dashboard'}" class="nav-sub-link">
+                <span class="material-symbols-outlined">bar_chart</span><span>{{ 'NAV.DASHBOARD' | translate }}</span>
+              </a></li>
+              <li><a routerLink="finance" [queryParams]="{tab: 'tresorerie'}" class="nav-sub-link">
+                <span class="material-symbols-outlined">account_balance_wallet</span><span>{{ 'NAV.TREASURY' | translate }}</span>
+              </a></li>
+              <li><a routerLink="finance" [queryParams]="{tab: 'ecritures'}" class="nav-sub-link">
+                <span class="material-symbols-outlined">menu_book</span><span>{{ 'NAV.ACCOUNTING' | translate }}</span>
+              </a></li>
+              <li><a routerLink="finance" [queryParams]="{tab: 'tva'}" class="nav-sub-link">
+                <span class="material-symbols-outlined">receipt_long</span><span>{{ 'NAV.VAT' | translate }}</span>
+              </a></li>
+              <li><a routerLink="finance" [queryParams]="{tab: 'calcul'}" class="nav-sub-link">
+                <span class="material-symbols-outlined">calculate</span><span>{{ 'NAV.CALC_ENGINE' | translate }}</span>
+              </a></li>
+            </ul>
+          </li>
+        </ng-container>
+
+        <!-- ── DOCUMENTS ── -->
+        <ng-container *ngIf="!isClientRole">
+          <li class="nav-group">
+            <button class="nav-group-toggle" (click)="toggleGroup('documents')" [class.open]="isGroupOpen('documents')"
+              [title]="!sidebarOpen ? ('NAV.DOCUMENTS' | translate) : null">
+              <span class="nav-group-left">
+                <span class="nav-icon nav-group-icon material-symbols-outlined">folder_open</span>
+                <span class="nav-label" *ngIf="sidebarOpen">{{ 'NAV.DOCUMENTS' | translate }}</span>
+              </span>
+              <span class="nav-chevron material-symbols-outlined" *ngIf="sidebarOpen">expand_more</span>
+            </button>
+            <ul class="nav-submenu" [class.submenu-open]="isGroupOpen('documents') && sidebarOpen">
+              <li><a routerLink="documents" routerLinkActive="active" class="nav-sub-link">
+                <span class="material-symbols-outlined">description</span><span>{{ 'NAV.DOC_MANAGEMENT' | translate }}</span>
+              </a></li>
+              <li><a routerLink="ocr" routerLinkActive="active" class="nav-sub-link nav-sub-link-ia">
+                <span class="material-symbols-outlined">document_scanner</span><span>{{ 'NAV.OCR_SCANNER' | translate }}</span>
+              </a></li>
+            </ul>
+          </li>
+        </ng-container>
+
+        <!-- ── IA ── -->
+        <ng-container *ngIf="!isClientRole">
+          <li class="nav-group">
+            <button class="nav-group-toggle" (click)="toggleGroup('ia')" [class.open]="isGroupOpen('ia')"
+              [title]="!sidebarOpen ? ('NAV.AI' | translate) : null">
+              <span class="nav-group-left">
+                <span class="nav-icon nav-group-icon nav-group-icon-ia material-symbols-outlined">psychology</span>
+                <span class="nav-label" *ngIf="sidebarOpen">{{ 'NAV.AI' | translate }}</span>
+                <span class="nav-badge-ia" *ngIf="sidebarOpen">IA</span>
+              </span>
+              <span class="nav-chevron material-symbols-outlined" *ngIf="sidebarOpen">expand_more</span>
+            </button>
+            <ul class="nav-submenu" [class.submenu-open]="isGroupOpen('ia') && sidebarOpen">
+              <li><a routerLink="recherche-avancee" routerLinkActive="active" class="nav-sub-link nav-sub-link-ia">
+                <span class="material-symbols-outlined">manage_search</span><span>{{ 'NAV.ADVANCED_SEARCH' | translate }}</span>
+              </a></li>
+            </ul>
+          </li>
+        </ng-container>
+
+        <!-- ── ADMINISTRATION ── -->
+        <ng-container *ngIf="hasRole('ROLE_ADMIN')">
+          <div class="nav-section-label" *ngIf="sidebarOpen">{{ 'NAV.ADMINISTRATION' | translate }}</div>
+          <li class="nav-group">
+            <button class="nav-group-toggle" (click)="toggleGroup('admin')" [class.open]="isGroupOpen('admin')"
+              [title]="!sidebarOpen ? ('NAV.ADMINISTRATION' | translate) : null">
+              <span class="nav-group-left">
+                <span class="nav-icon nav-group-icon material-symbols-outlined">admin_panel_settings</span>
+                <span class="nav-label" *ngIf="sidebarOpen">{{ 'NAV.ADMINISTRATION' | translate }}</span>
+              </span>
+              <span class="nav-chevron material-symbols-outlined" *ngIf="sidebarOpen">expand_more</span>
+            </button>
+            <ul class="nav-submenu" [class.submenu-open]="isGroupOpen('admin') && sidebarOpen">
+              <li><a routerLink="admin-users" routerLinkActive="active" class="nav-sub-link">
+                <span class="material-symbols-outlined">manage_accounts</span><span>{{ 'NAV.USERS' | translate }}</span>
+              </a></li>
+              <li><a routerLink="roles-permissions" routerLinkActive="active" class="nav-sub-link">
+                <span class="material-symbols-outlined">shield</span><span>{{ 'NAV.ROLES' | translate }}</span>
+              </a></li>
+              <li><a routerLink="clients" routerLinkActive="active" class="nav-sub-link">
+                <span class="material-symbols-outlined">verified_user</span><span>{{ 'NAV.CLIENTS_KYC' | translate }}</span>
+              </a></li>
+              <li><a routerLink="abonnements" routerLinkActive="active" class="nav-sub-link">
+                <span class="material-symbols-outlined">credit_card</span><span>{{ 'NAV.SUBSCRIPTIONS' | translate }}</span>
+              </a></li>
+              <li><a routerLink="audit" routerLinkActive="active" class="nav-sub-link nav-sub-link-audit">
+                <span class="material-symbols-outlined">security</span><span>{{ 'NAV.AUDIT_LOG' | translate }}</span>
+              </a></li>
+              <li><a routerLink="moteur-calcul" routerLinkActive="active" class="nav-sub-link">
+                <span class="material-symbols-outlined">calculate</span><span>{{ 'NAV.CALC_ENGINE' | translate }}</span>
+              </a></li>
+              <li *ngIf="hasRole('ROLE_SUPERADMIN')">
+                <a routerLink="entreprises" routerLinkActive="active" class="nav-sub-link nav-sub-link-entreprises">
+                  <span class="material-symbols-outlined">corporate_fare</span><span>{{ 'NAV.COMPANY_MANAGEMENT' | translate }}</span>
+                </a>
+              </li>
+              <li><a routerLink="branding" routerLinkActive="active" class="nav-sub-link nav-sub-link-branding">
+                <span class="material-symbols-outlined">palette</span><span>{{ 'NAV.VISUAL_IDENTITY' | translate }}</span>
+              </a></li>
+            </ul>
+          </li>
+        </ng-container>
+
+        <!-- ── MON ESPACE CLIENT ── -->
+        <ng-container *ngIf="isClientRole">
+          <li class="nav-group">
+            <button class="nav-group-toggle" (click)="toggleGroup('client')" [class.open]="isGroupOpen('client')"
+              [title]="!sidebarOpen ? ('NAV.MY_SPACE' | translate) : null">
+              <span class="nav-group-left">
+                <span class="nav-icon nav-group-icon material-symbols-outlined">person</span>
+                <span class="nav-label" *ngIf="sidebarOpen">{{ 'NAV.MY_SPACE' | translate }}</span>
+              </span>
+              <span class="nav-chevron material-symbols-outlined" *ngIf="sidebarOpen">expand_more</span>
+            </button>
+            <ul class="nav-submenu" [class.submenu-open]="isGroupOpen('client') && sidebarOpen">
+              <li><a routerLink="client-factures" routerLinkActive="active" class="nav-sub-link">
+                <span class="material-symbols-outlined">receipt_long</span><span>{{ 'NAV.MY_INVOICES' | translate }}</span>
+              </a></li>
+              <li><a routerLink="client-devis" routerLinkActive="active" class="nav-sub-link">
+                <span class="material-symbols-outlined">description</span><span>{{ 'NAV.MY_QUOTES' | translate }}</span>
+              </a></li>
+              <li><a routerLink="client-commandes" routerLinkActive="active" class="nav-sub-link">
+                <span class="material-symbols-outlined">local_shipping</span><span>{{ 'NAV.MY_ORDERS' | translate }}</span>
+              </a></li>
+              <li><a routerLink="client-profil" routerLinkActive="active" class="nav-sub-link">
+                <span class="material-symbols-outlined">person</span><span>{{ 'NAV.MY_PROFILE' | translate }}</span>
+              </a></li>
+              <li><a routerLink="client-releve" routerLinkActive="active" class="nav-sub-link">
+                <span class="material-symbols-outlined">account_balance</span><span>{{ 'NAV.ACCOUNT_STATEMENT' | translate }}</span>
+              </a></li>
+              <li><a routerLink="client-demande-devis" routerLinkActive="active" class="nav-sub-link">
+                <span class="material-symbols-outlined">request_quote</span><span>{{ 'NAV.REQUEST_QUOTE' | translate }}</span>
+              </a></li>
+            </ul>
+          </li>
+        </ng-container>
+
+      </ul>
+    </nav>
+
+    <!-- ── Sidebar Bottom — User Account ── -->
+    <div class="sidebar-bottom">
+
+      <!-- Trial badge -->
+      <div class="sidebar-trial-badge" *ngIf="isTrialUser && sidebarOpen">
+        <span class="material-symbols-outlined">timer</span>
+        <span>{{ 'USER.TRIAL' | translate }} — <strong>{{ trialRestant }}</strong>/30</span>
+      </div>
+
+      <!-- ── USER CARD ── -->
+      <div class="sidebar-user-card" *ngIf="user" (click)="toggleUserBottomMenu()" [class.menu-open]="userBottomMenuOpen">
+        <div class="sidebar-user-avatar"
+          [class.avatar-photo]="avatarDisplay.type === 'photo'"
+          [class.avatar-emoji]="avatarDisplay.type === 'emoji'"
+          [class.avatar-initials]="avatarDisplay.type === 'initials'"
+          [style.background]="avatarDisplay.type === 'emoji' ? avatarDisplay.bg : null">
+          <ng-container [ngSwitch]="avatarDisplay.type">
+            <img *ngSwitchCase="'photo'" [src]="avatarDisplay.value" alt="Avatar" />
+            <span *ngSwitchCase="'emoji'">{{ avatarDisplay.value }}</span>
+            <span *ngSwitchDefault>{{ avatarDisplay.value }}</span>
+          </ng-container>
+        </div>
+        <div class="sidebar-user-info" *ngIf="sidebarOpen">
+          <span class="sidebar-user-name">{{ user.prenom }} {{ user.nom }}</span>
+          <span class="sidebar-user-role" [class]="getRoleBadgeClass()">{{ getRoleLabel() }}</span>
+        </div>
+        <span class="material-symbols-outlined sub-menu-arrow" *ngIf="sidebarOpen">more_horiz</span>
+      </div>
+
+      <!-- Menu popup utilisateur -->
+      <div class="user-bottom-menu" *ngIf="userBottomMenuOpen && user" @fadeSlideUp>
+        <div class="ubm-header">
+          <div class="ubm-avatar"
+            [class.avatar-photo]="avatarDisplay.type === 'photo'"
+            [class.avatar-emoji]="avatarDisplay.type === 'emoji'"
+            [class.avatar-initials]="avatarDisplay.type === 'initials'"
+            [style.background]="avatarDisplay.type === 'emoji' ? avatarDisplay.bg : null">
+            <ng-container [ngSwitch]="avatarDisplay.type">
+              <img *ngSwitchCase="'photo'" [src]="avatarDisplay.value" alt="Avatar" />
+              <span *ngSwitchCase="'emoji'">{{ avatarDisplay.value }}</span>
+              <span *ngSwitchDefault>{{ avatarDisplay.value }}</span>
+            </ng-container>
+          </div>
+          <div class="ubm-info">
+            <span class="ubm-name">{{ user.prenom }} {{ user.nom }}</span>
+            <span class="ubm-email">{{ user.email }}</span>
+          </div>
+        </div>
+        <div class="ubm-divider"></div>
+        <button class="ubm-item" (click)="$event.stopPropagation(); navigateToProfil()">
+          <span class="material-symbols-outlined">manage_accounts</span>
+          <span>{{ 'USER.MY_PROFILE' | translate }}</span>
+        </button>
+        <button class="ubm-item" data-settings-trigger (click)="$event.stopPropagation(); toggleSettingsPanel(); userBottomMenuOpen=false">
+          <span class="material-symbols-outlined">settings</span>
+          <span>{{ 'USER.SETTINGS' | translate }}</span>
+        </button>
+        <button class="ubm-item" (click)="$event.stopPropagation(); applyThemePreset(isDarkMode ? 'light' : 'dark'); userBottomMenuOpen=false">
+          <span class="material-symbols-outlined">{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</span>
+          <span>{{ isDarkMode ? ('USER.LIGHT_MODE' | translate) : ('USER.DARK_MODE' | translate) }}</span>
+        </button>
+        <button class="ubm-item" (click)="$event.stopPropagation(); exportData(); userBottomMenuOpen=false">
+          <span class="material-symbols-outlined">download</span>
+          <span>{{ 'USER.EXPORT_DATA' | translate }}</span>
+        </button>
+        <div class="ubm-divider"></div>
+        <button class="ubm-item ubm-help" (click)="$event.stopPropagation(); showCentreAide()">
+          <span class="material-symbols-outlined">help</span>
+          <span>{{ 'USER.HELP_CENTER' | translate }}</span>
+        </button>
+        <div class="ubm-divider"></div>
+        <button class="ubm-item ubm-logout" (click)="$event.stopPropagation(); onLogout(); userBottomMenuOpen=false">
+          <span class="material-symbols-outlined">logout</span>
+          <span>{{ 'USER.LOGOUT' | translate }}</span>
+        </button>
+      </div>
+
+    </div><!-- fin sidebar-bottom -->
+  </aside>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!--  MAIN CONTENT                                             -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="main-wrapper">
+
+    <!-- ── Navbar Header ── -->
+    <header class="app-header">
+      <!-- Burger menu (mobile) -->
+      <button class="icon-btn sidebar-toggle-mobile" (click)="toggleSidebar()">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+
+      <!-- Breadcrumb / titre -->
+      <div class="header-brand-sm">
+        <span class="material-symbols-outlined">insights</span>
+        <span>BENJEDDOU ERP</span>
+      </div>
+
+      <!-- Search -->
+      <div class="header-search">
+        <app-global-search></app-global-search>
+      </div>
+
+      <!-- Header Actions -->
+      <div class="header-actions">
+
+        <!-- Sélecteur de thème preset -->
+        <div class="theme-presets-bar">
+          <button *ngFor="let preset of themePresets"
+            class="theme-preset-btn"
+            [class.active]="activeThemePreset === preset.id"
+            [title]="preset.label"
+            (click)="applyThemePreset($any(preset.id))"
+            [style.background]="activeThemePreset === preset.id ? preset.primaryColor : null">
+            <span class="material-symbols-outlined">{{ preset.icon }}</span>
+          </button>
+        </div>
+
+        <!-- Chip Trial -->
+        <div class="trial-chip" *ngIf="isTrialUser" (click)="goToAbonnement()"
+          [title]="'USER.TRIAL' | translate">
+          <span class="material-symbols-outlined">timer</span>
+          <span>{{ 'USER.TRIAL' | translate }} — <strong>{{ trialRestant }}</strong>/30</span>
+        </div>
+
+        <!-- Langue -->
+        <div class="dropdown-wrapper">
+          <button class="icon-btn lang-btn" (click)="toggleLangMenu()">
+            <span class="material-symbols-outlined">language</span>
+            <span class="lang-text">{{ currentLang | uppercase }}</span>
+          </button>
+          <div class="dropdown-menu lang-dropdown" *ngIf="langMenuOpen">
+            <button (click)="switchLanguage('fr')" [class.active-item]="currentLang === 'fr'">
+              <span>🇫🇷</span> Français
+            </button>
+            <button (click)="switchLanguage('en')" [class.active-item]="currentLang === 'en'">
+              <span>🇬🇧</span> English
+            </button>
+            <button (click)="switchLanguage('ar')" [class.active-item]="currentLang === 'ar'">
+              <span>🇹🇳</span> العربية
+            </button>
+          </div>
+        </div>
+
+        <!-- ── Centre de Notifications Intelligentes ── -->
+        <div class="dropdown-wrapper notif-wrapper">
+          <button class="icon-btn notif-btn" (click)="toggleNotifMenu()" [title]="'NOTIFICATIONS.TITLE' | translate">
+            <span class="material-symbols-outlined" [class.bell-pulse]="notificationService.getUnreadCount() > 0">notifications</span>
+            <span class="notif-badge" *ngIf="notificationService.getUnreadCount() > 0">
+              {{ notificationService.getUnreadCount() > 9 ? '9+' : notificationService.getUnreadCount() }}
+            </span>
+          </button>
+
+          <!-- Dropdown Menu Notifications -->
+          <div class="dropdown-menu notif-dropdown glass-card" *ngIf="notifMenuOpen">
+            <div class="notif-header">
+              <div class="notif-title-row">
+                <span class="material-symbols-outlined notif-icon-head">notifications_active</span>
+                <span class="notif-head-title">Notifications System</span>
+                <span class="notif-count-pill" *ngIf="notificationService.getUnreadCount() > 0">
+                  {{ notificationService.getUnreadCount() }} non lue{{ notificationService.getUnreadCount() > 1 ? 's' : '' }}
+                </span>
+              </div>
+              <div class="notif-actions-row">
+                <button class="notif-head-btn" (click)="notificationService.markAllAsRead()" title="Marquer tout comme lu">
+                  <span class="material-symbols-outlined">done_all</span> Tout lire
+                </button>
+                <button class="notif-head-btn notif-head-del" (click)="notificationService.clearAll()" title="Effacer tout">
+                  <span class="material-symbols-outlined">delete_sweep</span> Effacer
+                </button>
+              </div>
+            </div>
+
+            <!-- Filtres par onglets -->
+            <div class="notif-tabs">
+              <button class="ntab" [class.active]="notifFilter==='all'" (click)="notifFilter='all'">Toutes</button>
+              <button class="ntab" [class.active]="notifFilter==='stock'" (click)="notifFilter='stock'">📦 Stock</button>
+              <button class="ntab" [class.active]="notifFilter==='commercial'" (click)="notifFilter='commercial'">📩 Devis</button>
+              <button class="ntab" [class.active]="notifFilter==='facture'" (click)="notifFilter='facture'">🧾 Factures</button>
+            </div>
+
+            <!-- Liste des notifications -->
+            <div class="notif-list">
+              <div *ngFor="let n of filteredNotifications"
+                class="notif-item"
+                [class.unread]="!n.read"
+                [class.sev-danger]="n.severity==='danger'"
+                [class.sev-warning]="n.severity==='warning'"
+                [class.sev-info]="n.severity==='info'"
+                (click)="onNotifClick(n)">
+                <div class="nitem-icon" [ngClass]="'nicon-' + n.severity">
+                  <span class="material-symbols-outlined">{{ n.icon }}</span>
+                </div>
+                <div class="nitem-body">
+                  <div class="nitem-title">{{ n.title }}</div>
+                  <div class="nitem-msg">{{ n.message }}</div>
+                  <div class="nitem-time">{{ n.timestamp | date:'HH:mm' }}</div>
+                </div>
+                <div class="nitem-dot" *ngIf="!n.read"></div>
+              </div>
+
+              <div class="notif-empty" *ngIf="filteredNotifications.length === 0">
+                <span class="material-symbols-outlined">notifications_off</span>
+                <p>Aucune notification pour le moment</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── User Profile Dropdown ── -->
+        <div class="dropdown-wrapper user-wrapper" *ngIf="user">
+          <div class="user-profile-trigger" (click)="toggleUserMenu()">
+            <!-- Mini avatar -->
+            <div class="header-avatar"
+              [class.avatar-photo]="avatarDisplay.type === 'photo'"
+              [class.avatar-emoji]="avatarDisplay.type === 'emoji'"
+              [style.background]="avatarDisplay.type === 'emoji' ? avatarDisplay.bg : null">
+              <ng-container [ngSwitch]="avatarDisplay.type">
+                <img *ngSwitchCase="'photo'" [src]="avatarDisplay.value" alt="Avatar" />
+                <span *ngSwitchCase="'emoji'">{{ avatarDisplay.value }}</span>
+                <span *ngSwitchDefault>{{ avatarDisplay.value }}</span>
+              </ng-container>
+            </div>
+            <div class="user-info-mini">
+              <span class="user-name-mini">{{ user.prenom }}</span>
+              <span class="user-role-mini">{{ getRoleLabel() }}</span>
+            </div>
+            <span class="material-symbols-outlined arrow-icon" [class.rotated]="userMenuOpen">expand_more</span>
+          </div>
+
+          <!-- ── Dropdown utilisateur PREMIUM ── -->
+          <div class="user-dropdown" [class.open]="userMenuOpen">
+            <!-- Header dropdown -->
+            <div class="dropdown-user-header">
+              <!-- Grand avatar avec picker -->
+              <div class="dropdown-avatar-wrap">
+                <div class="dropdown-big-avatar"
+                  [class.avatar-photo]="avatarDisplay.type === 'photo'"
+                  [class.avatar-emoji]="avatarDisplay.type === 'emoji'"
+                  [style.background]="avatarDisplay.type === 'emoji' ? avatarDisplay.bg : null"
+                  data-avatar-trigger (click)="toggleAvatarPicker()">
+                  <ng-container [ngSwitch]="avatarDisplay.type">
+                    <img *ngSwitchCase="'photo'" [src]="avatarDisplay.value" alt="Avatar" />
+                    <span *ngSwitchCase="'emoji'">{{ avatarDisplay.value }}</span>
+                    <span *ngSwitchDefault>{{ avatarDisplay.value }}</span>
+                  </ng-container>
+                  <div class="avatar-edit-overlay">
+                    <span class="material-symbols-outlined">edit</span>
+                  </div>
+                </div>
+
+                <!-- Avatar picker panel -->
+                <div class="avatar-picker-panel" *ngIf="avatarPickerOpen">
+                  <div class="ap-title">{{ 'USER.CHOOSE_AVATAR' | translate }}</div>
+                  <div class="ap-presets">
+                    <div *ngFor="let av of presetAvatars"
+                      class="ap-preset-item"
+                      [class.selected]="selectedPresetId === av.id"
+                      [style.background]="av.bg"
+                      (click)="selectPresetAvatar(av)">
+                      {{ av.emoji }}
+                    </div>
+                  </div>
+                  <div class="ap-actions">
+                    <label class="ap-upload-btn">
+                      <span class="material-symbols-outlined">upload</span>
+                      {{ 'USER.UPLOAD_PHOTO' | translate }}
+                      <input type="file" accept="image/*" style="display:none" (change)="onPhotoSelected($event)">
+                    </label>
+                    <button class="ap-reset-btn" (click)="resetAvatar()">
+                      <span class="material-symbols-outlined">restart_alt</span>
+                      {{ 'USER.INITIALS' | translate }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="dropdown-user-info">
+                <p class="du-name">{{ user.prenom }} {{ user.nom }}</p>
+                <p class="du-email">{{ user.email }}</p>
+                <span class="du-role-badge" [class]="getRoleBadgeClass()">
+                  {{ getRoleLabel() }}
+                </span>
+              </div>
+            </div>
+
+            <hr class="dropdown-divider">
+
+            <!-- Menu items -->
+            <div class="dropdown-menu-items">
+              <button class="dmi-item">
+                <span class="material-symbols-outlined">person</span>
+                <span>{{ 'NAV.MY_PROFILE' | translate }}</span>
+              </button>
+              <button class="dmi-item" data-settings-trigger (click)="toggleSettingsPanel(); userMenuOpen=false">
+                <span class="material-symbols-outlined">settings</span>
+                <span>{{ 'USER.SETTINGS' | translate }}</span>
+              </button>
+              <button class="dmi-item" (click)="exportData()">
+                <span class="material-symbols-outlined">download</span>
+                <span>{{ 'USER.EXPORT_DATA' | translate }}</span>
+              </button>
+              <label class="dmi-item">
+                <span class="material-symbols-outlined">upload</span>
+                <span>{{ 'USER.IMPORT_DATA' | translate }}</span>
+                <input type="file" accept=".json" style="display:none" (change)="importData($event)">
+              </label>
+            </div>
+
+            <hr class="dropdown-divider" *ngIf="showLogoutInHeader">
+
+            <button class="dmi-item dmi-logout" (click)="onLogout()" *ngIf="showLogoutInHeader">
+              <span class="material-symbols-outlined">logout</span>
+              <span>{{ 'USER.LOGOUT' | translate }}</span>
+            </button>
+          </div>
+        </div>
+        <!-- fin user dropdown -->
+
+      </div><!-- fin header-actions -->
+    </header>
+
+    <!-- ── Main Content ── -->
+    <main class="content-viewport">
+      <app-trial-banner *ngIf="isTrialUser"></app-trial-banner>
+      <router-outlet></router-outlet>
+    </main>
+  </div><!-- fin main-wrapper -->
+
+</div><!-- fin app-layout -->
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!--  PANNEAU PARAMÈTRES LATÉRAL (slide-in)                        -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="settings-overlay" [class.open]="settingsPanelOpen" (click)="settingsPanelOpen=false"></div>
+<div class="settings-panel" [class.open]="settingsPanelOpen">
+  <div class="sp-header">
+    <span class="material-symbols-outlined">settings</span>
+    <span>{{ 'SETTINGS.TITLE' | translate }}</span>
+    <button class="sp-close" (click)="settingsPanelOpen=false">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  </div>
+
+  <div class="sp-section">
+    <div class="sp-section-title">{{ 'SETTINGS.THEME' | translate }}</div>
+    <div class="sp-themes-grid">
+      <button *ngFor="let preset of themePresets"
+        class="sp-theme-card"
+        [class.active]="activeThemePreset === preset.id"
+        (click)="applyThemePreset($any(preset.id))">
+        <div class="sp-theme-preview"
+          [style.background]="'linear-gradient(135deg, ' + preset.sidebarColor + ' 0%, ' + preset.primaryColor + ' 60%, ' + preset.accentColor + ' 100%)'">
+          <span class="material-symbols-outlined">{{ preset.icon }}</span>
+          <div class="sp-accent-dot" [style.background]="preset.accentColor"></div>
+        </div>
+        <span>{{ preset.label }}</span>
+        <span class="sp-check" *ngIf="activeThemePreset === preset.id">✓</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="sp-section">
+    <div class="sp-section-title">{{ 'SETTINGS.LOGOUT_POSITION' | translate }}</div>
+    <div class="sp-options">
+      <button class="sp-opt" [class.active]="logoutPosition === 'both'" (click)="setLogoutPosition('both')">
+        {{ 'SETTINGS.SIDEBAR_PLUS_HEADER' | translate }}
+      </button>
+      <button class="sp-opt" [class.active]="logoutPosition === 'sidebar'" (click)="setLogoutPosition('sidebar')">
+        {{ 'SETTINGS.SIDEBAR_ONLY' | translate }}
+      </button>
+      <button class="sp-opt" [class.active]="logoutPosition === 'header'" (click)="setLogoutPosition('header')">
+        {{ 'SETTINGS.HEADER_ONLY' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <div class="sp-section">
+    <div class="sp-section-title">{{ 'SETTINGS.SIDEBAR_POSITION' | translate }}</div>
+    <div class="sp-options">
+      <button class="sp-opt" [class.active]="sidebarPosition === 'left'" (click)="setSidebarPosition('left')">
+        <span class="material-symbols-outlined">dock_to_left</span> {{ 'SETTINGS.LEFT' | translate }}
+      </button>
+      <button class="sp-opt" [class.active]="sidebarPosition === 'right'" (click)="setSidebarPosition('right')">
+        <span class="material-symbols-outlined">dock_to_right</span> {{ 'SETTINGS.RIGHT' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <div class="sp-section">
+    <div class="sp-section-title">{{ 'SETTINGS.ANIMATIONS' | translate }}</div>
+    <label class="sp-toggle-row">
+      <span>{{ 'SETTINGS.ENABLE_ANIMATIONS' | translate }}</span>
+      <div class="sp-toggle" [class.on]="animationsEnabled" (click)="toggleAnimations()">
+        <div class="sp-toggle-knob"></div>
+      </div>
+    </label>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!--  MODAL ALERTE TRIAL AVANT DÉCONNEXION                         -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<ng-container *ngIf="isTrialUser">
+  <div class="modal-overlay" [class.open]="showTrialLogoutModal" *ngIf="showTrialLogoutModal">
+    <div class="modal-card trial-modal">
+      <div class="tm-icon">⚠️</div>
+      <h3>{{ 'TRIAL_MODAL.TITLE' | translate }}</h3>
+      <p>{{ 'TRIAL_MODAL.MESSAGE' | translate : { count: trialRestant } }}</p>
+      <div class="tm-actions">
+        <button class="tm-btn tm-export" (click)="logoutAndExport()">
+          <span class="material-symbols-outlined">download</span>
+          {{ 'TRIAL_MODAL.EXPORT_AND_LOGOUT' | translate }}
+        </button>
+        <button class="tm-btn tm-logout" (click)="doLogout()">
+          <span class="material-symbols-outlined">logout</span>
+          {{ 'TRIAL_MODAL.LOGOUT_WITHOUT_EXPORT' | translate }}
+        </button>
+        <button class="tm-btn tm-cancel" (click)="showTrialLogoutModal=false">
+          {{ 'TRIAL_MODAL.CANCEL' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-container>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!--  TOAST NOTIFICATION (Stock Alerts)                            -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="toast-notification" [class.toast-visible]="showToast" *ngIf="showToast">
+  <div class="toast-icon">
+    <span class="material-symbols-outlined">warning</span>
+  </div>
+  <div class="toast-content">
+    <strong class="toast-title">{{ 'TOAST.STOCK_ALERT' | translate }}</strong>
+    <p class="toast-message">{{ toastMessage }}</p>
+  </div>
+  <button class="toast-close" (click)="dismissToast()">
+    <span class="material-symbols-outlined">close</span>
+  </button>
+</div>

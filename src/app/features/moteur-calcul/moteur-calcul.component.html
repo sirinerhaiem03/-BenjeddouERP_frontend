@@ -1,0 +1,915 @@
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- MOTEUR DE CALCUL MÉTIER — BENJEDDOU ERP                       -->
+<!-- Formule : Résultat = Montant × (Taux / 100) × (Jours / 365) -->
+<!-- J1 : Export PDF/Word/Print — J2 : Historiques séparés        -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+
+<div class="mc-container">
+
+  <!-- ═══════ HERO HEADER ═══════ -->
+  <div class="mc-hero">
+    <div class="mc-hero-glow mc-hero-glow-1"></div>
+    <div class="mc-hero-glow mc-hero-glow-2"></div>
+    <div class="mc-hero-content">
+      <div class="mc-hero-icon">
+        <span class="material-symbols-outlined">calculate</span>
+      </div>
+      <div class="mc-hero-text">
+        <div class="mc-hero-badge">
+          <span class="material-symbols-outlined">timeline</span>
+          {{ 'MOTEUR_CALCUL.BADGE' | translate }}
+        </div>
+        <h1>{{ 'MOTEUR_CALCUL.TITLE' | translate }}<br><span class="mc-accent">{{ 'MOTEUR_CALCUL.TITLE_ACCENT' | translate }}</span></h1>
+        <p>{{ 'MOTEUR_CALCUL.FORMULA_DESC' | translate }}</p>
+      </div>
+    </div>
+    <div class="mc-hero-formula">
+      <div class="mc-formula-box">
+        <span class="mc-formula-label">{{ 'MOTEUR_CALCUL.BASE' | translate }}</span>
+        <span class="mc-formula-val">{{ 'MOTEUR_CALCUL.BASE_VAL' | translate }}</span>
+      </div>
+      <div class="mc-formula-box">
+        <span class="mc-formula-label">{{ 'MOTEUR_CALCUL.ROUNDING' | translate }}</span>
+        <span class="mc-formula-val">{{ 'MOTEUR_CALCUL.ROUNDING_VAL' | translate }}</span>
+      </div>
+      <div class="mc-formula-box">
+        <span class="mc-formula-label">{{ 'MOTEUR_CALCUL.CALCS_UNIQUE' | translate }}</span>
+        <span class="mc-formula-val">{{ hu.totalElements }}</span>
+      </div>
+      <div class="mc-formula-box">
+        <span class="mc-formula-label">{{ 'MOTEUR_CALCUL.CALCS_VARIABLE' | translate }}</span>
+        <span class="mc-formula-val">{{ hv.totalElements }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ TABS ═══════ -->
+  <div class="mc-tabs">
+    <button class="mc-tab" [class.mc-tab-active]="activeTab === 'unique'" (click)="activeTab = 'unique'">
+      <span class="material-symbols-outlined">percent</span>
+      <span>{{ 'MOTEUR_CALCUL.TABS.UNIQUE' | translate }}</span>
+    </button>
+    <button class="mc-tab" [class.mc-tab-active]="activeTab === 'variable'" (click)="activeTab = 'variable'">
+      <span class="material-symbols-outlined">stacked_line_chart</span>
+      <span>{{ 'MOTEUR_CALCUL.TABS.VARIABLE' | translate }}</span>
+    </button>
+    <button class="mc-tab" [class.mc-tab-active]="activeTab === 'historique-unique'"
+      (click)="activeTab = 'historique-unique'; loadHistoriqueUnique()">
+      <span class="material-symbols-outlined">history</span>
+      <span>{{ 'MOTEUR_CALCUL.TABS.HIST_UNIQUE' | translate }}</span>
+      <span class="mc-tab-count" *ngIf="hu.totalElements > 0">{{ hu.totalElements }}</span>
+    </button>
+    <button class="mc-tab" [class.mc-tab-active]="activeTab === 'historique-variable'"
+      (click)="activeTab = 'historique-variable'; loadHistoriqueVariable()">
+      <span class="material-symbols-outlined">history_toggle_off</span>
+      <span>{{ 'MOTEUR_CALCUL.TABS.HIST_VARIABLE' | translate }}</span>
+      <span class="mc-tab-count" *ngIf="hv.totalElements > 0">{{ hv.totalElements }}</span>
+    </button>
+    <!-- Onglet Admin Périodes — SUPERADMIN uniquement -->
+    <button class="mc-tab mc-tab-admin" *ngIf="isSuperAdmin || isAdmin"
+      [class.mc-tab-active]="activeTab === 'admin'" (click)="activeTab = 'admin'; loadPeriodes()">
+      <span class="material-symbols-outlined">admin_panel_settings</span>
+      <span>{{ 'MOTEUR_CALCUL.TABS.ADMIN' | translate }}</span>
+      <span class="mc-tab-superadmin" *ngIf="isSuperAdmin">{{ 'MOTEUR_CALCUL.TABS.SUPERADMIN_BADGE' | translate }}</span>
+    </button>
+  </div>
+  <div class="mc-tabs-line"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- ONGLET 1 — TAUX UNIQUE                                     -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="mc-panel" *ngIf="activeTab === 'unique'">
+    <div class="mc-panel-grid">
+
+      <!-- Formulaire de saisie -->
+      <div class="mc-card mc-card-input">
+        <div class="mc-card-header">
+          <span class="material-symbols-outlined mc-card-icon mc-icon-orange">input</span>
+          <div>
+            <h2>{{ 'MOTEUR_CALCUL.UNIQUE.CARD_TITLE' | translate }}</h2>
+            <p>{{ 'MOTEUR_CALCUL.UNIQUE.CARD_SUB' | translate }}</p>
+          </div>
+        </div>
+
+        <div class="mc-form">
+          <div class="mc-field">
+            <label>{{ 'MOTEUR_CALCUL.UNIQUE.AMOUNT' | translate }}</label>
+            <div class="mc-input-wrap">
+              <span class="mc-input-prefix material-symbols-outlined">payments</span>
+              <input type="number" [(ngModel)]="u.montant" (ngModelChange)="calculerApercu()"
+                [placeholder]="'MOTEUR_CALCUL.UNIQUE.AMOUNT_PH' | translate" min="0" step="0.001" class="mc-input">
+              <span class="mc-input-suffix">DT</span>
+            </div>
+          </div>
+
+          <div class="mc-field-row">
+            <div class="mc-field">
+              <label>{{ 'MOTEUR_CALCUL.UNIQUE.DATE_START' | translate }}</label>
+              <div class="mc-input-wrap">
+                <span class="mc-input-prefix material-symbols-outlined">calendar_today</span>
+                <input type="date" [(ngModel)]="u.dateDebut" (ngModelChange)="onDateUnique()" class="mc-input">
+              </div>
+            </div>
+            <div class="mc-field">
+              <label>{{ 'MOTEUR_CALCUL.UNIQUE.DATE_END' | translate }}</label>
+              <div class="mc-input-wrap">
+                <span class="mc-input-prefix material-symbols-outlined">event</span>
+                <input type="date" [(ngModel)]="u.dateFin" (ngModelChange)="onDateUnique()" class="mc-input">
+              </div>
+            </div>
+          </div>
+
+          <div class="mc-field">
+            <label>{{ 'MOTEUR_CALCUL.UNIQUE.ANNUAL_RATE' | translate }}</label>
+            <div class="mc-input-wrap">
+              <span class="mc-input-prefix material-symbols-outlined">percent</span>
+              <input type="number" [(ngModel)]="u.taux" (ngModelChange)="calculerApercu()"
+                [placeholder]="'MOTEUR_CALCUL.UNIQUE.RATE_PH' | translate" min="0" max="100" step="0.01" class="mc-input">
+              <span class="mc-input-suffix">%</span>
+            </div>
+          </div>
+
+          <div class="mc-field-row">
+            <div class="mc-field">
+              <label>{{ 'MOTEUR_CALCUL.UNIQUE.MODULE' | translate }}</label>
+              <select [(ngModel)]="u.moduleErp" class="mc-select">
+                <option *ngFor="let m of modules" [value]="m">{{ m }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mc-field">
+            <label>{{ 'MOTEUR_CALCUL.UNIQUE.LABEL' | translate }}</label>
+            <input type="text" [(ngModel)]="u.libelle"
+              [placeholder]="'MOTEUR_CALCUL.UNIQUE.LABEL_PH' | translate" class="mc-input">
+          </div>
+
+          <div class="mc-jours-badge" *ngIf="u.nombreJours > 0">
+            <span class="material-symbols-outlined">schedule</span>
+            <strong>{{ u.nombreJours }}</strong> {{ 'MOTEUR_CALCUL.UNIQUE.DAYS_AUTO' | translate }}
+          </div>
+
+          <div class="mc-actions">
+            <button class="mc-btn mc-btn-secondary" (click)="resetUnique()">
+              <span class="material-symbols-outlined">refresh</span> {{ 'MOTEUR_CALCUL.UNIQUE.RESET' | translate }}
+            </button>
+            <button class="mc-btn mc-btn-primary"
+              [disabled]="!u.montant || !u.taux || !u.dateDebut || !u.dateFin || u.loading"
+              (click)="sauvegarderTauxUnique()">
+              <span class="material-symbols-outlined" *ngIf="!u.loading">save</span>
+              <span class="material-symbols-outlined mc-spin" *ngIf="u.loading">autorenew</span>
+              {{ u.loading ? ('MOTEUR_CALCUL.UNIQUE.CALCULATING' | translate) : ('MOTEUR_CALCUL.UNIQUE.CALC_SAVE' | translate) }}
+            </button>
+          </div>
+
+          <div class="mc-success-msg" *ngIf="u.success">
+            <span class="material-symbols-outlined">check_circle</span>
+            {{ 'MOTEUR_CALCUL.UNIQUE.SUCCESS' | translate }}
+            <span class="mc-ref-inline" *ngIf="u.lastSavedCalcul?.reference">
+              {{ 'MOTEUR_CALCUL.UNIQUE.REF' | translate }} {{ u.lastSavedCalcul!.reference }}
+            </span>
+          </div>
+          <div class="mc-error-msg" *ngIf="u.error">
+            <span class="material-symbols-outlined">error</span>{{ u.error }}
+          </div>
+
+          <!-- ── Boutons Export (visibles après calcul) -->
+          <div class="mc-export-section" *ngIf="u.resultat !== null">
+            <div class="mc-export-title">
+              <span class="material-symbols-outlined">file_download</span>
+              {{ 'MOTEUR_CALCUL.EXPORT.TITLE' | translate }}
+            </div>
+            <div class="mc-export-buttons">
+              <!-- PDF -->
+              <button class="mc-export-btn mc-export-pdf" (click)="exportPdfTauxUnique('detail')" [disabled]="exportLoading">
+                <span class="material-symbols-outlined">picture_as_pdf</span>
+                {{ 'MOTEUR_CALCUL.EXPORT.PDF_DETAIL' | translate }}
+              </button>
+              <button class="mc-export-btn mc-export-pdf mc-export-pdf-simple" (click)="exportPdfTauxUnique('simple')" [disabled]="exportLoading">
+                <span class="material-symbols-outlined">picture_as_pdf</span>
+                {{ 'MOTEUR_CALCUL.EXPORT.PDF_SIMPLE' | translate }}
+              </button>
+              <!-- Word -->
+              <button class="mc-export-btn mc-export-word" (click)="exportWordTauxUnique('detail')" [disabled]="exportLoading">
+                <span class="material-symbols-outlined">description</span>
+                {{ 'MOTEUR_CALCUL.EXPORT.WORD_DETAIL' | translate }}
+              </button>
+              <button class="mc-export-btn mc-export-word mc-export-word-simple" (click)="exportWordTauxUnique('simple')" [disabled]="exportLoading">
+                <span class="material-symbols-outlined">description</span>
+                {{ 'MOTEUR_CALCUL.EXPORT.WORD_SIMPLE' | translate }}
+              </button>
+              <!-- Impression -->
+              <button class="mc-export-btn mc-export-print" (click)="printTauxUnique()">
+                <span class="material-symbols-outlined">print</span>
+                {{ 'MOTEUR_CALCUL.EXPORT.PRINT' | translate }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Résultat en temps réel -->
+      <div class="mc-card mc-card-result">
+        <div class="mc-card-header">
+          <span class="material-symbols-outlined mc-card-icon mc-icon-green">analytics</span>
+          <div>
+            <h2>{{ 'MOTEUR_CALCUL.UNIQUE.RESULT_TITLE' | translate }}</h2>
+            <p>{{ 'MOTEUR_CALCUL.UNIQUE.RESULT_SUB' | translate }}</p>
+          </div>
+        </div>
+
+        <div class="mc-result-detail" *ngIf="u.nombreJours > 0 || u.resultat !== null">
+          <div class="mc-result-row">
+            <span>{{ 'MOTEUR_CALCUL.UNIQUE.DAYS' | translate }}</span>
+            <strong>{{ u.nombreJours }} {{ 'MOTEUR_CALCUL.HIST_UNIQUE.DAYS' | translate }}</strong>
+          </div>
+          <div class="mc-result-row">
+            <span>{{ 'MOTEUR_CALCUL.UNIQUE.CALC_BASE' | translate }}</span>
+            <strong>{{ 'MOTEUR_CALCUL.UNIQUE.BASE_365' | translate }}</strong>
+          </div>
+          <div class="mc-result-row" *ngIf="u.taux">
+            <span>{{ 'MOTEUR_CALCUL.UNIQUE.ANNUAL_RATE_ROW' | translate }}</span>
+            <strong>{{ u.taux }} %</strong>
+          </div>
+          <div class="mc-result-row" *ngIf="u.montant">
+            <span>{{ 'MOTEUR_CALCUL.UNIQUE.BASE_AMOUNT' | translate }}</span>
+            <strong>{{ formatNum(u.montant) }} DT</strong>
+          </div>
+        </div>
+
+        <div class="mc-formula-display" *ngIf="u.formule">
+          <div class="mc-formula-label-sm">{{ 'MOTEUR_CALCUL.UNIQUE.PREVIEW' | translate }}</div>
+          <div class="mc-formula-text">{{ 'MOTEUR_CALCUL.UNIQUE.FORMULA_SHORT' | translate }}</div>
+          <div class="mc-formula-calc">{{ u.formule }}</div>
+        </div>
+
+        <div class="mc-result-final" *ngIf="u.resultat !== null">
+          <div class="mc-result-label">{{ 'MOTEUR_CALCUL.UNIQUE.FINAL_RESULT' | translate }}</div>
+          <div class="mc-result-amount">{{ formatNum(u.resultat) }}</div>
+          <div class="mc-result-currency">{{ 'MOTEUR_CALCUL.UNIQUE.CURRENCY' | translate }}</div>
+        </div>
+
+        <div class="mc-empty-result" *ngIf="u.resultat === null">
+          <span class="material-symbols-outlined">calculate</span>
+          <p>{{ 'MOTEUR_CALCUL.UNIQUE.EMPTY' | translate }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- ONGLET 2 — TAUX VARIABLES                                  -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="mc-panel" *ngIf="activeTab === 'variable'">
+    <div class="mc-panel-grid">
+
+      <!-- Saisie -->
+      <div class="mc-card mc-card-input">
+        <div class="mc-card-header">
+          <span class="material-symbols-outlined mc-card-icon mc-icon-purple">stacked_line_chart</span>
+          <div>
+            <h2>{{ 'MOTEUR_CALCUL.VARIABLE.CARD_TITLE' | translate }}</h2>
+            <p>{{ 'MOTEUR_CALCUL.VARIABLE.CARD_SUB' | translate }}</p>
+          </div>
+        </div>
+
+        <div class="mc-info-box">
+          <span class="material-symbols-outlined">info</span>
+          {{ 'MOTEUR_CALCUL.VARIABLE.INFO' | translate }}
+        </div>
+
+        <div class="mc-form">
+          <div class="mc-field">
+            <label>{{ 'MOTEUR_CALCUL.VARIABLE.AMOUNT' | translate }}</label>
+            <div class="mc-input-wrap">
+              <span class="mc-input-prefix material-symbols-outlined">payments</span>
+              <input type="number" [(ngModel)]="v.montant"
+                [placeholder]="'MOTEUR_CALCUL.VARIABLE.AMOUNT_PH' | translate" min="0" step="0.001" class="mc-input">
+              <span class="mc-input-suffix">DT</span>
+            </div>
+          </div>
+
+          <div class="mc-field-row">
+            <div class="mc-field">
+              <label>{{ 'MOTEUR_CALCUL.VARIABLE.DATE_START' | translate }}</label>
+              <div class="mc-input-wrap">
+                <span class="mc-input-prefix material-symbols-outlined">calendar_today</span>
+                <input type="date" [(ngModel)]="v.dateDebut" class="mc-input">
+              </div>
+            </div>
+            <div class="mc-field">
+              <label>{{ 'MOTEUR_CALCUL.VARIABLE.DATE_END' | translate }}</label>
+              <div class="mc-input-wrap">
+                <span class="mc-input-prefix material-symbols-outlined">event</span>
+                <input type="date" [(ngModel)]="v.dateFin" class="mc-input">
+              </div>
+            </div>
+          </div>
+
+          <div class="mc-field-row">
+            <div class="mc-field">
+              <label>{{ 'MOTEUR_CALCUL.VARIABLE.MODULE' | translate }}</label>
+              <select [(ngModel)]="v.moduleErp" class="mc-select">
+                <option *ngFor="let m of modules" [value]="m">{{ m }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mc-field">
+            <label>{{ 'MOTEUR_CALCUL.VARIABLE.LABEL' | translate }}</label>
+            <input type="text" [(ngModel)]="v.libelle"
+              [placeholder]="'MOTEUR_CALCUL.VARIABLE.LABEL_PH' | translate" class="mc-input">
+          </div>
+
+          <div class="mc-actions">
+            <button class="mc-btn mc-btn-secondary" (click)="resetVariable()">
+              <span class="material-symbols-outlined">refresh</span> {{ 'MOTEUR_CALCUL.VARIABLE.RESET' | translate }}
+            </button>
+            <button class="mc-btn mc-btn-outline"
+              [disabled]="!v.montant || !v.dateDebut || !v.dateFin || v.simulating"
+              (click)="simuler()">
+              <span class="material-symbols-outlined mc-spin" *ngIf="v.simulating">autorenew</span>
+              <span class="material-symbols-outlined" *ngIf="!v.simulating">preview</span>
+              {{ v.simulating ? ('MOTEUR_CALCUL.VARIABLE.SIMULATING' | translate) : ('MOTEUR_CALCUL.VARIABLE.SIMULATE' | translate) }}
+            </button>
+            <button class="mc-btn mc-btn-primary"
+              [disabled]="!v.lignes.length || v.loading"
+              (click)="sauvegarderTauxVariable()">
+              <span class="material-symbols-outlined" *ngIf="!v.loading">save</span>
+              <span class="material-symbols-outlined mc-spin" *ngIf="v.loading">autorenew</span>
+              {{ v.loading ? ('MOTEUR_CALCUL.VARIABLE.SAVING' | translate) : ('MOTEUR_CALCUL.VARIABLE.SAVE' | translate) }}
+            </button>
+          </div>
+
+          <div class="mc-error-msg" *ngIf="v.error">
+            <span class="material-symbols-outlined">error</span>{{ v.error }}
+            <a *ngIf="v.errorCode === 'PERIODES_MANQUANTES' && (isAdmin || isSuperAdmin)" class="mc-link-admin"
+               (click)="activeTab = 'admin'; loadPeriodes()">
+              {{ 'MOTEUR_CALCUL.VARIABLE.CONFIG_PERIODS' | translate }}
+            </a>
+          </div>
+          <div class="mc-success-msg" *ngIf="v.success">
+            <span class="material-symbols-outlined">check_circle</span>
+            {{ 'MOTEUR_CALCUL.VARIABLE.SUCCESS' | translate }}
+            <span class="mc-ref-inline" *ngIf="v.lastSavedCalcul?.reference">
+              {{ 'MOTEUR_CALCUL.UNIQUE.REF' | translate }} {{ v.lastSavedCalcul!.reference }}
+            </span>
+          </div>
+
+          <!-- ── Boutons Export (visibles après simulation) -->
+          <div class="mc-export-section" *ngIf="v.lignes.length > 0">
+            <div class="mc-export-title">
+              <span class="material-symbols-outlined">file_download</span>
+              {{ 'MOTEUR_CALCUL.EXPORT.TITLE' | translate }}
+            </div>
+            <div class="mc-export-buttons">
+              <button class="mc-export-btn mc-export-pdf" (click)="exportPdfTauxVariable('detail')" [disabled]="exportLoading">
+                <span class="material-symbols-outlined">picture_as_pdf</span>
+                {{ 'MOTEUR_CALCUL.EXPORT.PDF_DETAIL' | translate }}
+              </button>
+              <button class="mc-export-btn mc-export-pdf mc-export-pdf-simple" (click)="exportPdfTauxVariable('simple')" [disabled]="exportLoading">
+                <span class="material-symbols-outlined">picture_as_pdf</span>
+                {{ 'MOTEUR_CALCUL.EXPORT.PDF_SIMPLE' | translate }}
+              </button>
+              <button class="mc-export-btn mc-export-word" (click)="exportWordTauxVariable('detail')" [disabled]="exportLoading">
+                <span class="material-symbols-outlined">description</span>
+                {{ 'MOTEUR_CALCUL.EXPORT.WORD_DETAIL' | translate }}
+              </button>
+              <button class="mc-export-btn mc-export-word mc-export-word-simple" (click)="exportWordTauxVariable('simple')" [disabled]="exportLoading">
+                <span class="material-symbols-outlined">description</span>
+                {{ 'MOTEUR_CALCUL.EXPORT.WORD_SIMPLE' | translate }}
+              </button>
+              <button class="mc-export-btn mc-export-print" (click)="printTauxVariable()">
+                <span class="material-symbols-outlined">print</span>
+                {{ 'MOTEUR_CALCUL.EXPORT.PRINT' | translate }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Résultats détaillés -->
+      <div class="mc-card mc-card-result">
+        <div class="mc-card-header">
+          <span class="material-symbols-outlined mc-card-icon mc-icon-purple">table_chart</span>
+          <div>
+            <h2>{{ 'MOTEUR_CALCUL.VARIABLE.RESULT_TITLE' | translate }}</h2>
+            <p>{{ v.nbPeriodes }} {{ 'MOTEUR_CALCUL.VARIABLE.RESULT_SUB' | translate }}</p>
+          </div>
+        </div>
+
+        <!-- Tableau des lignes (éditable) -->
+        <div class="mc-table-wrap" *ngIf="v.lignes.length > 0">
+          <div class="mc-edit-notice">
+            <span class="material-symbols-outlined">edit_note</span>
+            {{ 'MOTEUR_CALCUL.VARIABLE.EDIT_NOTICE' | translate }}
+          </div>
+          <table class="mc-table">
+            <thead>
+              <tr>
+                <th>{{ 'MOTEUR_CALCUL.VARIABLE.COL_NUM' | translate }}</th>
+                <th>{{ 'MOTEUR_CALCUL.VARIABLE.COL_PERIOD' | translate }}</th>
+                <th>{{ 'MOTEUR_CALCUL.VARIABLE.COL_DAYS' | translate }}</th>
+                <th>{{ 'MOTEUR_CALCUL.VARIABLE.COL_RATE' | translate }}</th>
+                <th>{{ 'MOTEUR_CALCUL.VARIABLE.COL_RESULT' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let ligne of v.lignes; let i = index" class="mc-tr-editable">
+                <td class="mc-td-num">{{ ligne.numeroLigne }}</td>
+                <td class="mc-td-date">
+                  {{ formatDate(ligne.dateDebut) }}<br>
+                  <span class="mc-date-arrow">→</span> {{ formatDate(ligne.dateFin) }}
+                </td>
+                <td class="mc-td-jours">
+                  <div class="mc-inline-edit">
+                    <input type="number" [(ngModel)]="ligne.nombreJours"
+                      (change)="recalcFromEdit()"
+                      min="1" step="1" class="mc-edit-input">
+                    <span class="mc-edit-unit">j</span>
+                  </div>
+                </td>
+                <td class="mc-td-taux">
+                  <div class="mc-inline-edit">
+                    <input type="number" [(ngModel)]="ligne.taux"
+                      (change)="recalcFromEdit()"
+                      min="0" max="100" step="0.01" class="mc-edit-input mc-edit-taux">
+                    <span class="mc-edit-unit">%</span>
+                  </div>
+                </td>
+                <td class="mc-td-result mc-td-result-highlight">{{ formatNum(ligne.resultatLigne) }} DT</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Résultat global -->
+        <div class="mc-global-result" *ngIf="v.resultatTotal !== null">
+          <div class="mc-global-row">
+            <span>{{ 'MOTEUR_CALCUL.VARIABLE.INIT_AMOUNT' | translate }}</span>
+            <strong>{{ formatNum(v.montant) }} DT</strong>
+          </div>
+          <div class="mc-global-row">
+            <span>{{ 'MOTEUR_CALCUL.VARIABLE.TOTAL_DAYS' | translate }}</span>
+            <strong>{{ v.nombreJoursTotal }} {{ 'MOTEUR_CALCUL.HIST_UNIQUE.DAYS' | translate }}</strong>
+          </div>
+          <div class="mc-global-divider"></div>
+          <div class="mc-global-total">
+            <span>{{ 'MOTEUR_CALCUL.VARIABLE.TOTAL_RESULT' | translate }}</span>
+            <strong>{{ formatNum(v.resultatTotal) }} DT</strong>
+          </div>
+        </div>
+
+        <div class="mc-empty-result" *ngIf="v.lignes.length === 0 && !v.simulating">
+          <span class="material-symbols-outlined">stacked_line_chart</span>
+          <p>{{ 'MOTEUR_CALCUL.VARIABLE.EMPTY' | translate }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- ONGLET 3 — HISTORIQUE TAUX UNIQUE (séparé)                -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="mc-panel" *ngIf="activeTab === 'historique-unique'">
+    <div class="mc-card">
+      <div class="mc-card-header">
+        <span class="material-symbols-outlined mc-card-icon mc-icon-orange">history</span>
+        <div>
+          <h2>{{ 'MOTEUR_CALCUL.HIST_UNIQUE.TITLE' | translate }}</h2>
+          <p>{{ hu.totalElements }} {{ 'MOTEUR_CALCUL.HIST_UNIQUE.SUB' | translate }}</p>
+        </div>
+        <div class="mc-search-wrap">
+          <span class="material-symbols-outlined">search</span>
+          <input type="text" [(ngModel)]="hu.q" (ngModelChange)="loadHistoriqueUnique()"
+            [placeholder]="'MOTEUR_CALCUL.HIST_UNIQUE.SEARCH_PH' | translate" class="mc-search-input">
+        </div>
+      </div>
+
+      <div class="mc-spinner" *ngIf="hu.loading">
+        <span class="material-symbols-outlined mc-spin">autorenew</span>
+      </div>
+
+      <div class="mc-table-wrap" *ngIf="!hu.loading && hu.calculs.length > 0">
+        <table class="mc-table">
+          <thead>
+            <tr>
+              <th>{{ 'MOTEUR_CALCUL.HIST_UNIQUE.COL_REF' | translate }}</th>
+              <th>{{ 'MOTEUR_CALCUL.HIST_UNIQUE.COL_AMOUNT' | translate }}</th>
+              <th>{{ 'MOTEUR_CALCUL.HIST_UNIQUE.COL_PERIOD' | translate }}</th>
+              <th>{{ 'MOTEUR_CALCUL.HIST_UNIQUE.COL_RATE' | translate }}</th>
+              <th>{{ 'MOTEUR_CALCUL.HIST_UNIQUE.COL_RESULT' | translate }}</th>
+              <th>{{ 'MOTEUR_CALCUL.HIST_UNIQUE.COL_MODULE' | translate }}</th>
+              <th>{{ 'MOTEUR_CALCUL.HIST_UNIQUE.COL_DATE' | translate }}</th>
+              <th>{{ 'MOTEUR_CALCUL.HIST_UNIQUE.COL_ACTIONS' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of hu.calculs">
+              <td><span class="mc-ref">{{ c.reference }}</span></td>
+              <td>{{ formatNum(c.montant) }} DT</td>
+              <td class="mc-td-date-small">
+                {{ formatDate(c.dateDebut) }} → {{ formatDate(c.dateFin) }}<br>
+                <span class="mc-jours-small">{{ c.nombreJours }} {{ 'MOTEUR_CALCUL.HIST_UNIQUE.DAYS' | translate }}</span>
+              </td>
+              <td class="mc-td-taux">
+                <span class="mc-taux-badge">{{ c.tauxUnique }}%</span>
+              </td>
+              <td class="mc-td-result-bold">{{ formatNum(c.resultatTotal) }} DT</td>
+              <td>
+                <span class="mc-module-badge" [ngClass]="getModuleBadge(c.moduleErp)">{{ c.moduleErp }}</span>
+              </td>
+              <td class="mc-td-date-small">{{ formatDate(c.dateCreation) }}</td>
+              <td>
+                <div class="mc-actions-cell">
+                  <button class="mc-icon-btn" [title]="'COMMON.VIEW' | translate" (click)="voirDetailUnique(c)">
+                    <span class="material-symbols-outlined">visibility</span>
+                  </button>
+                  <button class="mc-icon-btn" [title]="'MOTEUR_CALCUL.EXPORT.PDF_DETAIL' | translate"
+                    (click)="exportPdfFromHistorique(c, [])">
+                    <span class="material-symbols-outlined">picture_as_pdf</span>
+                  </button>
+                  <button class="mc-icon-btn mc-icon-btn-red" [title]="'COMMON.DELETE' | translate" (click)="supprimerCalculUnique(c.id)">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="mc-pagination" *ngIf="hu.totalPages > 1">
+        <button class="mc-page-btn" *ngFor="let p of pagesArrayUnique"
+          [class.mc-page-active]="p === hu.currentPage" (click)="changerPageUnique(p)">
+          {{ p + 1 }}
+        </button>
+      </div>
+
+      <div class="mc-empty-result" *ngIf="!hu.loading && hu.calculs.length === 0">
+        <span class="material-symbols-outlined">history</span>
+        <p>{{ 'MOTEUR_CALCUL.HIST_UNIQUE.EMPTY' | translate }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- ONGLET 4 — HISTORIQUE TAUX VARIABLES (séparé)             -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="mc-panel" *ngIf="activeTab === 'historique-variable'">
+    <div class="mc-card">
+      <div class="mc-card-header">
+        <span class="material-symbols-outlined mc-card-icon mc-icon-purple">history_toggle_off</span>
+        <div>
+          <h2>{{ 'MOTEUR_CALCUL.HIST_VARIABLE.TITLE' | translate }}</h2>
+          <p>{{ hv.totalElements }} {{ 'MOTEUR_CALCUL.HIST_VARIABLE.SUB' | translate }}</p>
+        </div>
+        <div class="mc-search-wrap">
+          <span class="material-symbols-outlined">search</span>
+          <input type="text" [(ngModel)]="hv.q" (ngModelChange)="loadHistoriqueVariable()"
+            [placeholder]="'MOTEUR_CALCUL.HIST_VARIABLE.SEARCH_PH' | translate" class="mc-search-input">
+        </div>
+      </div>
+
+      <div class="mc-spinner" *ngIf="hv.loading">
+        <span class="material-symbols-outlined mc-spin">autorenew</span>
+      </div>
+
+      <div class="mc-table-wrap" *ngIf="!hv.loading && hv.calculs.length > 0">
+        <table class="mc-table">
+          <thead>
+            <tr>
+              <th>{{ 'MOTEUR_CALCUL.HIST_VARIABLE.COL_REF' | translate }}</th>
+              <th>{{ 'MOTEUR_CALCUL.HIST_VARIABLE.COL_AMOUNT' | translate }}</th>
+              <th>{{ 'MOTEUR_CALCUL.HIST_VARIABLE.COL_PERIOD_GLOBAL' | translate }}</th>
+              <th>{{ 'MOTEUR_CALCUL.HIST_VARIABLE.COL_PERIODS' | translate }}</th>
+              <th>{{ 'MOTEUR_CALCUL.HIST_VARIABLE.COL_RESULT' | translate }}</th>
+              <th>{{ 'MOTEUR_CALCUL.HIST_VARIABLE.COL_MODULE' | translate }}</th>
+              <th>{{ 'MOTEUR_CALCUL.HIST_VARIABLE.COL_DATE' | translate }}</th>
+              <th>{{ 'MOTEUR_CALCUL.HIST_VARIABLE.COL_ACTIONS' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of hv.calculs">
+              <td><span class="mc-ref">{{ c.reference }}</span></td>
+              <td>{{ formatNum(c.montant) }} DT</td>
+              <td class="mc-td-date-small">
+                {{ formatDate(c.dateDebut) }} → {{ formatDate(c.dateFin) }}<br>
+                <span class="mc-jours-small">{{ c.nombreJours }} {{ 'MOTEUR_CALCUL.HIST_VARIABLE.DAYS' | translate }}</span>
+              </td>
+              <td>
+                <span class="mc-type-badge mc-badge-purple">{{ 'MOTEUR_CALCUL.HIST_VARIABLE.MULTI_PERIODS' | translate }}</span>
+              </td>
+              <td class="mc-td-result-bold">{{ formatNum(c.resultatTotal) }} DT</td>
+              <td>
+                <span class="mc-module-badge" [ngClass]="getModuleBadge(c.moduleErp)">{{ c.moduleErp }}</span>
+              </td>
+              <td class="mc-td-date-small">{{ formatDate(c.dateCreation) }}</td>
+              <td>
+                <div class="mc-actions-cell">
+                  <button class="mc-icon-btn" [title]="'COMMON.VIEW' | translate" (click)="voirDetailVariable(c)">
+                    <span class="material-symbols-outlined">visibility</span>
+                  </button>
+                  <button class="mc-icon-btn" [title]="'MOTEUR_CALCUL.EXPORT.PDF_DETAIL' | translate"
+                    [disabled]="hvExportingId === c.id"
+                    (click)="exportPdfVariableFromHistorique(c, 'detail')">
+                    <span class="material-symbols-outlined mc-spin" *ngIf="hvExportingId === c.id">autorenew</span>
+                    <span class="material-symbols-outlined" *ngIf="hvExportingId !== c.id">picture_as_pdf</span>
+                  </button>
+                  <button class="mc-icon-btn mc-icon-btn-simple" [title]="'MOTEUR_CALCUL.EXPORT.PDF_SIMPLE' | translate"
+                    [disabled]="hvExportingId === c.id"
+                    (click)="exportPdfVariableFromHistorique(c, 'simple')">
+                    <span class="material-symbols-outlined">summarize</span>
+                  </button>
+                  <button class="mc-icon-btn mc-icon-btn-word" [title]="'MOTEUR_CALCUL.EXPORT.WORD_DETAIL' | translate"
+                    [disabled]="hvExportingId === c.id"
+                    (click)="exportWordVariableFromHistorique(c, 'detail')">
+                    <span class="material-symbols-outlined">description</span>
+                  </button>
+                  <button class="mc-icon-btn mc-icon-btn-red" [title]="'COMMON.DELETE' | translate" (click)="supprimerCalculVariable(c.id)">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="mc-pagination" *ngIf="hv.totalPages > 1">
+        <button class="mc-page-btn" *ngFor="let p of pagesArrayVariable"
+          [class.mc-page-active]="p === hv.currentPage" (click)="changerPageVariable(p)">
+          {{ p + 1 }}
+        </button>
+      </div>
+
+      <div class="mc-empty-result" *ngIf="!hv.loading && hv.calculs.length === 0">
+        <span class="material-symbols-outlined">history_toggle_off</span>
+        <p>{{ 'MOTEUR_CALCUL.HIST_VARIABLE.EMPTY' | translate }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- ONGLET 5 — ADMIN PÉRIODES & TAUX (SuperAdmin uniquement)  -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="mc-panel" *ngIf="activeTab === 'admin' && (isSuperAdmin || isAdmin)">
+    <div class="mc-card">
+      <div class="mc-card-header">
+        <span class="material-symbols-outlined mc-card-icon mc-icon-red">admin_panel_settings</span>
+        <div>
+          <h2>{{ 'MOTEUR_CALCUL.ADMIN.TITLE' | translate }}</h2>
+          <p>{{ 'MOTEUR_CALCUL.ADMIN.SUB' | translate }}</p>
+        </div>
+        <!-- Bouton Nouvelle Période uniquement pour SuperAdmin -->
+        <button class="mc-btn mc-btn-primary mc-btn-sm" *ngIf="isSuperAdmin" (click)="ouvrirFormulaire()">
+          <span class="material-symbols-outlined">add</span> {{ 'MOTEUR_CALCUL.ADMIN.NEW_PERIOD' | translate }}
+        </button>
+      </div>
+
+      <!-- Bandeau info accès lecture seule (Admin non SuperAdmin) -->
+      <div class="mc-access-info" *ngIf="isAdmin && !isSuperAdmin">
+        <span class="material-symbols-outlined">lock</span>
+        <div>
+          <strong>{{ 'MOTEUR_CALCUL.ADMIN.READ_ONLY_TITLE' | translate }}</strong>
+          <p>{{ 'MOTEUR_CALCUL.ADMIN.READ_ONLY_MSG' | translate }}</p>
+        </div>
+      </div>
+
+      <div class="mc-success-msg" *ngIf="a.success">
+        <span class="material-symbols-outlined">check_circle</span>{{ a.success }}
+      </div>
+
+      <!-- Formulaire ajout/modification (SuperAdmin uniquement) -->
+      <div class="mc-admin-form" *ngIf="a.showForm && isSuperAdmin">
+        <h3>{{ a.editingId ? ('MOTEUR_CALCUL.ADMIN.FORM_EDIT' | translate) : ('MOTEUR_CALCUL.ADMIN.FORM_ADD' | translate) }}</h3>
+        <div class="mc-form mc-form-inline">
+          <div class="mc-field">
+            <label>{{ 'MOTEUR_CALCUL.ADMIN.DATE_START' | translate }}</label>
+            <input type="date" [(ngModel)]="a.form.dateDebut" class="mc-input">
+          </div>
+          <div class="mc-field">
+            <label>{{ 'MOTEUR_CALCUL.ADMIN.DATE_END' | translate }}</label>
+            <input type="date" [(ngModel)]="a.form.dateFin" class="mc-input">
+          </div>
+          <div class="mc-field">
+            <label>{{ 'MOTEUR_CALCUL.ADMIN.RATE' | translate }}</label>
+            <div class="mc-input-wrap">
+              <input type="number" [(ngModel)]="a.form.taux"
+                [placeholder]="'MOTEUR_CALCUL.ADMIN.RATE_PH' | translate" step="0.01" min="0" max="100" class="mc-input">
+              <span class="mc-input-suffix">%</span>
+            </div>
+          </div>
+          <div class="mc-field mc-field-wide">
+            <label>{{ 'MOTEUR_CALCUL.ADMIN.LABEL' | translate }}</label>
+            <input type="text" [(ngModel)]="a.form.libelle"
+              [placeholder]="'MOTEUR_CALCUL.ADMIN.LABEL_PH' | translate" class="mc-input">
+          </div>
+        </div>
+        <div class="mc-error-msg" *ngIf="a.error">
+          <span class="material-symbols-outlined">error</span>{{ a.error }}
+        </div>
+        <div class="mc-actions">
+          <button class="mc-btn mc-btn-secondary" (click)="a.showForm = false">{{ 'COMMON.CANCEL' | translate }}</button>
+          <button class="mc-btn mc-btn-primary"
+            [disabled]="!a.form.dateDebut || !a.form.dateFin || a.form.taux == null"
+            (click)="sauvegarderPeriode()">
+            <span class="material-symbols-outlined">save</span>
+            {{ a.editingId ? ('MOTEUR_CALCUL.ADMIN.SAVE_EDIT' | translate) : ('MOTEUR_CALCUL.ADMIN.CREATE_PERIOD' | translate) }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Tableau des périodes -->
+      <div class="mc-table-wrap" *ngIf="a.periodes.length > 0">
+        <table class="mc-table">
+          <thead>
+            <tr>
+              <th>{{ 'MOTEUR_CALCUL.ADMIN.COL_NUM' | translate }}</th>
+              <th>{{ 'MOTEUR_CALCUL.ADMIN.COL_START' | translate }}</th>
+              <th>{{ 'MOTEUR_CALCUL.ADMIN.COL_END' | translate }}</th>
+              <th>{{ 'MOTEUR_CALCUL.ADMIN.COL_RATE' | translate }}</th>
+              <th>{{ 'MOTEUR_CALCUL.ADMIN.COL_LABEL' | translate }}</th>
+              <th>{{ 'MOTEUR_CALCUL.ADMIN.COL_STATUS' | translate }}</th>
+              <th *ngIf="isSuperAdmin">{{ 'MOTEUR_CALCUL.ADMIN.COL_ACTIONS' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of a.periodes; let i = index" [class.mc-row-inactive]="!p.actif">
+              <td>{{ i + 1 }}</td>
+              <td>{{ formatDate(p.dateDebut) }}</td>
+              <td>{{ formatDate(p.dateFin) }}</td>
+              <td class="mc-td-taux">{{ p.taux | number:'1.2-2' }}%</td>
+              <td>{{ p.libelle || '—' }}</td>
+              <td>
+                <span class="mc-status-badge" [class.mc-status-active]="p.actif" [class.mc-status-inactive]="!p.actif">
+                  {{ p.actif ? ('MOTEUR_CALCUL.ADMIN.STATUS_ACTIVE' | translate) : ('MOTEUR_CALCUL.ADMIN.STATUS_INACTIVE' | translate) }}
+                </span>
+              </td>
+              <td *ngIf="isSuperAdmin">
+                <div class="mc-actions-cell">
+                  <button class="mc-icon-btn" [title]="'COMMON.EDIT' | translate" (click)="ouvrirFormulaire(p)">
+                    <span class="material-symbols-outlined">edit</span>
+                  </button>
+                  <button class="mc-icon-btn" [title]="p.actif ? ('MOTEUR_CALCUL.ADMIN.DISABLE' | translate) : ('MOTEUR_CALCUL.ADMIN.ENABLE' | translate)"
+                    (click)="togglePeriode(p.id!)">
+                    <span class="material-symbols-outlined">{{ p.actif ? 'toggle_on' : 'toggle_off' }}</span>
+                  </button>
+                  <button class="mc-icon-btn mc-icon-btn-red" [title]="'COMMON.DELETE' | translate" (click)="supprimerPeriode(p.id!)">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mc-empty-result" *ngIf="a.periodes.length === 0 && !a.loading">
+        <span class="material-symbols-outlined">event_busy</span>
+        <p>
+          <span *ngIf="isSuperAdmin">{{ 'MOTEUR_CALCUL.ADMIN.EMPTY_SUPERADMIN' | translate }}</span>
+          <span *ngIf="!isSuperAdmin">{{ 'MOTEUR_CALCUL.ADMIN.EMPTY_ADMIN' | translate }}</span>
+        </p>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+<!-- ═══════ MODAL DÉTAIL — TAUX UNIQUE ═══════ -->
+<div class="mc-modal-backdrop" *ngIf="hu.showDetail && hu.selectedCalcul" (click)="fermerDetailUnique()">
+  <div class="mc-modal" (click)="$event.stopPropagation()">
+    <div class="mc-modal-header">
+      <div>
+        <span class="mc-ref-large">{{ hu.selectedCalcul!.reference }}</span>
+        <p class="mc-modal-sub">{{ hu.selectedCalcul!.libelle || ('MOTEUR_CALCUL.MODAL.NO_LABEL' | translate) }}</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="mc-btn mc-btn-primary mc-btn-sm"
+          (click)="exportPdfFromHistorique(hu.selectedCalcul!, [])">
+          <span class="material-symbols-outlined">picture_as_pdf</span> PDF
+        </button>
+        <button class="mc-close-btn" (click)="fermerDetailUnique()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+    </div>
+    <div class="mc-modal-body">
+      <div class="mc-modal-grid">
+        <div class="mc-modal-info-row">
+          <span>{{ 'MOTEUR_CALCUL.MODAL.TYPE' | translate }}</span>
+          <strong><span class="mc-type-badge mc-badge-orange">{{ 'MOTEUR_CALCUL.MODAL.TYPE_UNIQUE' | translate }}</span></strong>
+        </div>
+        <div class="mc-modal-info-row">
+          <span>{{ 'MOTEUR_CALCUL.MODAL.AMOUNT' | translate }}</span>
+          <strong>{{ formatNum(hu.selectedCalcul!.montant) }} DT</strong>
+        </div>
+        <div class="mc-modal-info-row">
+          <span>{{ 'MOTEUR_CALCUL.MODAL.PERIOD' | translate }}</span>
+          <strong>{{ formatDate(hu.selectedCalcul!.dateDebut) }} → {{ formatDate(hu.selectedCalcul!.dateFin) }}</strong>
+        </div>
+        <div class="mc-modal-info-row">
+          <span>{{ 'MOTEUR_CALCUL.MODAL.DAYS' | translate }}</span>
+          <strong>{{ hu.selectedCalcul!.nombreJours }} {{ 'MOTEUR_CALCUL.MODAL.DAYS_UNIT' | translate }}</strong>
+        </div>
+        <div class="mc-modal-info-row" *ngIf="hu.selectedCalcul!.tauxUnique">
+          <span>{{ 'MOTEUR_CALCUL.MODAL.UNIQUE_RATE' | translate }}</span>
+          <strong>{{ hu.selectedCalcul!.tauxUnique }}%</strong>
+        </div>
+        <div class="mc-modal-info-row">
+          <span>{{ 'MOTEUR_CALCUL.MODAL.MODULE' | translate }}</span>
+          <strong>{{ hu.selectedCalcul!.moduleErp }}</strong>
+        </div>
+      </div>
+      <div class="mc-modal-result">
+        <span>{{ 'MOTEUR_CALCUL.MODAL.TOTAL_RESULT' | translate }}</span>
+        <strong>{{ formatNum(hu.selectedCalcul!.resultatTotal) }} DT</strong>
+      </div>
+    </div>
+    <div class="mc-modal-footer">
+      <button class="mc-btn mc-btn-secondary" (click)="fermerDetailUnique()">{{ 'MOTEUR_CALCUL.MODAL.CLOSE' | translate }}</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL DÉTAIL — TAUX VARIABLES ═══════ -->
+<div class="mc-modal-backdrop" *ngIf="hv.showDetail && hv.selectedCalcul" (click)="fermerDetailVariable()">
+  <div class="mc-modal" (click)="$event.stopPropagation()">
+    <div class="mc-modal-header">
+      <div>
+        <span class="mc-ref-large">{{ hv.selectedCalcul!.reference }}</span>
+        <p class="mc-modal-sub">{{ hv.selectedCalcul!.libelle || ('MOTEUR_CALCUL.MODAL.NO_LABEL' | translate) }}</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="mc-btn mc-btn-primary mc-btn-sm"
+          (click)="exportPdfFromHistorique(hv.selectedCalcul!, hv.selectedLignes)">
+          <span class="material-symbols-outlined">picture_as_pdf</span> PDF
+        </button>
+        <button class="mc-close-btn" (click)="fermerDetailVariable()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+    </div>
+    <div class="mc-modal-body">
+      <div class="mc-modal-grid">
+        <div class="mc-modal-info-row">
+          <span>{{ 'MOTEUR_CALCUL.MODAL.TYPE' | translate }}</span>
+          <strong><span class="mc-type-badge mc-badge-purple">{{ 'MOTEUR_CALCUL.MODAL.TYPE_VARIABLE' | translate }}</span></strong>
+        </div>
+        <div class="mc-modal-info-row">
+          <span>{{ 'MOTEUR_CALCUL.MODAL.AMOUNT' | translate }}</span>
+          <strong>{{ formatNum(hv.selectedCalcul!.montant) }} DT</strong>
+        </div>
+        <div class="mc-modal-info-row">
+          <span>{{ 'MOTEUR_CALCUL.MODAL.PERIOD' | translate }}</span>
+          <strong>{{ formatDate(hv.selectedCalcul!.dateDebut) }} → {{ formatDate(hv.selectedCalcul!.dateFin) }}</strong>
+        </div>
+        <div class="mc-modal-info-row">
+          <span>{{ 'MOTEUR_CALCUL.MODAL.DAYS' | translate }}</span>
+          <strong>{{ hv.selectedCalcul!.nombreJours }} {{ 'MOTEUR_CALCUL.MODAL.DAYS_UNIT' | translate }}</strong>
+        </div>
+        <div class="mc-modal-info-row">
+          <span>{{ 'MOTEUR_CALCUL.MODAL.MODULE' | translate }}</span>
+          <strong>{{ hv.selectedCalcul!.moduleErp }}</strong>
+        </div>
+      </div>
+
+      <!-- Lignes détail (taux variable) -->
+      <div class="mc-table-wrap" *ngIf="hv.selectedLignes.length > 0">
+        <h4 class="mc-section-title">{{ 'MOTEUR_CALCUL.MODAL.DETAIL_PERIOD' | translate }}</h4>
+        <table class="mc-table">
+          <thead>
+            <tr>
+              <th>{{ 'MOTEUR_CALCUL.MODAL.COL_NUM' | translate }}</th>
+              <th>{{ 'MOTEUR_CALCUL.MODAL.COL_PERIOD' | translate }}</th>
+              <th>{{ 'MOTEUR_CALCUL.MODAL.COL_DAYS' | translate }}</th>
+              <th>{{ 'MOTEUR_CALCUL.MODAL.COL_RATE' | translate }}</th>
+              <th>{{ 'MOTEUR_CALCUL.MODAL.COL_RESULT' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let l of hv.selectedLignes">
+              <td>{{ l.numeroLigne }}</td>
+              <td>{{ formatDate(l.dateDebut) }} → {{ formatDate(l.dateFin) }}</td>
+              <td>{{ l.nombreJours }} j</td>
+              <td>{{ l.taux | number:'1.2-2' }}%</td>
+              <td class="mc-td-result-bold">{{ formatNum(l.resultatLigne) }} DT</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mc-modal-result">
+        <span>{{ 'MOTEUR_CALCUL.MODAL.TOTAL_RESULT' | translate }}</span>
+        <strong>{{ formatNum(hv.selectedCalcul!.resultatTotal) }} DT</strong>
+      </div>
+    </div>
+    <div class="mc-modal-footer">
+      <button class="mc-btn mc-btn-secondary" (click)="fermerDetailVariable()">{{ 'MOTEUR_CALCUL.MODAL.CLOSE' | translate }}</button>
+    </div>
+  </div>
+</div>

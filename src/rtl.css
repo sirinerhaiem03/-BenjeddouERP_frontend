@@ -1,0 +1,489 @@
+/* ══════════════════════════════════════════════════════════════
+   RTL (Right-To-Left) Support — Arabic Language
+   Applied when: <html dir="rtl"> && body.rtl
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Base direction ── */
+[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+  font-family: 'Noto Sans Arabic', 'Cairo', 'Segoe UI', sans-serif;
+}
+
+[dir="rtl"] * {
+  text-align: inherit;
+}
+
+/* ── Layout inversé ── */
+[dir="rtl"] .app-layout {
+  direction: rtl;
+}
+
+/* ── Sidebar: passe de gauche à droite automatiquement ── */
+[dir="rtl"] .app-sidebar {
+  right: 0;
+  left: auto;
+  border-right: none;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[dir="rtl"] .app-layout:not(.sidebar-right) .main-wrapper {
+  margin-left: 0;
+  margin-right: 260px;
+}
+
+[dir="rtl"] .app-layout.sidebar-collapsed:not(.sidebar-right) .main-wrapper {
+  margin-right: 72px;
+  margin-left: 0;
+}
+
+[dir="rtl"] .app-layout.sidebar-right .main-wrapper {
+  margin-right: 0;
+  margin-left: 260px;
+}
+
+[dir="rtl"] .app-layout.sidebar-right.sidebar-collapsed .main-wrapper {
+  margin-left: 72px;
+  margin-right: 0;
+}
+
+/* ── Sidebar Right override en RTL ── */
+[dir="rtl"] .app-layout.sidebar-right .app-sidebar {
+  right: auto;
+  left: 0;
+}
+
+/* ── Sidebar brand ── */
+[dir="rtl"] .sidebar-brand {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .sidebar-collapse-btn {
+  margin-right: auto;
+  margin-left: 0;
+}
+
+[dir="rtl"] .sidebar-collapse-btn .material-symbols-outlined {
+  transform: scaleX(-1);
+}
+
+/* ── Navigation items ── */
+[dir="rtl"] .nav-item,
+[dir="rtl"] .nav-sub-link,
+[dir="rtl"] .nav-group-toggle {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+[dir="rtl"] .nav-icon,
+[dir="rtl"] .nav-group-icon {
+  margin-right: 0;
+  margin-left: 10px;
+}
+
+[dir="rtl"] .nav-group-left {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .nav-chevron {
+  margin-left: 0;
+  margin-right: auto;
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .nav-group-toggle.open .nav-chevron {
+  transform: scaleX(-1) rotate(180deg);
+}
+
+[dir="rtl"] .nav-submenu {
+  padding-right: 20px;
+  padding-left: 0;
+  border-right: 2px solid rgba(255, 255, 255, 0.12);
+  border-left: none;
+}
+
+[dir="rtl"] .nav-active-indicator {
+  left: auto;
+  right: 0;
+}
+
+[dir="rtl"] .nav-section-label {
+  text-align: right;
+}
+
+/* ── Sidebar bottom user card ── */
+[dir="rtl"] .sidebar-user-card {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .sidebar-user-info {
+  text-align: right;
+  margin-right: 10px;
+  margin-left: 0;
+}
+
+[dir="rtl"] .sub-menu-arrow {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+/* ── User bottom menu popup ── */
+[dir="rtl"] .user-bottom-menu {
+  left: auto;
+  right: 8px;
+}
+
+[dir="rtl"] .ubm-item {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+[dir="rtl"] .ubm-item .material-symbols-outlined {
+  margin-right: 0;
+  margin-left: 10px;
+}
+
+[dir="rtl"] .ubm-header {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .ubm-info {
+  text-align: right;
+  margin-right: 10px;
+  margin-left: 0;
+}
+
+/* ── Trial badge sidebar ── */
+[dir="rtl"] .sidebar-trial-badge {
+  flex-direction: row-reverse;
+}
+
+/* ── Header ── */
+[dir="rtl"] .app-header {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .header-actions {
+  flex-direction: row-reverse;
+  margin-left: 0;
+  margin-right: auto;
+}
+
+[dir="rtl"] .header-brand-sm {
+  flex-direction: row-reverse;
+}
+
+/* ── User dropdown ── */
+[dir="rtl"] .user-profile-trigger {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .user-info-mini {
+  text-align: right;
+  margin-right: 8px;
+  margin-left: 0;
+}
+
+[dir="rtl"] .arrow-icon {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .arrow-icon.rotated {
+  transform: scaleX(-1) rotate(180deg);
+}
+
+[dir="rtl"] .user-dropdown {
+  right: 0;
+  left: auto;
+}
+
+[dir="rtl"] .dropdown-user-header {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .dropdown-user-info {
+  text-align: right;
+  margin-right: 12px;
+  margin-left: 0;
+}
+
+[dir="rtl"] .dropdown-menu-items .dmi-item {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+[dir="rtl"] .dmi-item .material-symbols-outlined {
+  margin-right: 0;
+  margin-left: 10px;
+}
+
+/* ── Lang dropdown ── */
+[dir="rtl"] .lang-dropdown {
+  right: 0;
+  left: auto;
+}
+
+[dir="rtl"] .lang-dropdown button {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+/* ── Settings panel ── */
+[dir="rtl"] .settings-panel {
+  right: auto;
+  left: 0;
+  transform: translateX(-100%);
+  border-right: none;
+  border-left: 1px solid var(--border);
+  transition: transform 0.3s ease;
+}
+
+[dir="rtl"] .settings-panel.open {
+  transform: translateX(0);
+}
+
+[dir="rtl"] .sp-header {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .sp-section-title {
+  text-align: right;
+}
+
+[dir="rtl"] .sp-options {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .sp-opt {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .sp-toggle-row {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .sp-close {
+  margin-right: auto;
+  margin-left: 0;
+}
+
+/* ── Forms ── */
+[dir="rtl"] .form-group label,
+[dir="rtl"] label {
+  text-align: right;
+}
+
+[dir="rtl"] input[type="text"],
+[dir="rtl"] input[type="email"],
+[dir="rtl"] input[type="password"],
+[dir="rtl"] input[type="number"],
+[dir="rtl"] input[type="date"],
+[dir="rtl"] input[type="datetime-local"],
+[dir="rtl"] textarea,
+[dir="rtl"] select {
+  text-align: right;
+  direction: rtl;
+}
+
+[dir="rtl"] .form-row {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .input-with-icon {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .input-icon {
+  left: auto;
+  right: 12px;
+}
+
+[dir="rtl"] input.with-icon {
+  padding-left: 12px;
+  padding-right: 40px;
+}
+
+/* ── Tables ── */
+[dir="rtl"] table {
+  direction: rtl;
+}
+
+[dir="rtl"] th,
+[dir="rtl"] td {
+  text-align: right;
+}
+
+[dir="rtl"] .table-actions {
+  flex-direction: row-reverse;
+}
+
+/* ── Toolbar / search bars ── */
+[dir="rtl"] .toolbar,
+[dir="rtl"] .page-toolbar,
+[dir="rtl"] .list-toolbar,
+[dir="rtl"] .filters-row {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .search-box {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .search-box .material-symbols-outlined {
+  left: auto;
+  right: 12px;
+}
+
+[dir="rtl"] .search-box input {
+  padding-left: 12px;
+  padding-right: 40px;
+}
+
+/* ── Buttons ── */
+[dir="rtl"] .btn,
+[dir="rtl"] button {
+  direction: rtl;
+}
+
+[dir="rtl"] .btn .material-symbols-outlined,
+[dir="rtl"] button .material-symbols-outlined {
+  margin-right: 0;
+  margin-left: 6px;
+}
+
+/* ── Modals ── */
+[dir="rtl"] .modal-header,
+[dir="rtl"] .modal-footer {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .modal-close {
+  margin-right: auto;
+  margin-left: 0;
+}
+
+[dir="rtl"] .modal-body {
+  text-align: right;
+}
+
+/* ── Tabs ── */
+[dir="rtl"] .tabs,
+[dir="rtl"] .tab-list,
+[dir="rtl"] .tab-bar {
+  flex-direction: row-reverse;
+}
+
+/* ── Cards & KPI ── */
+[dir="rtl"] .kpi-card,
+[dir="rtl"] .stat-card {
+  text-align: right;
+}
+
+[dir="rtl"] .kpi-card .kpi-icon {
+  margin-right: 0;
+  margin-left: 12px;
+}
+
+/* ── Breadcrumb ── */
+[dir="rtl"] .breadcrumb {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .breadcrumb-separator {
+  transform: scaleX(-1);
+}
+
+/* ── Notifications / toasts ── */
+[dir="rtl"] .toast-notification {
+  right: auto;
+  left: 24px;
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .toast-close {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+/* ── Badges ── */
+[dir="rtl"] .alert-badge,
+[dir="rtl"] .notif-badge {
+  right: auto;
+  left: -6px;
+}
+
+/* ── Dropdown menus (generic) ── */
+[dir="rtl"] .dropdown-menu {
+  right: 0;
+  left: auto;
+  text-align: right;
+}
+
+/* ── Status badges / chips ── */
+[dir="rtl"] .status-badge,
+[dir="rtl"] .badge,
+[dir="rtl"] .chip {
+  direction: rtl;
+}
+
+/* ── Page header ── */
+[dir="rtl"] .page-header,
+[dir="rtl"] .section-header {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+/* ── Sidebar right position in RTL (user wants sidebar on left visually = right in RTL dom) ── */
+[dir="rtl"] .sidebar-right .app-sidebar {
+  left: 0;
+  right: auto;
+}
+
+/* ── Icon direction arrows ── */
+[dir="rtl"] .icon-arrow-right,
+[dir="rtl"] .chevron-right {
+  transform: scaleX(-1);
+}
+
+/* ── Trial chip ── */
+[dir="rtl"] .trial-chip {
+  flex-direction: row-reverse;
+}
+
+/* ── Avatar picker ── */
+[dir="rtl"] .avatar-picker-panel {
+  right: auto;
+  left: 0;
+}
+
+[dir="rtl"] .ap-actions {
+  flex-direction: row-reverse;
+}
+
+/* ── Scrollbar RTL ── */
+[dir="rtl"] ::-webkit-scrollbar {
+  width: 6px;
+}
+
+/* ── Login page ── */
+[dir="rtl"] .login-card,
+[dir="rtl"] .auth-form {
+  direction: rtl;
+  text-align: right;
+}
+
+[dir="rtl"] .login-card .form-group {
+  text-align: right;
+}
+
+/* ── Number inputs (keep LTR for numbers) ── */
+[dir="rtl"] input[type="number"] {
+  direction: ltr;
+  text-align: right;
+}
+
+/* ── Phone number ── */
+[dir="rtl"] input[type="tel"] {
+  direction: ltr;
+  text-align: right;
+}

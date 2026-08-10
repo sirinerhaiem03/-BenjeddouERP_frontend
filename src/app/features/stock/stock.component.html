@@ -1,0 +1,1091 @@
+<div class="stock-container">
+  <!-- ===== HERO BANNER — Dynamic per tab ===== -->
+  <div class="stock-hero"
+       [class.hero-products]="activeTab === 'products'"
+       [class.hero-warehouses]="activeTab === 'warehouses'"
+       [class.hero-movements]="activeTab === 'movements'"
+       [class.hero-inventories]="activeTab === 'inventories'">
+    <div class="hero-blob hero-blob-1"></div>
+    <div class="hero-blob hero-blob-2"></div>
+
+    <div class="hero-left">
+      <!-- Icon changes per tab -->
+      <div class="hero-icon-wrap">
+        <span class="material-symbols-outlined hero-icon">
+          {{ activeTab === 'products' ? 'inventory_2'
+           : activeTab === 'warehouses' ? 'warehouse'
+           : activeTab === 'movements' ? 'swap_horiz'
+           : 'checklist' }}
+        </span>
+      </div>
+
+      <div class="hero-text">
+        <!-- Badge -->
+        <div class="hero-badge">
+          <span class="material-symbols-outlined" style="font-size:14px">verified</span>
+          {{ activeTab === 'products'    ? ('STOCK.HERO.BADGE_PRODUCTS' | translate)
+           : activeTab === 'warehouses' ? ('STOCK.HERO.BADGE_WAREHOUSES' | translate)
+           : activeTab === 'movements'  ? ('STOCK.HERO.BADGE_MOVEMENTS' | translate)
+           : ('STOCK.HERO.BADGE_INVENTORIES' | translate) }}
+        </div>
+
+        <!-- Title -->
+        <h1 *ngIf="activeTab === 'products'">{{ 'STOCK.HERO.TITLE_PRODUCTS' | translate }}<br><span class="hero-accent">{{ 'STOCK.HERO.TITLE_PRODUCTS_SUB' | translate }}</span></h1>
+        <h1 *ngIf="activeTab === 'warehouses'">{{ 'STOCK.HERO.TITLE_WAREHOUSES' | translate }}<br><span class="hero-accent">{{ 'STOCK.HERO.TITLE_WAREHOUSES_SUB' | translate }}</span></h1>
+        <h1 *ngIf="activeTab === 'movements'">{{ 'STOCK.HERO.TITLE_MOVEMENTS' | translate }}<br><span class="hero-accent">{{ 'STOCK.HERO.TITLE_MOVEMENTS_SUB' | translate }}</span></h1>
+        <h1 *ngIf="activeTab === 'inventories'">{{ 'STOCK.HERO.TITLE_INVENTORIES' | translate }}<br><span class="hero-accent">{{ 'STOCK.HERO.TITLE_INVENTORIES_SUB' | translate }}</span></h1>
+
+        <!-- Description -->
+        <p *ngIf="activeTab === 'products'">{{ 'STOCK.HERO.DESC_PRODUCTS' | translate }}</p>
+        <p *ngIf="activeTab === 'warehouses'">{{ 'STOCK.HERO.DESC_WAREHOUSES' | translate }}</p>
+        <p *ngIf="activeTab === 'movements'">{{ 'STOCK.HERO.DESC_MOVEMENTS' | translate }}</p>
+        <p *ngIf="activeTab === 'inventories'">{{ 'STOCK.HERO.DESC_INVENTORIES' | translate }}</p>
+      </div>
+    </div>
+
+    <!-- Right side mini-stat per tab -->
+    <div class="hero-mini-stat">
+      <ng-container *ngIf="activeTab === 'products'">
+        <span class="hms-value">{{ products.length }}</span>
+        <span class="hms-label">{{ 'STOCK.TABS.PRODUCTS' | translate }}</span>
+        <span class="hms-sub" *ngIf="alertProducts.length > 0">⚠️ {{ alertProducts.length }} {{ 'STOCK.HERO.IN_ALERT' | translate }}</span>
+        <span class="hms-sub" *ngIf="alertProducts.length === 0">✓ {{ 'STOCK.HERO.STOCK_OK' | translate }}</span>
+      </ng-container>
+      <ng-container *ngIf="activeTab === 'warehouses'">
+        <span class="hms-value">{{ warehouses.length }}</span>
+        <span class="hms-label">{{ 'STOCK.HERO.ACTIVE_WAREHOUSES' | translate }}</span>
+        <span class="hms-sub">{{ 'STOCK.HERO.STORAGE_SITES' | translate }}</span>
+      </ng-container>
+      <ng-container *ngIf="activeTab === 'movements'">
+        <span class="hms-value">{{ movements.length }}</span>
+        <span class="hms-label">{{ 'STOCK.TABS.MOVEMENTS' | translate }}</span>
+        <span class="hms-sub">{{ 'STOCK.HERO.TOTAL_RECORDED' | translate }}</span>
+      </ng-container>
+      <ng-container *ngIf="activeTab === 'inventories'">
+        <span class="hms-value">{{ inventories.length }}</span>
+        <span class="hms-label">{{ 'STOCK.TABS.INVENTORIES' | translate }}</span>
+        <span class="hms-sub">{{ 'STOCK.HERO.PHYSICAL_AUDITS' | translate }}</span>
+      </ng-container>
+    </div>
+  </div>
+
+
+
+
+  <!-- ===== TABS NAVIGATION ===== -->
+  <div class="tabs-nav-wrap" *ngIf="!isStockOnly">
+    <div class="tabs-nav">
+      <button class="tab-pill" [class.tab-pill-active]="activeTab === 'products'" (click)="switchTab('products')">
+        <span class="material-symbols-outlined">inventory_2</span>
+        <span>{{ 'STOCK.TABS.PRODUCTS' | translate }}</span>
+        <span class="tab-pill-count" *ngIf="alertProducts.length > 0 && activeTab !== 'products'">{{
+          alertProducts.length }}</span>
+      </button>
+      <button class="tab-pill" [class.tab-pill-active]="activeTab === 'warehouses'" (click)="switchTab('warehouses')">
+        <span class="material-symbols-outlined">warehouse</span>
+        <span>{{ 'STOCK.TABS.WAREHOUSES' | translate }}</span>
+      </button>
+      <button class="tab-pill" [class.tab-pill-active]="activeTab === 'movements'" (click)="switchTab('movements')">
+        <span class="material-symbols-outlined">swap_horiz</span>
+        <span>{{ 'STOCK.TABS.MOVEMENTS' | translate }}</span>
+        <span class="tab-pill-count neutral" *ngIf="movements.length > 0">{{ movements.length }}</span>
+      </button>
+      <button class="tab-pill" [class.tab-pill-active]="activeTab === 'inventories'" (click)="switchTab('inventories')">
+        <span class="material-symbols-outlined">checklist</span>
+        <span>{{ 'STOCK.TABS.INVENTORIES' | translate }}</span>
+      </button>
+    </div>
+    <div class="tabs-nav-line"></div>
+  </div>
+
+
+
+  <!-- TAB 1: PRODUCTS                            -->
+  <!-- ========================================== -->
+  <div class="tab-content" *ngIf="activeTab === 'products'">
+    <div class="content-header">
+      <h2>{{ 'STOCK.PRODUCTS.TITLE' | translate }}</h2>
+      <div class="header-actions-group">
+        <!-- Export Actions -->
+        <div class="export-btn-group">
+          <button class="btn btn-outline" (click)="exportCSV()" [title]="'COMMON.EXPORT_CSV' | translate">
+            <span class="material-symbols-outlined">table_view</span>
+            <span>{{ 'COMMON.EXPORT_CSV' | translate }}</span>
+          </button>
+          <button class="btn btn-outline" (click)="exportPDF()" [title]="'COMMON.EXPORT_PDF' | translate">
+            <span class="material-symbols-outlined">picture_as_pdf</span>
+            <span>{{ 'COMMON.EXPORT_PDF' | translate }}</span>
+          </button>
+          <button class="btn btn-outline" (click)="exportWord()" [title]="'COMMON.EXPORT_WORD' | translate">
+            <span class="material-symbols-outlined">description</span>
+            <span>{{ 'COMMON.EXPORT_WORD' | translate }}</span>
+          </button>
+          <button class="btn btn-outline" (click)="printProducts()" [title]="'COMMON.PRINT' | translate">
+            <span class="material-symbols-outlined">print</span>
+            <span>{{ 'COMMON.PRINT' | translate }}</span>
+          </button>
+        </div>
+        <!-- CSV Import -->
+        <button class="btn btn-outline" *ngIf="canWrite" (click)="triggerCSVImport()" [disabled]="csvImportLoading"
+          [title]="'STOCK.PRODUCTS.IMPORT_CSV_TITLE' | translate">
+          <span class="material-symbols-outlined">upload</span>
+          <span>{{ csvImportLoading ? ('COMMON.LOADING' | translate) : ('STOCK.PRODUCTS.IMPORT_CSV' | translate) }}</span>
+        </button>
+        <input type="file" #csvFileInput accept=".csv" style="display:none" (change)="onImportCSV($event)">
+        <!-- Add product -->
+        <button class="btn btn-primary" *ngIf="canWrite" (click)="openAddProductModal()">
+          <span class="material-symbols-outlined">add</span>
+          <span>{{ 'STOCK.PRODUCTS.NEW_PRODUCT' | translate }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- CSV Import Result Banner -->
+    <div *ngIf="csvImportResult" class="csv-result-banner" [class.csv-result-error]="csvImportResult.errors.length > 0">
+      <span class="material-symbols-outlined">{{ csvImportResult.errors.length === 0 ? 'check_circle' : 'warning'
+        }}</span>
+      <div>
+        <strong>{{ csvImportResult.success }} {{ 'STOCK.PRODUCTS.IMPORTED_SUCCESS' | translate }}</strong>
+        <span *ngIf="csvImportResult.errors.length > 0"> {{ csvImportResult.errors.length }} {{ 'STOCK.PRODUCTS.ERRORS' | translate }} :</span>
+        <ul *ngIf="csvImportResult.errors.length > 0" style="margin: 4px 0 0 16px; font-size: 0.8rem;">
+          <li *ngFor="let err of csvImportResult.errors">{{ err }}</li>
+        </ul>
+      </div>
+      <button class="close-btn" (click)="csvImportResult = null"><span
+          class="material-symbols-outlined">close</span></button>
+    </div>
+
+    <!-- ── Analytics & Graphiques du Stock ── -->
+    <div class="stock-analytics-grid" style="display:grid;grid-template-columns:1fr 2fr;gap:16px;margin-bottom:20px;">
+      <!-- Chart 1: Santé du Stock -->
+      <div class="glass-card" style="padding:16px;border-radius:16px;background:rgba(255,255,255,0.9);box-shadow:0 4px 16px rgba(0,0,0,0.05)">
+        <div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:0.9rem;color:#0f172a;margin-bottom:12px">
+          <span class="material-symbols-outlined" style="color:#f59e0b">donut_large</span>
+          <span>Santé & État du Stock</span>
+        </div>
+        <div style="height:180px;display:flex;justify-content:center;align-items:center">
+          <canvas id="stockStatusChart" width="260" height="170"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 2: Valeur du Stock par Catégorie -->
+      <div class="glass-card" style="padding:16px;border-radius:16px;background:rgba(255,255,255,0.9);box-shadow:0 4px 16px rgba(0,0,0,0.05)">
+        <div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:0.9rem;color:#0f172a;margin-bottom:12px">
+          <span class="material-symbols-outlined" style="color:#0d9faa">bar_chart</span>
+          <span>Valeur du Stock par Catégorie (TND)</span>
+        </div>
+        <div style="height:180px;display:flex;justify-content:center;align-items:center">
+          <canvas id="categoryValueChart" width="460" height="170"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search & Filter Bar -->
+    <div class="filter-bar glass-card">
+      <div class="filter-search-group">
+        <span class="material-symbols-outlined filter-icon">search</span>
+        <input type="text" class="filter-input" [placeholder]="'STOCK.PRODUCTS.SEARCH' | translate"
+          [(ngModel)]="searchQuery">
+        <button class="filter-clear-btn" *ngIf="searchQuery" (click)="searchQuery = ''">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="filter-controls">
+        <select class="filter-select" [(ngModel)]="filterCategory">
+          <option value="">{{ 'STOCK.PRODUCTS.ALL_CATEGORIES' | translate }}</option>
+          <option *ngFor="let cat of uniqueCategories" [value]="cat">{{ cat }}</option>
+        </select>
+        <select class="filter-select" [(ngModel)]="filterAlertStatus">
+          <option value="">{{ 'STOCK.PRODUCTS.ALL_STATUSES' | translate }}</option>
+          <option value="alert">🚨 {{ 'STOCK.PRODUCTS.STOCK_EMPTY' | translate }} / {{ 'STOCK.ALERTS.LOW_STOCK' | translate }}</option>
+          <option value="ok">✅ {{ 'STOCK.PRODUCTS.STOCK_OK' | translate }}</option>
+        </select>
+        <button class="filter-reset-btn" *ngIf="activeFilterCount > 0" (click)="clearFilters()">
+          <span class="material-symbols-outlined">filter_alt_off</span>
+          {{ 'COMMON.FILTER' | translate }} ({{ activeFilterCount }})
+        </button>
+      </div>
+      <div class="view-toggle-group">
+        <button class="view-btn" [class.view-btn-active]="productViewMode === 'table'"
+          (click)="productViewMode = 'table'" [title]="'STOCK.PRODUCTS.TABLE_VIEW' | translate">
+          <span class="material-symbols-outlined">table_rows</span>
+        </button>
+        <button class="view-btn" [class.view-btn-active]="productViewMode === 'grid'" (click)="productViewMode = 'grid'"
+          [title]="'STOCK.PRODUCTS.GRID_VIEW' | translate">
+          <span class="material-symbols-outlined">grid_view</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Results count -->
+    <div class="results-meta" *ngIf="searchQuery || filterCategory || filterAlertStatus">
+      <span class="material-symbols-outlined">filter_list</span>
+      <span>{{ filteredProducts.length }} {{ 'SEARCH.RESULTS' | translate }} {{ 'COMMON.TOTAL' | translate | lowercase }} {{ products.length }} {{ 'STOCK.TABS.PRODUCTS' | translate | lowercase }}</span>
+    </div>
+
+    <!-- ==================== TABLE VIEW ==================== -->
+    <div class="glass-card table-wrapper" *ngIf="productViewMode === 'table'" id="products-table">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ 'STOCK.PRODUCTS.REFERENCE' | translate }}</th>
+            <th>{{ 'STOCK.PRODUCTS.NAME' | translate }}</th>
+            <th>{{ 'STOCK.PRODUCTS.CATEGORY' | translate }}</th>
+            <th>{{ 'STOCK.PRODUCTS.PRICE_BUY' | translate }}</th>
+            <th>{{ 'STOCK.PRODUCTS.PRICE_SELL' | translate }}</th>
+            <th>{{ 'STOCK.PRODUCTS.TOTAL_QTY' | translate }}</th>
+            <th>{{ 'STOCK.PRODUCTS.MIN_STOCK' | translate }}</th>
+            <th *ngIf="canWrite" style="text-align: center;">{{ 'COMMON.ACTIONS' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let prod of filteredProducts" [class.alert-row]="prod.quantiteStock <= prod.seuilStockMin">
+            <td class="reference-cell">{{ prod.reference }}</td>
+            <td class="name-cell">
+              <strong>{{ prod.nom }}</strong>
+              <span class="description-sub" *ngIf="prod.description">{{ prod.description }}</span>
+            </td>
+            <td><span class="category-badge">{{ prod.categorie }}</span></td>
+            <td class="amount">{{ prod.prixAchat | number:'1.3-3' }} TND</td>
+            <td class="amount">{{ prod.prixUnitaire | number:'1.3-3' }} TND</td>
+            <td class="stock-cell">
+              <strong [class.text-danger]="prod.quantiteStock <= prod.seuilStockMin">
+                {{ prod.quantiteStock }}
+              </strong>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="{
+                'badge-danger': prod.quantiteStock <= prod.seuilStockMin,
+                'badge-success': prod.quantiteStock > prod.seuilStockMin
+              }">
+                <span class="material-symbols-outlined"
+                  style="font-size: 14px; margin-right: 4px; vertical-align: middle;">
+                  {{ prod.quantiteStock === 0 ? 'cancel' : (prod.quantiteStock <= prod.seuilStockMin ? 'warning'
+                    : 'check_circle' ) }} </span>
+                    <span style="vertical-align: middle;">
+                      {{ prod.quantiteStock === 0 ? ('STOCK.PRODUCTS.STOCK_EMPTY' | translate) :
+                      (prod.quantiteStock <= prod.seuilStockMin ? (('STOCK.ALERTS.LOW_STOCK' | translate) + ' (<' + prod.seuilStockMin + ')')
+                        : ('STOCK.HERO.STOCK_OK' | translate) ) }} </span>
+                    </span>
+            </td>
+            <td *ngIf="canWrite" class="actions-cell">
+              <button class="icon-btn qr-btn" (click)="printQrLabel(prod, $event)" title="Imprimer Étiquette QR Code / Code-barres" style="color:#0d9faa;background:rgba(13,159,170,0.12);border:1px solid rgba(13,159,170,0.3);margin-right:4px">
+                <span class="material-symbols-outlined">qr_code_2</span>
+              </button>
+              <button class="icon-btn detail-btn" (click)="openProductDetail(prod)" title="Voir la fiche produit">
+                <span class="material-symbols-outlined">info</span>
+              </button>
+              <button class="icon-btn edit-btn" (click)="openEditProductModal(prod)">
+                <span class="material-symbols-outlined">edit</span>
+              </button>
+              <button class="icon-btn delete-btn" (click)="deleteProduct(prod.id)">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredProducts.length === 0">
+            <td colspan="8" class="empty-message">
+              <span class="material-symbols-outlined"
+                style="font-size: 32px; display: block; margin-bottom: 8px; opacity: 0.4;">search_off</span>
+              {{ products.length === 0 ? ('STOCK.PRODUCTS.NO_PRODUCTS' | translate) : ('SEARCH.NO_RESULTS' | translate) }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ==================== GRID VIEW ==================== -->
+    <div class="products-grid" *ngIf="productViewMode === 'grid'">
+      <div class="product-card glass-card hover-glow" *ngFor="let prod of filteredProducts"
+        [class.product-card-alert]="prod.quantiteStock <= prod.seuilStockMin">
+        <!-- Card Header -->
+        <div class="pcard-header">
+          <div class="pcard-avatar" [ngStyle]="{
+            'background': prod.quantiteStock === 0 ? 'linear-gradient(135deg, #ef4444, #dc2626)' :
+                         prod.quantiteStock <= prod.seuilStockMin ? 'linear-gradient(135deg, #f59e0b, #d97706)' :
+                         'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.7))'
+          }">
+            <span class="material-symbols-outlined">inventory_2</span>
+          </div>
+          <div class="pcard-meta">
+            <span class="pcard-ref">{{ prod.reference }}</span>
+            <span class="category-badge">{{ prod.categorie }}</span>
+          </div>
+          <div class="pcard-status-badge" [ngClass]="{
+            'status-optimal': prod.quantiteStock > prod.seuilStockMin,
+            'status-critical': prod.quantiteStock > 0 && prod.quantiteStock <= prod.seuilStockMin,
+            'status-rupture': prod.quantiteStock === 0
+          }">
+            {{ prod.quantiteStock === 0 ? '🚨' : prod.quantiteStock <= prod.seuilStockMin ? '⚠️' : '✅' }} </div>
+          </div>
+
+          <!-- Product Name -->
+          <h4 class="pcard-name">{{ prod.nom }}</h4>
+          <p class="pcard-desc" *ngIf="prod.description">{{ prod.description }}</p>
+
+          <!-- Prices Row -->
+          <div class="pcard-prices">
+            <div class="price-item">
+              <span class="price-label">{{ 'STOCK.PRODUCTS.PRICE_BUY' | translate }}</span>
+              <span class="price-value">{{ prod.prixAchat | number:'1.2-2' }}</span>
+            </div>
+            <div class="price-divider"></div>
+            <div class="price-item">
+              <span class="price-label">{{ 'STOCK.PRODUCTS.PRICE_SELL' | translate }}</span>
+              <span class="price-value price-sell">{{ prod.prixUnitaire | number:'1.2-2' }} TND</span>
+            </div>
+            <div class="price-divider"></div>
+            <div class="price-item">
+              <span class="price-label">{{ 'STOCK.PRODUCTS.MARGIN' | translate }}</span>
+              <span class="price-value" [ngClass]="getMargeClass(getMargePercent(prod))">{{ getMargePercent(prod)
+                }}%</span>
+            </div>
+          </div>
+
+          <!-- Stock Indicator -->
+          <div class="pcard-stock">
+            <span class="stock-label">{{ 'STOCK.PRODUCTS.AVAILABLE_STOCK' | translate }}</span>
+            <div class="stock-indicator">
+              <div class="stock-fill"
+                [style.width]="(prod.quantiteStock > 0 ? (Math.min(prod.quantiteStock / (prod.seuilStockMin * 3), 1) * 100) : 0) + '%'"
+                [ngStyle]="{
+                   'background': prod.quantiteStock === 0 ? '#ef4444' :
+                               prod.quantiteStock <= prod.seuilStockMin ? '#f59e0b' : 'hsl(var(--primary))'
+                 }">
+              </div>
+            </div>
+            <strong class="stock-number" [class.text-danger]="prod.quantiteStock <= prod.seuilStockMin">{{ prod.quantiteStock }} {{ 'STOCK.PRODUCTS.UNITS' | translate }}</strong>
+          </div>
+
+          <!-- Actions -->
+          <div class="pcard-actions" *ngIf="canWrite">
+            <button class="pcard-btn" (click)="printQrLabel(prod, $event)" title="Étiquette QR Code & Code-barres" style="color:#0d9faa;background:rgba(13,159,170,0.1);border:1px solid rgba(13,159,170,0.3);border-radius:8px;font-weight:700">
+              <span class="material-symbols-outlined">qr_code_2</span>
+              QR
+            </button>
+            <button class="pcard-btn pcard-btn-info" (click)="openProductDetail(prod)">
+              <span class="material-symbols-outlined">info</span>
+              {{ 'STOCK.PRODUCTS.SHEET' | translate }}
+            </button>
+            <button class="pcard-btn pcard-btn-edit" (click)="openEditProductModal(prod)">
+              <span class="material-symbols-outlined">edit</span>
+              {{ 'COMMON.EDIT' | translate }}
+            </button>
+            <button class="pcard-btn pcard-btn-del" (click)="deleteProduct(prod.id)">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Empty state for grid -->
+        <div class="grid-empty" *ngIf="filteredProducts.length === 0">
+          <span class="material-symbols-outlined">search_off</span>
+          <p>{{ products.length === 0 ? ('STOCK.PRODUCTS.NO_PRODUCTS' | translate) : ('SEARCH.NO_RESULTS' | translate) }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: WAREHOUSES                          -->
+    <!-- ========================================== -->
+    <div class="tab-content" *ngIf="activeTab === 'warehouses'">
+      <div class="content-header">
+        <h2>{{ 'STOCK.WAREHOUSES.TITLE' | translate }}</h2>
+        <div class="header-actions-group">
+          <button class="btn btn-outline" *ngIf="canWrite" (click)="openTransferModal()">
+            <span class="material-symbols-outlined">swap_horiz</span>
+            <span>{{ 'STOCK.WAREHOUSES.TRANSFER' | translate }}</span>
+          </button>
+          <button class="btn btn-primary" *ngIf="canWrite" (click)="openAddWarehouseModal()">
+            <span class="material-symbols-outlined">add</span>
+            <span>{{ 'STOCK.WAREHOUSES.NEW_WAREHOUSE' | translate }}</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="warehouses-layout">
+        <!-- Left side: List of warehouses -->
+        <div class="warehouses-list">
+          <div class="warehouse-card glass-card hover-glow pointer" *ngFor="let wh of warehouses"
+            [class.active-card]="wh.id === selectedWarehouseFilter" (click)="loadWarehouseStocks(wh.id)">
+            <div class="wh-header">
+              <span class="material-symbols-outlined wh-icon">warehouse</span>
+              <div class="wh-meta">
+                <h3>{{ wh.nom }}</h3>
+                <span class="wh-code">{{ wh.code }}</span>
+              </div>
+              <div class="wh-actions" *ngIf="canWrite" (click)="$event.stopPropagation()">
+                <button class="icon-btn" (click)="openEditWarehouseModal(wh)"><span
+                    class="material-symbols-outlined">edit</span></button>
+                <button class="icon-btn" (click)="deleteWarehouse(wh.id)"><span
+                    class="material-symbols-outlined">delete</span></button>
+              </div>
+            </div>
+            <p class="wh-address"><span class="material-symbols-outlined">location_on</span>{{ wh.adresse }}</p>
+            <p class="wh-desc" *ngIf="wh.description">{{ wh.description }}</p>
+          </div>
+          <div class="glass-card wh-empty" *ngIf="warehouses.length === 0">
+            <p>{{ 'STOCK.WAREHOUSES.NO_WAREHOUSES' | translate }}</p>
+          </div>
+        </div>
+
+        <!-- Right side: Products stored in selected warehouse -->
+        <div class="warehouse-stocks glass-card" *ngIf="selectedWarehouseFilter">
+          <div class="wh-stocks-header">
+            <h3>{{ 'STOCK.WAREHOUSES.RECORDED_STOCKS' | translate }}</h3>
+            <span class="badge badge-purple" *ngIf="selectedWarehouseStocks.length > 0">
+              {{ selectedWarehouseStocks.length }} {{ 'STOCK.WAREHOUSES.LINES' | translate }}
+            </span>
+          </div>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>{{ 'STOCK.MOVEMENTS.PRODUCT' | translate }}</th>
+                  <th>{{ 'STOCK.PRODUCTS.REFERENCE' | translate }}</th>
+                  <th>{{ 'STOCK.WAREHOUSES.ACTUAL_QTY' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let stock of selectedWarehouseStocks">
+                  <td><strong>{{ stock.produit.nom }}</strong></td>
+                  <td>{{ stock.produit.reference }}</td>
+                  <td><strong class="stock-qty">{{ stock.quantite }}</strong></td>
+                </tr>
+                <tr *ngIf="selectedWarehouseStocks.length === 0">
+                  <td colspan="3" class="empty-message">{{ 'STOCK.WAREHOUSES.NO_PRODUCTS_STORED' | translate }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: MOVEMENTS                           -->
+    <!-- ========================================== -->
+    <div class="tab-content" *ngIf="activeTab === 'movements'">
+      <div class="content-header">
+        <h2>{{ 'STOCK.MOVEMENTS.TITLE' | translate }}</h2>
+        <button class="btn btn-primary" *ngIf="canWrite" (click)="openAddMovementModal()">
+          <span class="material-symbols-outlined">swap_horiz</span>
+          <span>{{ 'STOCK.MOVEMENTS.NEW_MOVEMENT' | translate }}</span>
+        </button>
+      </div>
+
+      <!-- Movements Table -->
+      <div class="glass-card table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>{{ 'COMMON.DATE' | translate }}</th>
+              <th>{{ 'STOCK.MOVEMENTS.PRODUCT' | translate }}</th>
+              <th>{{ 'STOCK.WAREHOUSES.TITLE' | translate }}</th>
+              <th>{{ 'STOCK.MOVEMENTS.TYPE' | translate }}</th>
+              <th>{{ 'STOCK.MOVEMENTS.QUANTITY' | translate }}</th>
+              <th>{{ 'STOCK.MOVEMENTS.REASON' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let mov of movements">
+              <td>{{ mov.dateMouvement | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>
+                <strong>{{ mov.produit.nom }}</strong><br />
+                <span class="reference-sub">{{ mov.produit.reference }}</span>
+              </td>
+              <td>{{ mov.entrepot.nom }}</td>
+              <td>
+                <span class="badge" [ngClass]="{
+                'badge-success': mov.typeMouvement === 'ENTREE',
+                'badge-danger': mov.typeMouvement === 'SORTIE',
+                'badge-warning': mov.typeMouvement === 'CORRECTION',
+                'badge-purple': mov.typeMouvement === 'TRANSFERT'
+              }">
+                  <span class="material-symbols-outlined"
+                    style="font-size: 14px; margin-right: 4px; vertical-align: middle;">
+                    {{ mov.typeMouvement === 'ENTREE' ? 'arrow_downward' :
+                    mov.typeMouvement === 'SORTIE' ? 'arrow_upward' :
+                    mov.typeMouvement === 'CORRECTION' ? 'tune' : 'swap_horiz' }}
+                  </span>
+                  <span style="vertical-align: middle;">
+                    {{ mov.typeMouvement === 'ENTREE' ? ('STOCK.MOVEMENTS.TYPE_ENTREE' | translate) :
+                    mov.typeMouvement === 'SORTIE' ? ('STOCK.MOVEMENTS.TYPE_SORTIE' | translate) :
+                    mov.typeMouvement === 'CORRECTION' ? ('STOCK.MOVEMENTS.TYPE_AJUSTEMENT' | translate) : ('STOCK.MOVEMENTS.TYPE_TRANSFERT' | translate) }}
+                  </span>
+                </span>
+              </td>
+              <td><strong>{{ mov.quantite }}</strong></td>
+              <td>{{ mov.description }}</td>
+            </tr>
+            <tr *ngIf="movements.length === 0">
+              <td colspan="6" class="empty-message">{{ 'STOCK.MOVEMENTS.NO_MOVEMENTS' | translate }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: INVENTORIES                         -->
+    <!-- ========================================== -->
+    <div class="tab-content" *ngIf="activeTab === 'inventories'">
+      <div class="content-header">
+        <h2>{{ 'STOCK.INVENTORIES.TITLE' | translate }}</h2>
+        <button class="btn btn-primary" *ngIf="canWrite" (click)="openAddInventoryModal()">
+          <span class="material-symbols-outlined">playlist_add</span>
+          <span>{{ 'STOCK.INVENTORIES.PLAN' | translate }}</span>
+        </button>
+      </div>
+
+      <!-- Inventories Table -->
+      <div class="glass-card table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>{{ 'STOCK.INVENTORIES.CODE' | translate }}</th>
+              <th>{{ 'STOCK.INVENTORIES.PLAN_DATE' | translate }}</th>
+              <th>{{ 'STOCK.INVENTORIES.TARGET_WAREHOUSE' | translate }}</th>
+              <th>{{ 'COMMON.STATUS' | translate }}</th>
+              <th>{{ 'COMMON.DETAILS' | translate }}</th>
+              <th style="text-align: center;">{{ 'COMMON.ACTIONS' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let inv of inventories">
+              <td class="reference-cell">{{ inv.code }}</td>
+              <td>{{ inv.dateInventaire | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ inv.entrepot.nom }}</td>
+              <td>
+                <span class="badge" [ngClass]="{
+                'badge-warning': inv.statut === 'EN_COURS',
+                'badge-success': inv.statut === 'VALIDE'
+              }">
+                  <span class="material-symbols-outlined"
+                    style="font-size: 14px; margin-right: 4px; vertical-align: middle;">
+                    {{ inv.statut === 'EN_COURS' ? 'hourglass_empty' : 'check_circle' }}
+                  </span>
+                  <span style="vertical-align: middle;">
+                    {{ inv.statut === 'EN_COURS' ? ('STOCK.INVENTORIES.STATUS_IN_PROGRESS' | translate) : ('STOCK.INVENTORIES.STATUS_VALIDATED' | translate) }}
+                  </span>
+                </span>
+              </td>
+              <td>{{ inv.description }}</td>
+              <td class="actions-cell">
+                <button class="btn btn-secondary btn-sm" (click)="viewInventoryDetails(inv.id)">
+                  <span class="material-symbols-outlined">visibility</span>
+                  <span>{{ 'STOCK.INVENTORIES.VIEW_ENTER' | translate }}</span>
+                </button>
+                <button class="icon-btn" style="color: #6366f1;" (click)="viewInventoryDetails(inv.id)"
+                  [title]="'COMMON.PRINT' | translate" *ngIf="inv.statut === 'VALIDE'">
+                  <span class="material-symbols-outlined">print</span>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="inventories.length === 0">
+              <td colspan="6" class="empty-message">{{ 'STOCK.INVENTORIES.NO_INVENTORIES' | translate }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: PRODUCT                             -->
+  <!-- ========================================== -->
+  <div class="modal-backdrop" *ngIf="showProductModal">
+    <div class="modal-card glass-card">
+      <div class="modal-header">
+        <h2>{{ isEditingProduct ? ('STOCK.PRODUCTS.EDIT_PRODUCT' | translate) : ('STOCK.PRODUCTS.CREATE_PRODUCT' | translate) }}</h2>
+        <button class="close-btn" (click)="closeProductModal()"><span
+            class="material-symbols-outlined">close</span></button>
+      </div>
+      <form [formGroup]="productForm" (ngSubmit)="saveProduct()">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>{{ 'STOCK.PRODUCTS.PRODUCT_NAME' | translate }} *</label>
+              <input type="text" formControlName="nom" list="produits-list" [placeholder]="'STOCK.PRODUCTS.PRODUCT_NAME_PH' | translate" />
+            </div>
+            <div class="form-group">
+              <label>{{ 'STOCK.PRODUCTS.UNIQUE_REF' | translate }} *</label>
+              <input type="text" formControlName="reference" placeholder="Ex: CAB-CAT6-305" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>{{ 'COMMON.DETAILS' | translate }}</label>
+            <textarea formControlName="description" rows="3" [placeholder]="'STOCK.PRODUCTS.DESC_PH' | translate"></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>{{ 'STOCK.PRODUCTS.PURCHASE_PRICE' | translate }} (TND) *</label>
+              <input type="number" formControlName="prixAchat" step="0.001" />
+            </div>
+            <div class="form-group">
+              <label>{{ 'STOCK.PRODUCTS.SALE_PRICE' | translate }} (TND) *</label>
+              <input type="number" formControlName="prixUnitaire" step="0.001" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>{{ 'STOCK.PRODUCTS.MIN_ALERT' | translate }} *</label>
+              <input type="number" formControlName="seuilStockMin" />
+            </div>
+            <div class="form-group">
+              <label>{{ 'STOCK.PRODUCTS.CATEGORY' | translate }} *</label>
+              <input type="text" formControlName="categorie" list="categories-list" [placeholder]="'STOCK.PRODUCTS.CATEGORY_PH' | translate" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeProductModal()">{{ 'COMMON.CANCEL' | translate }}</button>
+          <button type="submit" class="btn btn-primary" [disabled]="productForm.invalid">{{ 'COMMON.SAVE' | translate }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: WAREHOUSE                           -->
+  <!-- ========================================== -->
+  <div class="modal-backdrop" *ngIf="showWarehouseModal">
+    <div class="modal-card glass-card">
+      <div class="modal-header">
+        <h2>{{ isEditingWarehouse ? ('STOCK.WAREHOUSES.EDIT_WAREHOUSE' | translate) : ('STOCK.WAREHOUSES.CREATE_WAREHOUSE' | translate) }}</h2>
+        <button class="close-btn" (click)="closeWarehouseModal()"><span
+            class="material-symbols-outlined">close</span></button>
+      </div>
+      <form [formGroup]="warehouseForm" (ngSubmit)="saveWarehouse()">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>{{ 'STOCK.WAREHOUSES.CODE' | translate }} *</label>
+              <input type="text" formControlName="code" placeholder="Ex: DEP-TUNIS-01" />
+            </div>
+            <div class="form-group">
+              <label>{{ 'STOCK.WAREHOUSES.FULL_NAME' | translate }} *</label>
+              <input type="text" formControlName="nom" [placeholder]="'STOCK.WAREHOUSES.FULL_NAME_PH' | translate" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>{{ 'STOCK.WAREHOUSES.ADDRESS' | translate }} *</label>
+            <input type="text" formControlName="adresse" [placeholder]="'STOCK.WAREHOUSES.ADDRESS_PH' | translate" />
+          </div>
+
+          <div class="form-group">
+            <label>{{ 'STOCK.WAREHOUSES.NOTES' | translate }}</label>
+            <textarea formControlName="description" rows="3" [placeholder]="'STOCK.WAREHOUSES.NOTES_PH' | translate"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeWarehouseModal()">{{ 'COMMON.CANCEL' | translate }}</button>
+          <button type="submit" class="btn btn-primary" [disabled]="warehouseForm.invalid">{{ 'COMMON.SAVE' | translate }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: MOVEMENT                            -->
+  <!-- ========================================== -->
+  <div class="modal-backdrop" *ngIf="showMovementModal">
+    <div class="modal-card glass-card">
+      <div class="modal-header">
+        <h2>{{ 'STOCK.MOVEMENTS.RECORD_TITLE' | translate }}</h2>
+        <button class="close-btn" (click)="closeMovementModal()"><span
+            class="material-symbols-outlined">close</span></button>
+      </div>
+      <form [formGroup]="movementForm" (ngSubmit)="saveMovement()">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>{{ 'STOCK.MOVEMENTS.SELECT_PRODUCT' | translate }} *</label>
+            <select formControlName="produitId">
+              <option value="" disabled selected>{{ 'STOCK.MOVEMENTS.CHOOSE_PRODUCT' | translate }}</option>
+              <option *ngFor="let prod of products" [value]="prod.id">{{ prod.nom }} ({{ prod.reference }})</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>{{ 'STOCK.MOVEMENTS.SELECT_WAREHOUSE' | translate }} *</label>
+            <select formControlName="entrepotId">
+              <option value="" disabled selected>{{ 'STOCK.MOVEMENTS.CHOOSE_WAREHOUSE' | translate }}</option>
+              <option *ngFor="let wh of warehouses" [value]="wh.id">{{ wh.nom }}</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>{{ 'STOCK.MOVEMENTS.FLOW_TYPE' | translate }} *</label>
+              <select formControlName="typeMouvement">
+                <option value="ENTREE">{{ 'STOCK.MOVEMENTS.ENTREE_DESC' | translate }}</option>
+                <option value="SORTIE">{{ 'STOCK.MOVEMENTS.SORTIE_DESC' | translate }}</option>
+                <option value="CORRECTION">{{ 'STOCK.MOVEMENTS.CORRECTION_DESC' | translate }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>{{ 'STOCK.MOVEMENTS.STOCK_QTY' | translate }} *</label>
+              <input type="number" formControlName="quantite" min="1" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>{{ 'STOCK.MOVEMENTS.DESCRIPTION' | translate }}</label>
+            <input type="text" formControlName="description" [placeholder]="'STOCK.MOVEMENTS.DESCRIPTION_PH' | translate" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeMovementModal()">{{ 'COMMON.CANCEL' | translate }}</button>
+          <button type="submit" class="btn btn-primary" [disabled]="movementForm.invalid">{{ 'STOCK.MOVEMENTS.VALIDATE_FLUX' | translate }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: INVENTORY CREATION                  -->
+  <!-- ========================================== -->
+  <div class="modal-backdrop" *ngIf="showInventoryModal">
+    <div class="modal-card glass-card">
+      <div class="modal-header">
+        <h2>{{ 'STOCK.INVENTORIES.PLAN_NEW' | translate }}</h2>
+        <button class="close-btn" (click)="closeInventoryModal()"><span
+            class="material-symbols-outlined">close</span></button>
+      </div>
+      <form [formGroup]="inventoryForm" (ngSubmit)="saveInventory()">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>{{ 'STOCK.INVENTORIES.TARGET_WAREHOUSE' | translate }} *</label>
+            <select formControlName="entrepotId">
+              <option value="" disabled selected>{{ 'STOCK.MOVEMENTS.CHOOSE_WAREHOUSE' | translate }}</option>
+              <option *ngFor="let wh of warehouses" [value]="wh.id">{{ wh.nom }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <!-- N°4 — Dictionnaire IA sur le champ Description de l'inventaire -->
+            <app-ai-textarea
+              [label]="'STOCK.INVENTORIES.DESC_LABEL' | translate"
+              [placeholder]="'STOCK.INVENTORIES.DESC_PH' | translate"
+              [rows]="3"
+              contexte="description d'un inventaire physique dans un ERP logistique"
+              formControlName="description"
+            ></app-ai-textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeInventoryModal()">{{ 'COMMON.CANCEL' | translate }}</button>
+          <button type="submit" class="btn btn-primary" [disabled]="inventoryForm.invalid">{{ 'STOCK.INVENTORIES.LAUNCH_AUDIT' | translate }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: INVENTORY DETAILS / COUNT ENTRY      -->
+  <!-- ========================================== -->
+  <div class="modal-backdrop" *ngIf="showInventoryDetailsModal">
+    <div class="modal-card glass-card modal-lg">
+      <div class="modal-header">
+        <div>
+          <h2>{{ 'STOCK.INVENTORIES.ENTRY_TITLE' | translate }} : {{ selectedInventoryDetails?.code }}</h2>
+          <p class="wh-desc" style="margin-top: 2px;">{{ 'STOCK.WAREHOUSES.TITLE' | translate }}: {{ selectedInventoryDetails?.entrepot.nom }} | {{ 'COMMON.STATUS' | translate }}:
+            <strong>{{ selectedInventoryDetails?.statut }}</strong>
+          </p>
+        </div>
+        <button class="close-btn" (click)="closeInventoryDetailsModal()"><span
+            class="material-symbols-outlined">close</span></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.85rem; margin-bottom: 20px; color: var(--text-secondary);">
+          {{ 'STOCK.INVENTORIES.ENTRY_HINT' | translate }}
+        </p>
+
+        <div class="table-wrapper count-table-wrapper" style="max-height: 350px; overflow-y: auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>{{ 'STOCK.MOVEMENTS.PRODUCT' | translate }}</th>
+                <th>{{ 'STOCK.PRODUCTS.REFERENCE' | translate }}</th>
+                <th style="text-align: right;">{{ 'STOCK.INVENTORIES.THEO_STOCK' | translate }}</th>
+                <th style="text-align: center; width: 140px;">{{ 'STOCK.INVENTORIES.PHYSICAL_QTY' | translate }}</th>
+                <th style="text-align: right;">{{ 'STOCK.INVENTORIES.GAP' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let ligne of selectedInventoryLines">
+                <td><strong>{{ ligne.produit.nom }}</strong></td>
+                <td>{{ ligne.produit.reference }}</td>
+                <td style="text-align: right;"><strong>{{ ligne.quantiteTheorique }}</strong></td>
+                <td style="text-align: center;">
+                  <input type="number" [(ngModel)]="ligne.quantitePhysique"
+                    [disabled]="selectedInventoryDetails?.statut === 'VALIDE'" class="count-input" />
+                </td>
+                <td style="text-align: right;">
+                  <span *ngIf="ligne.quantitePhysique !== null && ligne.quantitePhysique !== undefined; else noCount"
+                    [ngClass]="{
+                        'trend-up': (ligne.quantitePhysique - ligne.quantiteTheorique) > 0,
+                        'trend-down': (ligne.quantitePhysique - ligne.quantiteTheorique) < 0,
+                        'text-muted': (ligne.quantitePhysique - ligne.quantiteTheorique) === 0
+                      }">
+                    {{ (ligne.quantitePhysique - ligne.quantiteTheorique > 0 ? '+' : '') }}{{ ligne.quantitePhysique -
+                    ligne.quantiteTheorique }}
+                  </span>
+                  <ng-template #noCount>
+                    <span class="text-muted">-</span>
+                  </ng-template>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeInventoryDetailsModal()">{{ 'COMMON.CLOSE' | translate }}</button>
+
+        <!-- PDF Print button (always shown) -->
+        <button type="button" class="btn btn-outline pdf-btn"
+          (click)="printInventoryReport(selectedInventoryDetails, selectedInventoryLines)"
+          [title]="'STOCK.INVENTORIES.PDF_REPORT_TITLE' | translate">
+          <span class="material-symbols-outlined">print</span>
+          <span>{{ 'STOCK.INVENTORIES.PDF_REPORT' | translate }}</span>
+        </button>
+
+        <ng-container *ngIf="selectedInventoryDetails?.statut === 'EN_COURS' && canWrite">
+          <button type="button" class="btn btn-secondary" (click)="saveInventoryCounts()">{{ 'STOCK.INVENTORIES.SAVE_COUNTS' | translate }}</button>
+          <button type="button" class="btn btn-success" (click)="validateInventory(selectedInventoryDetails.id)">
+            <span class="material-symbols-outlined">check</span>
+            <span>{{ 'STOCK.INVENTORIES.VALIDATE' | translate }}</span>
+          </button>
+        </ng-container>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MODAL : TRANSFERT INTER-ENTREPÔTS                           -->
+  <!-- ============================================================ -->
+  <div class="modal-backdrop" *ngIf="showTransferModal" (click)="closeTransferModal()">
+    <div class="modal-container modal-large" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span class="modal-icon transfer-icon">
+            <span class="material-symbols-outlined">swap_horiz</span>
+          </span>
+          <h3>{{ 'STOCK.TRANSFER.TITLE' | translate }}</h3>
+        </div>
+        <button class="close-btn" (click)="closeTransferModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="transfer-info-banner">
+          <span class="material-symbols-outlined">info</span>
+          <p [innerHTML]="'STOCK.TRANSFER.INFO_BANNER' | translate"></p>
+        </div>
+        <form [formGroup]="transferForm" class="form-grid">
+          <div class="form-group full-width">
+            <label for="transfer-produit">{{ 'STOCK.TRANSFER.PRODUCT_TO_TRANSFER' | translate }} <span class="required">*</span></label>
+            <select id="transfer-produit" formControlName="produitId" class="form-select">
+              <option value="" disabled>{{ 'STOCK.MOVEMENTS.CHOOSE_PRODUCT' | translate }}</option>
+              <option *ngFor="let p of products" [value]="p.id">
+                {{ p.nom }} ({{ 'STOCK.PRODUCTS.REFERENCE' | translate }}: {{ p.reference }}) — Stock: {{ p.quantiteStock }}
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="transfer-source">{{ 'STOCK.TRANSFER.SOURCE_WAREHOUSE' | translate }} <span class="required">*</span></label>
+            <select id="transfer-source" formControlName="entrepotSourceId" class="form-select">
+              <option value="" disabled>{{ 'STOCK.TRANSFER.CHOOSE_SOURCE' | translate }}</option>
+              <option *ngFor="let w of warehouses" [value]="w.id">{{ w.nom }} ({{ w.code }})</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="transfer-cible">{{ 'STOCK.TRANSFER.TARGET_WAREHOUSE' | translate }} <span class="required">*</span></label>
+            <select id="transfer-cible" formControlName="entrepotCibleId" class="form-select">
+              <option value="" disabled>{{ 'STOCK.TRANSFER.CHOOSE_TARGET' | translate }}</option>
+              <option *ngFor="let w of warehouses" [value]="w.id">{{ w.nom }} ({{ w.code }})</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="transfer-quantite">{{ 'STOCK.TRANSFER.QTY_TO_TRANSFER' | translate }} <span class="required">*</span></label>
+            <input type="number" id="transfer-quantite" formControlName="quantite" class="form-input" min="1"
+              placeholder="Ex: 50">
+          </div>
+          <div class="form-group full-width">
+            <label for="transfer-description">{{ 'STOCK.TRANSFER.REASON' | translate }}</label>
+            <textarea id="transfer-description" formControlName="description" class="form-textarea" rows="2"
+              [placeholder]="'STOCK.TRANSFER.REASON_PH' | translate"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeTransferModal()">{{ 'COMMON.CANCEL' | translate }}</button>
+        <button type="button" class="btn btn-primary" (click)="saveTransfer()" [disabled]="transferForm.invalid">
+          <span class="material-symbols-outlined">swap_horiz</span>
+          <span>{{ 'STOCK.TRANSFER.VALIDATE' | translate }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MODAL : FICHE PRODUIT DÉTAILLÉE                             -->
+  <!-- ============================================================ -->
+  <div class="modal-backdrop" *ngIf="showProductDetailModal" (click)="closeProductDetailModal()">
+    <div class="modal-container modal-xlarge" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title-group" *ngIf="selectedProductDetail">
+          <span class="modal-icon product-icon">
+            <span class="material-symbols-outlined">inventory_2</span>
+          </span>
+          <div>
+            <h3>{{ selectedProductDetail.nom }}</h3>
+            <span class="product-detail-ref">{{ 'STOCK.PRODUCTS.REFERENCE' | translate }}. {{ selectedProductDetail.reference }}</span>
+          </div>
+        </div>
+        <button class="close-btn" (click)="closeProductDetailModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body product-detail-body" *ngIf="selectedProductDetail">
+
+        <!-- === KPI Cards Row === -->
+        <div class="detail-kpi-row">
+          <div class="detail-kpi-card">
+            <span class="kpi-icon"><span class="material-symbols-outlined">sell</span></span>
+            <div>
+              <span class="kpi-label">{{ 'STOCK.PRODUCTS.PRICE_SELL' | translate }}</span>
+              <span class="kpi-value">{{ selectedProductDetail.prixUnitaire | number:'1.2-2' }} TND</span>
+            </div>
+          </div>
+          <div class="detail-kpi-card">
+            <span class="kpi-icon"><span class="material-symbols-outlined">shopping_cart</span></span>
+            <div>
+              <span class="kpi-label">{{ 'STOCK.PRODUCTS.PRICE_BUY' | translate }}</span>
+              <span class="kpi-value">{{ selectedProductDetail.prixAchat | number:'1.2-2' }} TND</span>
+            </div>
+          </div>
+          <div class="detail-kpi-card">
+            <span class="kpi-icon"><span class="material-symbols-outlined">inventory</span></span>
+            <div>
+              <span class="kpi-label">{{ 'STOCK.PRODUCTS.TOTAL_QTY' | translate }}</span>
+              <span class="kpi-value">{{ selectedProductDetail.quantiteStock }} {{ 'STOCK.PRODUCTS.UNITS' | translate }}</span>
+            </div>
+          </div>
+          <div class="detail-kpi-card">
+            <span class="kpi-icon"><span class="material-symbols-outlined">trending_up</span></span>
+            <div>
+              <span class="kpi-label">{{ 'STOCK.PRODUCTS.MARGIN' | translate }}</span>
+              <span class="kpi-value marge-badge" [ngClass]="getMargeClass(getMargePercent(selectedProductDetail))">
+                {{ getMargePercent(selectedProductDetail) }}%
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- === Section Double Panneau === -->
+        <div class="detail-double-panel">
+
+          <!-- Panneau Gauche : Distribution par Entrepôt -->
+          <div class="detail-panel">
+            <h4 class="panel-title">
+              <span class="material-symbols-outlined">warehouse</span>
+              {{ 'STOCK.DETAIL.WAREHOUSE_DISTRIBUTION' | translate }}
+            </h4>
+            <div *ngIf="loadingProductDetail" class="loading-spinner-small">
+              <span class="material-symbols-outlined spin">sync</span> {{ 'COMMON.LOADING' | translate }}
+            </div>
+            <div *ngIf="!loadingProductDetail && productWarehouseStocks.length === 0" class="empty-state-small">
+              {{ 'STOCK.DETAIL.NO_STOCK_DATA' | translate }}
+            </div>
+            <div *ngIf="!loadingProductDetail && productWarehouseStocks.length > 0" class="warehouse-bars">
+              <div *ngFor="let ws of productWarehouseStocks" class="warehouse-bar-item">
+                <div class="wbar-header">
+                  <span class="wbar-name">{{ ws.entrepot?.nom }}</span>
+                  <span class="wbar-qty">{{ ws.quantite }} {{ 'STOCK.PRODUCTS.UNITS' | translate }} ({{ getWarehouseStockPercent(ws) }}%)</span>
+                </div>
+                <div class="wbar-track">
+                  <div class="wbar-fill" [style.width]="getWarehouseStockPercent(ws) + '%'"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Infos supplémentaires -->
+            <div class="detail-info-grid">
+              <div class="detail-info-item">
+                <span class="info-label">{{ 'STOCK.PRODUCTS.CATEGORY' | translate }}</span>
+                <span class="info-val">{{ selectedProductDetail.categorie || '—' }}</span>
+              </div>
+              <div class="detail-info-item">
+                <span class="info-label">{{ 'STOCK.PRODUCTS.MIN_ALERT' | translate }}</span>
+                <span class="info-val">{{ selectedProductDetail.seuilStockMin }} {{ 'STOCK.PRODUCTS.UNITS' | translate }}</span>
+              </div>
+              <div class="detail-info-item">
+                <span class="info-label">{{ 'STOCK.DETAIL.UNIT_PROFIT' | translate }}</span>
+                <span class="info-val">{{ (selectedProductDetail.prixUnitaire - selectedProductDetail.prixAchat) |
+                  number:'1.2-2' }} TND</span>
+              </div>
+              <div class="detail-info-item">
+                <span class="info-label">{{ 'STOCK.PRODUCTS.STATUS' | translate }}</span>
+                <span class="status-badge" [class.badge-danger]="selectedProductDetail.quantiteStock === 0"
+                  [class.badge-warning]="selectedProductDetail.quantiteStock > 0 && selectedProductDetail.quantiteStock <= selectedProductDetail.seuilStockMin"
+                  [class.badge-success]="selectedProductDetail.quantiteStock > selectedProductDetail.seuilStockMin">
+                  {{ selectedProductDetail.quantiteStock === 0 ? ('STOCK.DETAIL.STATUS_RUPTURE' | translate) :
+                  selectedProductDetail.quantiteStock <= selectedProductDetail.seuilStockMin ? ('STOCK.DETAIL.STATUS_CRITIQUE' | translate)
+                    : ('STOCK.DETAIL.STATUS_OPTIMAL' | translate) }} </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Panneau Droit : Historique Mouvements -->
+          <div class="detail-panel">
+            <h4 class="panel-title">
+              <span class="material-symbols-outlined">history</span>
+              {{ 'STOCK.DETAIL.MOVEMENT_HISTORY' | translate }} ({{ productMovements.length }})
+            </h4>
+            <div *ngIf="productMovements.length === 0" class="empty-state-small">
+              {{ 'STOCK.DETAIL.NO_MOVEMENTS' | translate }}
+            </div>
+            <div *ngIf="productMovements.length > 0" class="movements-mini-list">
+              <div *ngFor="let m of productMovements" class="movement-mini-item">
+                <span class="mvt-type-dot" [class.dot-in]="m.typeMouvement === 'ENTREE'"
+                  [class.dot-out]="m.typeMouvement === 'SORTIE'" [class.dot-transfer]="m.typeMouvement === 'TRANSFERT'"
+                  [class.dot-correction]="m.typeMouvement === 'CORRECTION'">
+                </span>
+                <div class="mvt-info">
+                  <span class="mvt-type-label" [class.text-success]="m.typeMouvement === 'ENTREE'"
+                    [class.text-danger]="m.typeMouvement === 'SORTIE'"
+                    [class.text-warning]="m.typeMouvement === 'TRANSFERT'"
+                    [class.text-info]="m.typeMouvement === 'CORRECTION'">
+                    {{ m.typeMouvement === 'ENTREE' ? ('STOCK.DETAIL.MVT_IN' | translate) : m.typeMouvement === 'SORTIE' ? ('STOCK.DETAIL.MVT_OUT' | translate) :
+                    m.typeMouvement === 'TRANSFERT' ? ('STOCK.DETAIL.MVT_TRANSFER' | translate) : ('STOCK.DETAIL.MVT_CORRECTION' | translate) }}
+                  </span>
+                  <span class="mvt-warehouse">{{ m.entrepot?.nom }}</span>
+                  <span class="mvt-desc" *ngIf="m.description">{{ m.description }}</span>
+                </div>
+                <div class="mvt-qty-col">
+                  <span class="mvt-qty" [class.text-success]="m.typeMouvement === 'ENTREE'"
+                    [class.text-danger]="m.typeMouvement === 'SORTIE'">
+                    {{ m.typeMouvement === 'ENTREE' ? '+' : m.typeMouvement === 'SORTIE' ? '-' : '' }}{{ m.quantite }}
+                  </span>
+                  <span class="mvt-date">{{ m.dateMouvement | date:'dd/MM/yy' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeProductDetailModal()">{{ 'COMMON.CLOSE' | translate }}</button>
+      </div>
+    </div>
+  </div>

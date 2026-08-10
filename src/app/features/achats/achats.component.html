@@ -1,0 +1,673 @@
+<div class="achats-wrapper">
+
+  <!-- ══ HERO BANNER ══ -->
+  <div class="hero-banner">
+    <div class="hero-content">
+      <div class="hero-left">
+        <div class="hero-icon-wrap">
+          <span class="material-symbols-outlined hero-icon">shopping_bag</span>
+        </div>
+        <div class="hero-text">
+          <h1 class="hero-title">{{ 'ACHATS.TITLE' | translate }}</h1>
+          <p class="hero-desc">{{ 'ACHATS.SUBTITLE' | translate }}</p>
+        </div>
+      </div>
+      <!-- KPI mini-cards -->
+      <div class="hero-kpi-row">
+        <div class="hero-kpi-card">
+          <div class="hkpi-icon hkpi-purple"><span class="material-symbols-outlined">payments</span></div>
+          <div class="hkpi-body">
+            <div class="hkpi-label">{{ 'ACHATS.KPI.TOTAL_EXPENSES' | translate }}</div>
+            <div class="hkpi-value">{{ kpis.totalDepenses | number:'1.3-3' }} TND</div>
+            <div class="hkpi-sub">{{ 'ACHATS.KPI.TOTAL_EXPENSES_SUB' | translate }}</div>
+          </div>
+        </div>
+        <div class="hero-kpi-sep"></div>
+        <div class="hero-kpi-card">
+          <div class="hkpi-icon hkpi-orange"><span class="material-symbols-outlined">pending_actions</span></div>
+          <div class="hkpi-body">
+            <div class="hkpi-label">{{ 'ACHATS.KPI.PENDING_ORDERS' | translate }}</div>
+            <div class="hkpi-value">{{ kpis.bonsEnAttente }}</div>
+            <div class="hkpi-sub">{{ 'ACHATS.KPI.PENDING_ORDERS_SUB' | translate }}</div>
+          </div>
+        </div>
+        <div class="hero-kpi-sep"></div>
+        <div class="hero-kpi-card">
+          <div class="hkpi-icon hkpi-blue"><span class="material-symbols-outlined">local_shipping</span></div>
+          <div class="hkpi-body">
+            <div class="hkpi-label">{{ 'ACHATS.KPI.SUPPLIERS' | translate }}</div>
+            <div class="hkpi-value">{{ kpis.fournisseursActifs }}</div>
+            <div class="hkpi-sub">{{ 'ACHATS.KPI.SUPPLIERS_SUB' | translate }}</div>
+          </div>
+        </div>
+        <div class="hero-kpi-sep"></div>
+        <div class="hero-kpi-card">
+          <div class="hkpi-icon hkpi-green"><span class="material-symbols-outlined">inventory</span></div>
+          <div class="hkpi-body">
+            <div class="hkpi-label">{{ 'ACHATS.KPI.RECEPTIONS_MONTH' | translate }}</div>
+            <div class="hkpi-value">{{ kpis.receptionsCeMois }}</div>
+            <div class="hkpi-sub">{{ 'ACHATS.KPI.RECEPTIONS_MONTH_SUB' | translate }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Tabs -->
+    <div class="hero-tabs">
+      <button class="hero-tab" [class.active]="activeTab==='dashboard'" (click)="switchTab('dashboard')">
+        <span class="material-symbols-outlined">dashboard</span> {{ 'ACHATS.TABS.DASHBOARD' | translate }}
+      </button>
+      <button class="hero-tab" [class.active]="activeTab==='fournisseurs'" (click)="switchTab('fournisseurs')">
+        <span class="material-symbols-outlined">local_shipping</span> {{ 'ACHATS.TABS.SUPPLIERS' | translate }}
+      </button>
+      <button class="hero-tab" [class.active]="activeTab==='commandes'" (click)="switchTab('commandes')">
+        <span class="material-symbols-outlined">receipt</span> {{ 'ACHATS.TABS.ORDERS' | translate }}
+      </button>
+      <button class="hero-tab" [class.active]="activeTab==='receptions'" (click)="switchTab('receptions')">
+        <span class="material-symbols-outlined">inventory</span> {{ 'ACHATS.TABS.RECEPTIONS' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ MESSAGES ══ -->
+  <div class="com-body">
+    <div class="alert-success" *ngIf="successMsg">✅ {{ successMsg }}</div>
+    <div class="alert-error"   *ngIf="errorMsg">❌ {{ errorMsg }}</div>
+
+    <!-- ═══════════════════════ DASHBOARD ═══════════════════════ -->
+    <div *ngIf="activeTab === 'dashboard'">
+      <div class="section-header">
+        <h2 class="section-title"><span class="material-symbols-outlined">dashboard</span> {{ 'ACHATS.DASHBOARD.TITLE' | translate }}</h2>
+      </div>
+      <div class="kpi-grid-4">
+        <div class="kpi-card kpi-purple">
+          <div class="kpi-icon"><span class="material-symbols-outlined">payments</span></div>
+          <div class="kpi-body">
+            <div class="kpi-value">{{ kpis.totalDepenses | number:'1.3-3' }}</div>
+            <div class="kpi-label">{{ 'ACHATS.DASHBOARD.TOTAL_EXPENSES_LABEL' | translate }}</div>
+            <div class="kpi-sub">{{ 'ACHATS.DASHBOARD.TOTAL_EXPENSES_SUB' | translate }}</div>
+          </div>
+        </div>
+        <div class="kpi-card kpi-orange">
+          <div class="kpi-icon"><span class="material-symbols-outlined">pending_actions</span></div>
+          <div class="kpi-body">
+            <div class="kpi-value">{{ kpis.bonsEnAttente }}</div>
+            <div class="kpi-label">{{ 'ACHATS.DASHBOARD.PENDING_LABEL' | translate }}</div>
+            <div class="kpi-sub">{{ 'ACHATS.DASHBOARD.PENDING_SUB' | translate }}</div>
+          </div>
+        </div>
+        <div class="kpi-card kpi-blue">
+          <div class="kpi-icon"><span class="material-symbols-outlined">local_shipping</span></div>
+          <div class="kpi-body">
+            <div class="kpi-value">{{ kpis.fournisseursActifs }}</div>
+            <div class="kpi-label">{{ 'ACHATS.DASHBOARD.SUPPLIERS_LABEL' | translate }}</div>
+            <div class="kpi-sub">{{ 'ACHATS.DASHBOARD.SUPPLIERS_SUB' | translate }}</div>
+          </div>
+        </div>
+        <div class="kpi-card kpi-green">
+          <div class="kpi-icon"><span class="material-symbols-outlined">inventory</span></div>
+          <div class="kpi-body">
+            <div class="kpi-value">{{ kpis.receptionsCeMois }}</div>
+            <div class="kpi-label">{{ 'ACHATS.DASHBOARD.RECEPTIONS_LABEL' | translate }}</div>
+            <div class="kpi-sub">{{ 'ACHATS.DASHBOARD.RECEPTIONS_SUB' | translate }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dernières commandes -->
+      <div class="section-header" style="margin-top:28px;">
+        <h2 class="section-title"><span class="material-symbols-outlined">receipt</span> {{ 'ACHATS.DASHBOARD.LAST_ORDERS' | translate }}</h2>
+        <button class="btn-primary" (click)="switchTab('commandes')">
+          <span class="material-symbols-outlined">open_in_new</span> {{ 'COMMON.SEE_ALL' | translate }}
+        </button>
+      </div>
+      <div class="table-wrap" *ngIf="commandes.length > 0; else noCmd">
+        <table class="data-table">
+          <thead><tr>
+            <th>{{ 'ACHATS.TABLE.ORDER_NUM' | translate }}</th>
+            <th>{{ 'ACHATS.TABLE.SUPPLIER' | translate }}</th>
+            <th>{{ 'ACHATS.TABLE.AMOUNT' | translate }}</th>
+            <th>{{ 'ACHATS.TABLE.STATUS' | translate }}</th>
+            <th>{{ 'ACHATS.TABLE.DATE' | translate }}</th>
+          </tr></thead>
+          <tbody>
+            <tr *ngFor="let c of commandes.slice(0,5)">
+              <td><span class="mono">{{ c.numeroCommande }}</span></td>
+              <td>{{ c.fournisseur?.nom }}</td>
+              <td class="montant">{{ c.montantTotal | number:'1.3-3' }} TND</td>
+              <td><span class="badge" [ngClass]="getStatutClass(c.statut)">{{ getStatutLabel(c.statut) }}</span></td>
+              <td>{{ c.dateCommande | date:'dd/MM/yyyy' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ng-template #noCmd>
+        <div class="empty-state">
+          <span class="material-symbols-outlined">receipt</span>
+          <p>{{ 'ACHATS.EMPTY.NO_ORDERS' | translate }}</p>
+          <button class="btn-primary" (click)="ouvrirNouvelleCommande()">{{ 'ACHATS.ACTIONS.CREATE_ORDER' | translate }}</button>
+        </div>
+      </ng-template>
+
+      <!-- Graphiques -->
+      <div class="charts-grid" style="margin-top:28px;" *ngIf="commandes.length > 0">
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <span class="material-symbols-outlined">donut_large</span>
+            {{ 'ACHATS.CHARTS.STATUS_DIST' | translate }}
+          </div>
+          <div class="chart-wrap">
+            <canvas id="achatStatutChart" height="220"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <span class="material-symbols-outlined">bar_chart</span>
+            {{ 'ACHATS.CHARTS.TOP5_SUPPLIERS' | translate }}
+          </div>
+          <div class="chart-wrap">
+            <canvas id="achatFournisseurChart" height="220"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════ FOURNISSEURS ═══════════════════════ -->
+    <div *ngIf="activeTab === 'fournisseurs'">
+      <div class="section-header">
+        <h2 class="section-title"><span class="material-symbols-outlined">local_shipping</span> {{ 'ACHATS.SUPPLIERS.TITLE' | translate }}</h2>
+      </div>
+      <div class="table-wrap" *ngIf="fournisseurs.length > 0; else noFourn">
+        <table class="data-table">
+          <thead><tr>
+            <th>{{ 'ACHATS.TABLE.NAME' | translate }}</th>
+            <th>{{ 'ACHATS.TABLE.EMAIL' | translate }}</th>
+            <th>{{ 'ACHATS.TABLE.PHONE' | translate }}</th>
+            <th>{{ 'ACHATS.TABLE.ADDRESS' | translate }}</th>
+            <th>{{ 'ACHATS.TABLE.TAX_ID' | translate }}</th>
+          </tr></thead>
+          <tbody>
+            <tr *ngFor="let f of fournisseurs">
+              <td><strong>{{ f.nom }}</strong></td>
+              <td>{{ f.email }}</td>
+              <td>{{ f.telephone || '—' }}</td>
+              <td>{{ f.adresse || '—' }}</td>
+              <td><span class="mono">{{ f.matriculeFiscale || '—' }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ng-template #noFourn>
+        <div class="empty-state">
+          <span class="material-symbols-outlined">local_shipping</span>
+          <p>{{ 'ACHATS.EMPTY.NO_SUPPLIERS' | translate }}</p>
+          <button class="btn-primary" (click)="router.navigate(['/dashboard/commercial'])">
+            {{ 'ACHATS.ACTIONS.MANAGE_SUPPLIERS' | translate }}
+          </button>
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- ═══════════════════════ BONS DE COMMANDE ═══════════════════════ -->
+    <div *ngIf="activeTab === 'commandes'">
+      <div class="toolbar">
+        <div class="search-bar">
+          <span class="material-symbols-outlined">search</span>
+          <input type="text" [placeholder]="'ACHATS.SEARCH.ORDERS' | translate" [(ngModel)]="commandeSearch" (input)="filterCommandes()">
+        </div>
+        <select class="filter-select" [(ngModel)]="commandeStatutFilter" (change)="filterCommandes()">
+          <option value="">{{ 'ACHATS.FILTER.ALL_STATUSES' | translate }}</option>
+          <option value="EN_ATTENTE">{{ 'ACHATS.STATUS.PENDING' | translate }}</option>
+          <option value="EN_VALIDATION">🔍 {{ 'ACHATS.STATUS.IN_VALIDATION' | translate }}</option>
+          <option value="ENVOYEE">{{ 'ACHATS.STATUS.SENT' | translate }}</option>
+          <option value="RECUE_PARTIELLE">{{ 'ACHATS.STATUS.PARTIAL' | translate }}</option>
+          <option value="RECUE_TOTALE">{{ 'ACHATS.STATUS.RECEIVED' | translate }}</option>
+          <option value="ANNULEE">{{ 'ACHATS.STATUS.CANCELLED' | translate }}</option>
+        </select>
+        <!-- Export buttons -->
+        <div class="export-btn-group">
+          <button class="btn-export" (click)="exportCommandesCSV()" title="CSV">
+            <span class="material-symbols-outlined">table_view</span> {{ 'COMMON.EXPORT_CSV' | translate }}
+          </button>
+          <button class="btn-export" (click)="exportCommandesPDF()" title="PDF">
+            <span class="material-symbols-outlined">picture_as_pdf</span> {{ 'COMMON.EXPORT_PDF' | translate }}
+          </button>
+          <button class="btn-export" (click)="exportCommandesWord()" title="Word">
+            <span class="material-symbols-outlined">description</span> {{ 'COMMON.EXPORT_WORD' | translate }}
+          </button>
+          <button class="btn-export" (click)="printCommandes()" [title]="'COMMON.PRINT' | translate">
+            <span class="material-symbols-outlined">print</span> {{ 'COMMON.PRINT' | translate }}
+          </button>
+        </div>
+        <button class="btn-primary" (click)="ouvrirNouvelleCommande()">
+          <span class="material-symbols-outlined">add</span> {{ 'ACHATS.ACTIONS.NEW_ORDER' | translate }}
+        </button>
+      </div>
+
+      <div class="table-wrap" *ngIf="commandesFiltrees.length > 0; else noCmdFiltree" id="commandes-table">
+        <table class="data-table">
+          <thead><tr>
+            <th>{{ 'ACHATS.TABLE.ORDER_NUM' | translate }}</th>
+            <th>{{ 'ACHATS.TABLE.SUPPLIER' | translate }}</th>
+            <th>{{ 'ACHATS.TABLE.LINES' | translate }}</th>
+            <th>{{ 'ACHATS.TABLE.TOTAL_AMOUNT' | translate }}</th>
+            <th>{{ 'ACHATS.TABLE.STATUS' | translate }}</th>
+            <th>{{ 'ACHATS.TABLE.DATE' | translate }}</th>
+            <th>{{ 'COMMON.ACTIONS' | translate }}</th>
+          </tr></thead>
+          <tbody>
+            <tr *ngFor="let c of commandesFiltrees">
+              <td><span class="mono">{{ c.numeroCommande }}</span></td>
+              <td><strong>{{ c.fournisseur?.nom }}</strong></td>
+              <td>{{ c.lignes?.length || 0 }} {{ 'ACHATS.TABLE.LINES_LABEL' | translate }}</td>
+              <td class="montant">{{ c.montantTotal | number:'1.3-3' }} TND</td>
+              <td><span class="badge" [ngClass]="getStatutClass(c.statut)">{{ getStatutLabel(c.statut) }}</span></td>
+              <td>{{ c.dateCommande | date:'dd/MM/yyyy' }}</td>
+              <td class="actions-cell">
+                <button class="btn-icon" [title]="'COMMON.ACTIONS' | translate" (click)="ouvrirDetail(c)">
+                  <span class="material-symbols-outlined">visibility</span>
+                </button>
+                <!-- Réception -->
+                <button class="btn-icon btn-blue" [title]="'ACHATS.ACTIONS.RECORD_RECEPTION' | translate" (click)="ouvrirNouvelleReception(c)"
+                        *ngIf="c.statut === 'ENVOYEE' || c.statut === 'RECUE_PARTIELLE'">
+                  <span class="material-symbols-outlined">inventory</span>
+                </button>
+                <!-- Soumettre pour validation -->
+                <button class="btn-icon btn-orange" [title]="'ACHATS.ACTIONS.SUBMIT_VALIDATION' | translate"
+                        *ngIf="c.statut === 'EN_ATTENTE'"
+                        (click)="soumettrePourValidation(c)">
+                  <span class="material-symbols-outlined">rate_review</span>
+                </button>
+                <!-- Valider et envoyer (ADMIN seulement) -->
+                <button class="btn-icon btn-green" [title]="'ACHATS.ACTIONS.VALIDATE_SEND' | translate"
+                        *ngIf="c.statut === 'EN_VALIDATION' && isAdmin"
+                        (click)="validerEtEnvoyer(c)">
+                  <span class="material-symbols-outlined">send</span>
+                </button>
+                <!-- Badge d'attente si EN_VALIDATION et non-admin -->
+                <span class="badge statut-validation" *ngIf="c.statut === 'EN_VALIDATION' && !isAdmin"
+                      [title]="'ACHATS.STATUS.WAITING_ADMIN' | translate">
+                  ⏳
+                </span>
+                <!-- Relance email fournisseur -->
+                <button class="btn-icon btn-purple" [title]="'ACHATS.ACTIONS.REMIND_SUPPLIER' | translate"
+                        *ngIf="c.statut === 'ENVOYEE'"
+                        (click)="relancerFournisseur(c)">
+                  <span class="material-symbols-outlined">mail</span>
+                </button>
+                <!-- Annuler -->
+                <button class="btn-icon btn-orange-outline" [title]="'COMMON.CANCEL' | translate"
+                        *ngIf="c.statut === 'EN_ATTENTE' || c.statut === 'EN_VALIDATION' || c.statut === 'ENVOYEE'"
+                        (click)="changerStatut(c, 'ANNULEE')">
+                  <span class="material-symbols-outlined">cancel</span>
+                </button>
+                <!-- Supprimer -->
+                <button class="btn-icon btn-red" [title]="'COMMON.DELETE' | translate"
+                        *ngIf="c.statut === 'EN_ATTENTE'"
+                        (click)="confirmerSuppression(c)">
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ng-template #noCmdFiltree>
+        <div class="empty-state">
+          <span class="material-symbols-outlined">receipt</span>
+          <p>{{ 'ACHATS.EMPTY.NO_ORDERS_FOUND' | translate }}</p>
+          <button class="btn-primary" (click)="ouvrirNouvelleCommande()">{{ 'ACHATS.ACTIONS.CREATE_ORDER' | translate }}</button>
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- ═══════════════════════ RÉCEPTIONS ═══════════════════════ -->
+    <div *ngIf="activeTab === 'receptions'">
+      <div class="toolbar">
+        <div class="search-bar">
+          <span class="material-symbols-outlined">search</span>
+          <input type="text" [placeholder]="'ACHATS.SEARCH.RECEPTIONS' | translate" [(ngModel)]="receptionSearch" (input)="filterReceptions()">
+        </div>
+        <!-- Export buttons -->
+        <div class="export-btn-group">
+          <button class="btn-export" (click)="exportReceptionsCSV()" title="CSV">
+            <span class="material-symbols-outlined">table_view</span> {{ 'COMMON.EXPORT_CSV' | translate }}
+          </button>
+          <button class="btn-export" (click)="exportReceptionsPDF()" title="PDF">
+            <span class="material-symbols-outlined">picture_as_pdf</span> {{ 'COMMON.EXPORT_PDF' | translate }}
+          </button>
+          <button class="btn-export" (click)="exportReceptionsWord()" title="Word">
+            <span class="material-symbols-outlined">description</span> {{ 'COMMON.EXPORT_WORD' | translate }}
+          </button>
+          <button class="btn-export" (click)="printReceptions()" [title]="'COMMON.PRINT' | translate">
+            <span class="material-symbols-outlined">print</span> {{ 'COMMON.PRINT' | translate }}
+          </button>
+        </div>
+        <button class="btn-primary" (click)="ouvrirNouvelleReception()">
+          <span class="material-symbols-outlined">add</span> {{ 'ACHATS.ACTIONS.NEW_RECEPTION' | translate }}
+        </button>
+      </div>
+
+      <div class="table-wrap" *ngIf="receptionsFiltrees.length > 0; else noRec" id="receptions-table">
+        <table class="data-table">
+          <thead><tr>
+            <th>{{ 'ACHATS.TABLE.RECEPTION_NUM' | translate }}</th>
+            <th>{{ 'ACHATS.TABLE.PURCHASE_ORDER' | translate }}</th>
+            <th>{{ 'ACHATS.TABLE.PRODUCT' | translate }}</th>
+            <th>{{ 'ACHATS.TABLE.QTY_ORDERED' | translate }}</th>
+            <th>{{ 'ACHATS.TABLE.QTY_RECEIVED' | translate }}</th>
+            <th>{{ 'ACHATS.TABLE.STATUS' | translate }}</th>
+            <th>{{ 'ACHATS.TABLE.DATE' | translate }}</th>
+          </tr></thead>
+          <tbody>
+            <tr *ngFor="let r of receptionsFiltrees">
+              <td><span class="mono">{{ r.numeroReception }}</span></td>
+              <td><span class="mono">{{ r.commandeAchat?.numeroCommande }}</span></td>
+              <td>{{ r.produit?.nom || '—' }}</td>
+              <td>{{ r.quantiteCommandee }}</td>
+              <td>{{ r.quantiteRecue }}</td>
+              <td><span class="badge" [ngClass]="getStatutClass(r.statut)">{{ getStatutLabel(r.statut) }}</span></td>
+              <td>{{ r.dateReception | date:'dd/MM/yyyy HH:mm' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ng-template #noRec>
+        <div class="empty-state">
+          <span class="material-symbols-outlined">inventory</span>
+          <p>{{ 'ACHATS.EMPTY.NO_RECEPTIONS' | translate }}</p>
+          <button class="btn-primary" (click)="ouvrirNouvelleReception()">{{ 'ACHATS.ACTIONS.RECORD_RECEPTION' | translate }}</button>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODALE NOUVEAU BON DE COMMANDE ══ -->
+<div class="modal-overlay" *ngIf="showCommandeModal" (click)="showCommandeModal=false">
+  <div class="modal-box modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-header-icon" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);">
+        <span class="material-symbols-outlined">receipt</span>
+      </div>
+      <div>
+        <h3>{{ 'ACHATS.MODAL.ORDER_TITLE' | translate }}</h3>
+        <p>{{ 'ACHATS.MODAL.ORDER_SUBTITLE' | translate }}</p>
+      </div>
+      <button class="modal-close" (click)="showCommandeModal=false">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <!-- Fournisseur -->
+      <div class="form-group">
+        <label class="form-label">{{ 'ACHATS.FORM.SUPPLIER' | translate }} *</label>
+        <select class="form-control" [(ngModel)]="commandeForm.fournisseurId">
+          <option [ngValue]="null">-- {{ 'COMMON.SELECT' | translate }} --</option>
+          <option *ngFor="let f of fournisseurs" [ngValue]="f.id">{{ f.nom }}</option>
+        </select>
+      </div>
+      <!-- Lignes -->
+      <div class="form-group">
+        <label class="form-label">{{ 'ACHATS.FORM.ORDER_LINES' | translate }}</label>
+        <div class="lignes-commande">
+          <div class="ligne-row" *ngFor="let l of commandeForm.lignes; let i = index">
+            <select class="form-control fc-sm" [(ngModel)]="l.produitId" (change)="onProduitChange(i)">
+              <option [ngValue]="null">-- {{ 'ACHATS.FORM.PRODUCT_OPTIONAL' | translate }} --</option>
+              <option *ngFor="let p of produits" [ngValue]="p.id">{{ p.nom }}</option>
+            </select>
+            <input class="form-control fc-md" type="text" [placeholder]="'ACHATS.FORM.DESIGNATION' | translate" [(ngModel)]="l.designation">
+            <input class="form-control fc-xs" type="number" [placeholder]="'ACHATS.FORM.QTY' | translate" min="1" [(ngModel)]="l.quantite">
+            <input class="form-control fc-sm" type="number" [placeholder]="'ACHATS.FORM.UNIT_PRICE' | translate" step="0.001" [(ngModel)]="l.prixUnitaire">
+            <span class="ligne-total">{{ calculerTotalLigne(l) | number:'1.3-3' }} TND</span>
+            <button class="btn-icon btn-red" (click)="supprimerLigne(i)" *ngIf="commandeForm.lignes.length > 1">
+              <span class="material-symbols-outlined">remove</span>
+            </button>
+          </div>
+          <button class="btn-add-ligne" (click)="ajouterLigne()">
+            <span class="material-symbols-outlined">add</span> {{ 'ACHATS.FORM.ADD_LINE' | translate }}
+          </button>
+        </div>
+      </div>
+      <!-- Total -->
+      <div class="total-commande">
+        <strong>{{ 'ACHATS.FORM.TOTAL' | translate }} : {{ calculerTotalCommande() | number:'1.3-3' }} TND</strong>
+      </div>
+      <!-- Notes -->
+      <div class="form-group">
+        <label class="form-label">{{ 'ACHATS.FORM.NOTES' | translate }}</label>
+        <textarea class="form-control" rows="2" [(ngModel)]="commandeForm.notes" [placeholder]="'ACHATS.FORM.NOTES_PH' | translate"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="showCommandeModal=false">{{ 'COMMON.CANCEL' | translate }}</button>
+      <button class="btn-primary" (click)="soumettreCommande()" [disabled]="loading || isSubmitting">
+        <span class="material-symbols-outlined" *ngIf="loading" style="animation:spin 1s linear infinite">refresh</span>
+        <span class="material-symbols-outlined" *ngIf="!loading">save</span>
+        {{ loading ? ('COMMON.SAVING' | translate) : ('ACHATS.ACTIONS.CREATE_ORDER' | translate) }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODALE RÉCEPTION ══ -->
+<div class="modal-overlay" *ngIf="showReceptionModal" (click)="showReceptionModal=false">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-header-icon" style="background:linear-gradient(135deg,#10b981,#059669);">
+        <span class="material-symbols-outlined">inventory</span>
+      </div>
+      <div>
+        <h3>{{ 'ACHATS.MODAL.RECEPTION_TITLE' | translate }}</h3>
+        <p>{{ 'ACHATS.MODAL.RECEPTION_SUBTITLE' | translate }}</p>
+      </div>
+      <button class="modal-close" (click)="showReceptionModal=false">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">{{ 'ACHATS.FORM.PURCHASE_ORDER' | translate }} *</label>
+        <select class="form-control" [(ngModel)]="receptionForm.commandeAchatId">
+          <option [ngValue]="null">-- {{ 'COMMON.SELECT' | translate }} --</option>
+          <option *ngFor="let c of commandes" [ngValue]="c.id">{{ c.numeroCommande }} — {{ c.fournisseur?.nom }}</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">{{ 'ACHATS.FORM.RECEIVED_PRODUCT' | translate }}</label>
+        <select class="form-control" [(ngModel)]="receptionForm.produitId">
+          <option [ngValue]="null">-- {{ 'COMMON.NONE' | translate }} --</option>
+          <option *ngFor="let p of produits" [ngValue]="p.id">{{ p.nom }}</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">{{ 'ACHATS.FORM.WAREHOUSE' | translate }}</label>
+        <select class="form-control" [(ngModel)]="receptionForm.entrepotId">
+          <option [ngValue]="null">-- {{ 'COMMON.NONE' | translate }} --</option>
+          <option *ngFor="let e of entrepots" [ngValue]="e.id">{{ e.nom }}</option>
+        </select>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group">
+          <label class="form-label">{{ 'ACHATS.FORM.QTY_ORDERED' | translate }}</label>
+          <input class="form-control" type="number" [(ngModel)]="receptionForm.quantiteCommandee">
+        </div>
+        <div class="form-group">
+          <label class="form-label">{{ 'ACHATS.FORM.QTY_RECEIVED' | translate }}</label>
+          <input class="form-control" type="number" [(ngModel)]="receptionForm.quantiteRecue">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">{{ 'ACHATS.FORM.CONFORMITY_STATUS' | translate }}</label>
+        <select class="form-control" [(ngModel)]="receptionForm.statut">
+          <option value="CONFORME">{{ 'ACHATS.STATUS.CONFORME' | translate }}</option>
+          <option value="PARTIELLE">{{ 'ACHATS.STATUS.PARTIELLE' | translate }}</option>
+          <option value="NON_CONFORME">{{ 'ACHATS.STATUS.NON_CONFORME' | translate }}</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">{{ 'ACHATS.FORM.OBSERVATIONS' | translate }}</label>
+        <textarea class="form-control" rows="2" [(ngModel)]="receptionForm.observations" [placeholder]="'ACHATS.FORM.OBSERVATIONS_PH' | translate"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="showReceptionModal=false">{{ 'COMMON.CANCEL' | translate }}</button>
+      <button class="btn-primary" style="background:linear-gradient(135deg,#10b981,#059669);" (click)="soumettreReception()" [disabled]="loading">
+        <span class="material-symbols-outlined">save</span>
+        {{ loading ? ('COMMON.SAVING' | translate) : ('ACHATS.ACTIONS.VALIDATE_RECEPTION' | translate) }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODALE DETAIL COMMANDE ══ -->
+<div class="modal-overlay" *ngIf="showDetailModal" (click)="showDetailModal=false">
+  <div class="detail-modal" (click)="$event.stopPropagation()">
+
+    <!-- Header gradient -->
+    <div class="detail-header">
+      <div class="detail-header-bg"></div>
+      <div class="detail-header-content">
+        <div class="detail-header-left">
+          <div class="detail-badge-num">
+            <span class="material-symbols-outlined">receipt</span>
+          </div>
+          <div>
+            <div class="detail-numero">{{ commandeDetail?.numeroCommande }}</div>
+            <div class="detail-fournisseur">
+              <span class="material-symbols-outlined" style="font-size:14px;">local_shipping</span>
+              {{ commandeDetail?.fournisseur?.nom }}
+            </div>
+          </div>
+        </div>
+        <div class="detail-header-right">
+          <span class="detail-statut-badge" [ngClass]="{
+            'statut-attente':  commandeDetail?.statut === 'EN_ATTENTE',
+            'statut-envoyee':  commandeDetail?.statut === 'ENVOYEE',
+            'statut-partielle':commandeDetail?.statut === 'RECUE_PARTIELLE',
+            'statut-recue':    commandeDetail?.statut === 'RECUE_TOTALE',
+            'statut-annulee':  commandeDetail?.statut === 'ANNULEE'
+          }">{{ commandeDetail?.statut | titlecase }}</span>
+          <button class="detail-close-btn" (click)="showDetailModal=false">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Info pills -->
+      <div class="detail-info-row" *ngIf="commandeDetail">
+        <div class="detail-info-pill">
+          <span class="material-symbols-outlined">calendar_today</span>
+          {{ commandeDetail.dateCommande | date:'dd/MM/yyyy' }}
+        </div>
+        <div class="detail-info-pill">
+          <span class="material-symbols-outlined">tag</span>
+          {{ commandeDetail.lignes?.length || 0 }} {{ 'ACHATS.TABLE.LINES_LABEL' | translate }}
+        </div>
+        <div class="detail-info-pill accent">
+          <span class="material-symbols-outlined">payments</span>
+          {{ commandeDetail.montantTotal | number:'1.3-3' }} TND
+        </div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="detail-body" *ngIf="commandeDetail">
+      <!-- Table des lignes -->
+      <div class="detail-section-title">
+        <span class="material-symbols-outlined">list_alt</span>
+        {{ 'ACHATS.DETAIL.ORDER_LINES' | translate }}
+      </div>
+
+      <div class="detail-table-wrap">
+        <table class="detail-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>{{ 'ACHATS.FORM.DESIGNATION' | translate }}</th>
+              <th>{{ 'ACHATS.TABLE.PRODUCT' | translate }}</th>
+              <th style="text-align:center">{{ 'ACHATS.FORM.QTY' | translate }}</th>
+              <th style="text-align:right">{{ 'ACHATS.DETAIL.UNIT_PRICE' | translate }}</th>
+              <th style="text-align:right">{{ 'ACHATS.TABLE.TOTAL_AMOUNT' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let l of commandeDetail.lignes; let i = index" class="detail-row">
+              <td class="detail-idx">{{ i + 1 }}</td>
+              <td class="detail-designation">{{ l.designation || '—' }}</td>
+              <td>
+                <span class="detail-produit-chip" *ngIf="l.produit">
+                  <span class="material-symbols-outlined" style="font-size:13px;">inventory_2</span>
+                  {{ l.produit?.nom }}
+                </span>
+                <span *ngIf="!l.produit" style="color:#94a3b8">—</span>
+              </td>
+              <td style="text-align:center">
+                <span class="detail-qty-badge">{{ l.quantite }}</span>
+              </td>
+              <td style="text-align:right;color:#475569;font-size:0.85rem">
+                {{ l.prixUnitaire | number:'1.3-3' }} TND
+              </td>
+              <td style="text-align:right">
+                <span class="detail-montant">{{ (l.quantite * l.prixUnitaire) | number:'1.3-3' }} TND</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Total -->
+      <div class="detail-total-bar">
+        <div class="detail-total-left">
+          <span class="material-symbols-outlined">calculate</span>
+          {{ 'ACHATS.DETAIL.TOTAL_LABEL' | translate }}
+        </div>
+        <div class="detail-total-right">
+          {{ commandeDetail.montantTotal | number:'1.3-3' }} <span class="detail-currency">TND</span>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="detail-notes" *ngIf="commandeDetail.notes">
+        <span class="material-symbols-outlined">notes</span>
+        <div>
+          <div class="detail-notes-label">{{ 'ACHATS.FORM.NOTES' | translate }}</div>
+          <div class="detail-notes-text">{{ commandeDetail.notes }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="detail-footer">
+      <button class="btn-secondary" (click)="showDetailModal=false">
+        <span class="material-symbols-outlined" style="font-size:16px">close</span>
+        {{ 'COMMON.CLOSE' | translate }}
+      </button>
+      <button class="btn-primary" (click)="ouvrirNouvelleReception(commandeDetail); showDetailModal=false"
+        *ngIf="commandeDetail?.statut === 'ENVOYEE' || commandeDetail?.statut === 'RECUE_PARTIELLE'">
+        <span class="material-symbols-outlined" style="font-size:16px">inventory</span>
+        {{ 'ACHATS.ACTIONS.RECEIVE' | translate }}
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ MODALE SUPPRESSION ══ -->
+<div class="modal-overlay" *ngIf="showDeleteModal" (click)="showDeleteModal=false">
+  <div class="modal-box modal-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-header-icon" style="background:linear-gradient(135deg,#ef4444,#dc2626);">
+        <span class="material-symbols-outlined">delete</span>
+      </div>
+      <div><h3>{{ 'COMMON.CONFIRM_DELETE' | translate }}</h3></div>
+      <button class="modal-close" (click)="showDeleteModal=false"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.9rem;color:#475569;">{{ 'ACHATS.DELETE.CONFIRM_MSG' | translate }} <strong>{{ selectedCommande?.numeroCommande }}</strong> ?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="showDeleteModal=false">{{ 'COMMON.CANCEL' | translate }}</button>
+      <button class="btn-danger" (click)="supprimerCommande()">{{ 'COMMON.DELETE' | translate }}</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,405 @@
+<div class="admin-users-container">
+
+  <!-- ── En-tête ──────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-icon">
+        <span class="material-symbols-outlined">manage_accounts</span>
+      </div>
+      <div>
+        <h1 class="page-title">{{ 'ADMIN.USERS.TITLE' | translate }}</h1>
+        <p class="page-subtitle">{{ 'ADMIN.USERS.SUBTITLE' | translate }}</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-create-user" (click)="ouvrirCreerUser()">
+        <span class="material-symbols-outlined">person_add</span>
+        {{ 'ADMIN.USERS.NEW_USER' | translate }}
+      </button>
+      <button class="btn-refresh" (click)="chargerUtilisateurs()">
+        <span class="material-symbols-outlined">refresh</span>
+        {{ 'COMMON.REFRESH' | translate }}
+      </button>
+      <!-- Export buttons -->
+      <div class="export-btn-group">
+        <button class="btn-export" (click)="exportUsersCSV()" [title]="'COMMON.EXPORT_CSV' | translate">
+          <span class="material-symbols-outlined">table_view</span> {{ 'COMMON.EXPORT_CSV' | translate }}
+        </button>
+        <button class="btn-export" (click)="exportUsersPDF()" [title]="'COMMON.EXPORT_PDF' | translate">
+          <span class="material-symbols-outlined">picture_as_pdf</span> {{ 'COMMON.EXPORT_PDF' | translate }}
+        </button>
+        <button class="btn-export" (click)="exportUsersWord()" [title]="'COMMON.EXPORT_WORD' | translate">
+          <span class="material-symbols-outlined">description</span> {{ 'COMMON.EXPORT_WORD' | translate }}
+        </button>
+        <button class="btn-export" (click)="printUsers()" [title]="'COMMON.PRINT' | translate">
+          <span class="material-symbols-outlined">print</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Notifications ─────────────────────────────────────────── -->
+  <div class="notif success" *ngIf="successMsg">
+    <span class="material-symbols-outlined">check_circle</span>
+    {{ successMsg }}
+  </div>
+  <div class="notif error" *ngIf="errorMsg">
+    <span class="material-symbols-outlined">error</span>
+    {{ errorMsg }}
+  </div>
+
+  <!-- ── Chargement ────────────────────────────────────────────── -->
+  <div class="loading-box" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>{{ 'COMMON.LOADING' | translate }}</p>
+  </div>
+
+  <!-- ── Tableau utilisateurs ──────────────────────────────────── -->
+  <div class="table-card" *ngIf="!loading" id="users-table">
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th>
+            <span class="material-symbols-outlined th-icon">person</span>
+            {{ 'ADMIN.USERS.USERNAME' | translate }}
+          </th>
+          <th>
+            <span class="material-symbols-outlined th-icon">badge</span>
+            {{ 'ADMIN.USERS.ROLE' | translate }}
+          </th>
+          <th>
+            <span class="material-symbols-outlined th-icon">verified_user</span>
+            {{ 'ADMIN.USERS.STATUS' | translate }}
+          </th>
+          <th>
+            <span class="material-symbols-outlined th-icon">timer</span>
+            {{ 'ADMIN.USERS.TRIAL_MODE' | translate }}
+          </th>
+          <th>
+            <span class="material-symbols-outlined th-icon">bar_chart</span>
+            {{ 'ADMIN.USERS.USES' | translate }}
+          </th>
+          <th>
+            <span class="material-symbols-outlined th-icon">settings</span>
+            {{ 'COMMON.ACTIONS' | translate }}
+          </th>
+          <th style="text-align:center;">
+            <span class="material-symbols-outlined th-icon">delete_forever</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users">
+          <!-- Infos utilisateur -->
+          <td>
+            <div class="user-info">
+              <div class="user-avatar">{{ (user.prenom || user.nomUtilisateur)[0] | uppercase }}</div>
+              <div>
+                <span class="user-name">{{ user.prenom }} {{ user.nom }}</span>
+                <span class="user-email">{{ user.email }}</span>
+                <span class="user-login">&#64;{{ user.nomUtilisateur }}</span>
+              </div>
+            </div>
+          </td>
+
+          <!-- Rôle -->
+          <td>
+            <span class="role-badge role-{{ user.role | lowercase }}">{{ user.role }}</span>
+          </td>
+
+          <!-- Statut compte -->
+          <td>
+            <div class="statut-cell">
+              <select class="statut-select"
+                [class.s-actif]="user.statutCompte === 'ACTIF'"
+                [class.s-valide]="user.statutCompte === 'VALIDE'"
+                [class.s-attente]="user.statutCompte === 'EN_ATTENTE'"
+                [class.s-refuse]="user.statutCompte === 'REFUSE'"
+                [value]="user.statutCompte"
+                (change)="changerStatut(user, $any($event.target).value)">
+                <option value="ACTIF">{{ 'ADMIN.USERS.ACTIVE' | translate }}</option>
+                <option value="VALIDE">{{ 'ADMIN.USERS.VALIDATED' | translate }}</option>
+                <option value="EN_ATTENTE">{{ 'ADMIN.USERS.PENDING' | translate }}</option>
+                <option value="REFUSE">{{ 'ADMIN.USERS.REFUSED' | translate }}</option>
+              </select>
+            </div>
+          </td>
+
+          <!-- Mode trial -->
+          <td>
+            <div class="trial-cell">
+              <div class="trial-toggle">
+                <label class="switch">
+                  <input type="checkbox" [checked]="user.modeTrial"
+                    (change)="user.modeTrial ? desactiverTrial(user) : ouvrirTrialModal(user)">
+                  <span class="slider"></span>
+                </label>
+                <span class="trial-label" [class.active]="user.modeTrial">
+                  {{ user.modeTrial ? ('ADMIN.USERS.TRIAL_ACTIVE' | translate) : ('ADMIN.USERS.TRIAL_INACTIVE' | translate) }}
+                </span>
+              </div>
+            </div>
+          </td>
+
+          <!-- Barre d'utilisations trial -->
+          <td>
+            <div class="usage-cell" *ngIf="user.modeTrial; else noTrial">
+              <div class="usage-numbers">
+                <span class="usage-current">{{ user.nbUtilisations }}</span>
+                <span class="usage-sep">/</span>
+                <span class="usage-max">{{ user.nbUtilisationsMax }}</span>
+                <span class="usage-restant" [class.critique]="user.utilisationsRestantes <= 5">
+                  ({{ user.utilisationsRestantes }} {{ 'ADMIN.USERS.REMAINING' | translate }})
+                </span>
+              </div>
+              <div class="usage-bar">
+                <div class="usage-fill" [style.width.%]="getTrialPercent(user)"
+                  [class.fill-warning]="getTrialPercent(user) >= 70"
+                  [class.fill-danger]="getTrialPercent(user) >= 90">
+                </div>
+              </div>
+              <button class="btn-reset-trial" (click)="resetCompteur(user)" [title]="'ADMIN.USERS.RESET' | translate">
+                <span class="material-symbols-outlined">restart_alt</span> Reset
+              </button>
+            </div>
+            <ng-template #noTrial>
+              <span class="no-trial">—</span>
+            </ng-template>
+          </td>
+
+          <!-- Actions -->
+          <td>
+            <div class="action-btns">
+              <button class="btn-action btn-history" (click)="voirHistorique(user)"
+                [title]="'ADMIN.USERS.CONNECTIONS' | translate">
+                <span class="material-symbols-outlined">history</span>
+                {{ 'ADMIN.USERS.CONNECTIONS' | translate }}
+              </button>
+              <button class="btn-action btn-trial-config" (click)="ouvrirTrialModal(user)" *ngIf="!user.modeTrial"
+                [title]="'ADMIN.USERS.CONFIGURE_TRIAL' | translate">
+                <span class="material-symbols-outlined">timer</span>
+                Trial
+              </button>
+            </div>
+          </td>
+
+          <!-- Supprimer -->
+          <td style="text-align:center;">
+            <button class="btn-delete-user" (click)="supprimerUser(user)"
+                    [disabled]="user.role === 'ADMIN'"
+                    [title]="user.role === 'ADMIN' ? ('ADMIN.USERS.CANNOT_DELETE_ADMIN' | translate) : ('ADMIN.USERS.DELETE_USER' | translate)">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="table-footer">
+      <span class="material-symbols-outlined" style="font-size:16px;color:#94a3b8">group</span>
+      {{ users.length }} {{ 'ADMIN.USERS.TOTAL_USERS' | translate }}
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════ MODAL CRÉER UTILISATEUR ═══════════════ -->
+<div class="modal-backdrop" *ngIf="showCreateModal" (click)="showCreateModal = false">
+  <div class="modal modal-create" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <div class="modal-header-icon">
+          <span class="material-symbols-outlined">person_add</span>
+        </div>
+        <div>
+          <h2>{{ 'ADMIN.USERS.CREATE_TITLE' | translate }}</h2>
+          <p class="modal-subtitle">{{ 'ADMIN.USERS.CREATE_SUBTITLE' | translate }}</p>
+        </div>
+      </div>
+      <button class="modal-close" (click)="showCreateModal = false">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="create-form-grid">
+        <div class="form-group">
+          <label>
+            <span class="material-symbols-outlined">badge</span>
+            {{ 'ADMIN.USERS.FIRST_NAME' | translate }}
+          </label>
+          <input type="text" class="form-input" [(ngModel)]="newUser.prenom" placeholder="Mohammed">
+        </div>
+        <div class="form-group">
+          <label>
+            <span class="material-symbols-outlined">badge</span>
+            {{ 'ADMIN.USERS.LAST_NAME' | translate }}
+          </label>
+          <input type="text" class="form-input" [(ngModel)]="newUser.nom" placeholder="Ben Ali">
+        </div>
+        <div class="form-group">
+          <label>
+            <span class="material-symbols-outlined">alternate_email</span>
+            {{ 'ADMIN.USERS.USERNAME' | translate }} *
+          </label>
+          <input type="text" class="form-input" [(ngModel)]="newUser.nomUtilisateur"
+                 placeholder="m.benali" [class.input-error]="createErrors.nomUtilisateur">
+          <span class="field-error" *ngIf="createErrors.nomUtilisateur">{{ createErrors.nomUtilisateur }}</span>
+        </div>
+        <div class="form-group">
+          <label>
+            <span class="material-symbols-outlined">mail</span>
+            {{ 'ADMIN.USERS.EMAIL' | translate }} *
+          </label>
+          <input type="email" class="form-input" [(ngModel)]="newUser.email"
+                 placeholder="m.benali&#64;entreprise.com" [class.input-error]="createErrors.email">
+          <span class="field-error" *ngIf="createErrors.email">{{ createErrors.email }}</span>
+        </div>
+        <div class="form-group">
+          <label>
+            <span class="material-symbols-outlined">admin_panel_settings</span>
+            {{ 'ADMIN.USERS.ROLE' | translate }}
+          </label>
+          <select class="form-input" [(ngModel)]="newUser.role">
+            <option value="COMMERCIAL">🧑‍💼 {{ 'ADMIN.ROLES.COMMERCIAL' | translate }}</option>
+            <option value="COMPTABLE">📊 {{ 'ADMIN.ROLES.COMPTABLE' | translate }}</option>
+            <option value="STOCK">📦 {{ 'ADMIN.ROLES.STOCK' | translate }}</option>
+            <option value="CLIENT">🤝 {{ 'ADMIN.ROLES.CLIENT' | translate }}</option>
+            <option value="USER">👤 {{ 'ADMIN.USERS.SIMPLE_USER' | translate }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>
+            <span class="material-symbols-outlined">lock</span>
+            {{ 'ADMIN.USERS.PASSWORD' | translate }} *
+          </label>
+          <div class="password-field">
+            <input [type]="showPassword ? 'text' : 'password'" class="form-input"
+                   [(ngModel)]="newUser.motDePasse" [placeholder]="'ADMIN.USERS.PASSWORD_PLACEHOLDER' | translate"
+                   [class.input-error]="createErrors.motDePasse">
+            <button class="btn-toggle-pw" type="button" (click)="showPassword = !showPassword">
+              <span class="material-symbols-outlined">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+            </button>
+          </div>
+          <span class="field-error" *ngIf="createErrors.motDePasse">{{ createErrors.motDePasse }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" (click)="showCreateModal = false">
+        <span class="material-symbols-outlined">close</span>
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button class="btn-confirm btn-create" (click)="creerUtilisateur()" [disabled]="creatingUser">
+        <span class="material-symbols-outlined">{{ creatingUser ? 'hourglass_top' : 'person_add' }}</span>
+        {{ creatingUser ? ('COMMON.LOADING' | translate) : ('ADMIN.USERS.SAVE' | translate) }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ MODAL HISTORIQUE ═══════════════════════ -->
+<div class="modal-backdrop" *ngIf="showHistorique" (click)="showHistorique = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <div class="modal-header-icon icon-blue">
+          <span class="material-symbols-outlined">history</span>
+        </div>
+        <div>
+          <h2>{{ 'ADMIN.USERS.HISTORY_TITLE' | translate }}</h2>
+          <p class="modal-subtitle">&#64;{{ historiqueUser?.nomUtilisateur }}</p>
+        </div>
+      </div>
+      <button class="modal-close" (click)="showHistorique = false">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="loading-box" *ngIf="historiqueLoading">
+        <div class="spinner"></div>
+      </div>
+      <div *ngIf="!historiqueLoading && connexions.length === 0" class="empty-state">
+        <span class="material-symbols-outlined">history_toggle_off</span>
+        <p>{{ 'ADMIN.USERS.NO_CONNECTIONS' | translate }}</p>
+      </div>
+      <table class="hist-table" *ngIf="!historiqueLoading && connexions.length > 0">
+        <thead>
+          <tr>
+            <th>
+              <span class="material-symbols-outlined th-icon">schedule</span>
+              {{ 'ADMIN.USERS.DATE_TIME' | translate }}
+            </th>
+            <th>
+              <span class="material-symbols-outlined th-icon">computer</span>
+              {{ 'ADMIN.USERS.BROWSER' | translate }}
+            </th>
+            <th>
+              <span class="material-symbols-outlined th-icon">verified</span>
+              {{ 'COMMON.STATUS' | translate }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of connexions">
+            <td class="hist-date">{{ formatDate(c.dateConnexion) }}</td>
+            <td class="browser-cell">
+              <span class="browser-name">{{ parseBrowser(c.userAgent) }}</span>
+              <span class="os-name" *ngIf="parseOS(c.userAgent)">{{ parseOS(c.userAgent) }}</span>
+            </td>
+            <td>
+              <span class="statut-badge-mini badge-success" *ngIf="c.succes">
+                <span class="material-symbols-outlined">check_circle</span> {{ 'ADMIN.USERS.SUCCESS' | translate }}
+              </span>
+              <span class="statut-badge-mini badge-fail" *ngIf="!c.succes">
+                <span class="material-symbols-outlined">cancel</span> {{ 'ADMIN.USERS.FAILED' | translate }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ MODAL TRIAL CONFIG ═════════════════════ -->
+<div class="modal-backdrop" *ngIf="showTrialModal" (click)="showTrialModal = false">
+  <div class="modal modal-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <div class="modal-header-icon icon-orange">
+          <span class="material-symbols-outlined">timer</span>
+        </div>
+        <div>
+          <h2>{{ 'ADMIN.USERS.TRIAL_MODE' | translate }}</h2>
+          <p class="modal-subtitle">&#64;{{ trialUser?.nomUtilisateur }}</p>
+        </div>
+      </div>
+      <button class="modal-close" (click)="showTrialModal = false">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-desc">
+        {{ 'ADMIN.USERS.TRIAL_ACTIVATE_DESC' | translate }} <strong>&#64;{{ trialUser?.nomUtilisateur }}</strong>.
+        {{ 'ADMIN.USERS.TRIAL_WARNING_DESC' | translate }}
+      </p>
+      <div class="form-group">
+        <label>
+          <span class="material-symbols-outlined">123</span>
+          {{ 'ADMIN.USERS.MAX_USES' | translate }}
+        </label>
+        <input type="number" class="form-input" [(ngModel)]="trialNbMax" min="1" max="100" placeholder="30">
+        <span class="form-hint">{{ 'ADMIN.USERS.TRIAL_DEFAULT_HINT' | translate }}</span>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="showTrialModal = false">
+          <span class="material-symbols-outlined">close</span>
+          {{ 'COMMON.CANCEL' | translate }}
+        </button>
+        <button class="btn-confirm" (click)="activerTrial()">
+          <span class="material-symbols-outlined">check_circle</span>
+          {{ 'ADMIN.USERS.ACTIVATE_TRIAL' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
