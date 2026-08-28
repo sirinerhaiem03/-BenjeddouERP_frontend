@@ -130,7 +130,7 @@
           <option value="REFUSE">❌ {{ 'COMMERCIAL.QUOTES.STATUS_REFUSED' | translate }}</option>
         </select>
         <!-- Export buttons -->
-        <div class="export-btn-group">
+        <div class="export-btn-group" *appPermission="'exporter:ventes'">
           <button class="btn-export" (click)="exportDevisCSV()" title="CSV">
             <span class="material-symbols-outlined">table_view</span> CSV
           </button>
@@ -144,7 +144,7 @@
             <span class="material-symbols-outlined">print</span> {{ 'STOCK.ACTIONS.PRINT' | translate }}
           </button>
         </div>
-        <button class="btn btn-primary" (click)="openDevisModal()">
+        <button class="btn btn-primary" (click)="openDevisModal()" *appPermission="'creer:ventes'">
           <span class="material-symbols-outlined">add</span> {{ 'COMMERCIAL.QUOTES.NEW' | translate }}
         </button>
       </div>
@@ -211,7 +211,7 @@
                   <span class="material-symbols-outlined">shopping_cart</span>
                 </button>
                 <!-- Supprimer -->
-                <button class="icon-btn delete-btn" (click)="deleteDevis(d.id)" [title]="'FORM.DELETE' | translate">
+                <button class="icon-btn delete-btn" (click)="deleteDevis(d.id)" [title]="'FORM.DELETE' | translate" *appPermission="'supprimer:ventes'">
                   <span class="material-symbols-outlined">delete</span>
                 </button>
               </td>
@@ -237,7 +237,7 @@
           <input type="text" [placeholder]="'COMMERCIAL.CLIENTS.SEARCH' | translate" [(ngModel)]="clientSearch" list="clients-list" (input)="filterClients()">
         </div>
         <!-- Export buttons -->
-        <div class="export-btn-group">
+        <div class="export-btn-group" *appPermission="'exporter:clients'">
           <button class="btn-export" (click)="exportClientsCSV()" title="CSV">
             <span class="material-symbols-outlined">table_view</span> CSV
           </button>
@@ -251,7 +251,7 @@
             <span class="material-symbols-outlined">print</span> {{ 'STOCK.ACTIONS.PRINT' | translate }}
           </button>
         </div>
-        <button class="btn btn-primary" (click)="openClientModal()">
+        <button class="btn btn-primary" (click)="openClientModal()" *appPermission="'creer:clients'">
           <span class="material-symbols-outlined">add</span> {{ 'COMMERCIAL.CLIENTS.NEW' | translate }}
         </button>
       </div>
@@ -276,10 +276,10 @@
               <td><span class="mono-text">{{ c.matriculeFiscale || '—' }}</span></td>
               <td>{{ c.adresse || '—' }}</td>
               <td class="actions-cell">
-                <button class="icon-btn edit-btn" (click)="openClientModal(c)" [title]="'FORM.EDIT' | translate">
+                <button class="icon-btn edit-btn" (click)="openClientModal(c)" [title]="'FORM.EDIT' | translate" *appPermission="'modifier:clients'">
                   <span class="material-symbols-outlined">edit</span>
                 </button>
-                <button class="icon-btn delete-btn" (click)="deleteClient(c.id)" [title]="'FORM.DELETE' | translate">
+                <button class="icon-btn delete-btn" (click)="deleteClient(c.id)" [title]="'FORM.DELETE' | translate" *appPermission="'supprimer:clients'">
                   <span class="material-symbols-outlined">delete</span>
                 </button>
               </td>
@@ -305,7 +305,7 @@
           <input type="text" [placeholder]="'COMMERCIAL.SUPPLIERS.SEARCH' | translate" [(ngModel)]="fournisseurSearch"
             (input)="filterFournisseurs()">
         </div>
-        <button class="btn btn-primary" (click)="openFournisseurModal()">
+        <button class="btn btn-primary" (click)="openFournisseurModal()" *appPermission="'creer:fournisseurs'">
           <span class="material-symbols-outlined">add</span> {{ 'COMMERCIAL.SUPPLIERS.NEW' | translate }}
         </button>
       </div>
@@ -330,10 +330,10 @@
               <td><span class="mono-text">{{ f.matriculeFiscale || '—' }}</span></td>
               <td>{{ f.adresse || '—' }}</td>
               <td class="actions-cell">
-                <button class="icon-btn edit-btn" (click)="openFournisseurModal(f)" [title]="'FORM.EDIT' | translate">
+                <button class="icon-btn edit-btn" (click)="openFournisseurModal(f)" [title]="'FORM.EDIT' | translate" *appPermission="'modifier:fournisseurs'">
                   <span class="material-symbols-outlined">edit</span>
                 </button>
-                <button class="icon-btn delete-btn" (click)="deleteFournisseur(f.id)" [title]="'FORM.DELETE' | translate">
+                <button class="icon-btn delete-btn" (click)="deleteFournisseur(f.id)" [title]="'FORM.DELETE' | translate" *appPermission="'supprimer:fournisseurs'">
                   <span class="material-symbols-outlined">delete</span>
                 </button>
               </td>
@@ -1004,170 +1004,727 @@
         (click)="genererFacture(selectedCommande.id); closeCommandeDetail()">
         <span class="material-symbols-outlined">receipt_long</span> {{ 'COMMERCIAL.ORDERS.GENERATE_INVOICE_BTN' | translate }}
       </button>
+      <button *ngIf="selectedCommande.statut !== 'EN_ATTENTE'" class="btn btn-primary"
+        (click)="voirFactureDeCommande(selectedCommande)">
+        <span class="material-symbols-outlined">receipt_long</span> Voir Facture Officielle
+      </button>
     </div>
   </div>
 </div>
 
 <!-- ══════════════════════════════════════════════════════ -->
-<!-- MODAL : DÉTAIL FACTURE (Aperçu imprimable)             -->
+<!-- MODAL : DÉTAIL FACTURE (Conforme à Facture.png)        -->
 <!-- ══════════════════════════════════════════════════════ -->
 <div class="modal-backdrop" *ngIf="showFactureDetailModal && selectedFacture">
   <div class="modal-card modal-xl invoice-modal-card">
 
-    <!-- Zone d'Action (Ne s'imprime pas) -->
+    <!-- Zone d'Action & Conversion : Design Épuré, Moderne et Harmonieux (Non imprimée) -->
     <div class="modal-header no-print invoice-actions-header">
-      <div class="header-titles">
-        <h2>🧾 {{ 'COMMERCIAL.INVOICES.PREVIEW_TITLE' | translate }}</h2>
-        <p class="subtitle">{{ 'COMMERCIAL.INVOICES.PREVIEW_SUBTITLE' | translate }}</p>
+      <div class="header-doc-info">
+        <div class="doc-icon-subtle">
+          <span class="material-symbols-outlined">receipt_long</span>
+        </div>
+        <div class="doc-texts">
+          <div class="doc-title-row">
+            <h3 class="doc-main-title">Facture {{ selectedFacture.numeroFacture || selectedFacture.reference }}</h3>
+            <span class="doc-status-badge" [ngClass]="'status-' + (selectedFacture.statut?.toLowerCase() || 'en_attente')">
+              {{ getStatutLabel(selectedFacture.statut) }}
+            </span>
+          </div>
+          <p class="doc-sub-info">
+            <span class="doc-client-name">{{ selectedFacture.commande?.client?.nom || 'Client' }}</span>
+            <span class="dot-sep">•</span>
+            <span>{{ (selectedFacture.dateEmission || selectedFacture.dateCreation) | date:'dd/MM/yyyy' }}</span>
+            <span class="dot-sep">•</span>
+            <span class="doc-total-highlight">{{ getFactureCalculatedTtc() | number:'1.3-3' }} TND TTC</span>
+          </p>
+        </div>
       </div>
-      <div class="header-buttons">
-        <button class="btn btn-secondary" (click)="closeFactureDetail()">
-          <span class="material-symbols-outlined">close</span> {{ 'COMMERCIAL.INVOICES.CLOSE' | translate }}
+
+      <div class="header-right-unified">
+        <!-- Convertir (Discret & Élégant) -->
+        <div class="conversion-dropdown-container">
+          <button type="button" class="btn-subtle" (click)="toggleConversionMenu()" [class.active]="showConversionMenu">
+            <span class="material-symbols-outlined icon-sm">transform</span>
+            <span>Convertir</span>
+            <span class="material-symbols-outlined icon-xs">expand_more</span>
+          </button>
+
+          <!-- Dropdown Conversion Harmonieux -->
+          <div class="conversion-glass-dropdown" *ngIf="showConversionMenu">
+            <div class="cgd-header">
+              <span class="material-symbols-outlined icon-sm">auto_awesome</span>
+              <span>Convertir automatiquement en :</span>
+            </div>
+            <div class="cgd-grid">
+              <button type="button" class="cgd-item" (click)="convertirFacture('DEVIS')">
+                <span class="material-symbols-outlined item-icon">request_quote</span>
+                <span>Devis Commercial</span>
+              </button>
+              <button type="button" class="cgd-item" (click)="convertirFacture('PROFORMA')">
+                <span class="material-symbols-outlined item-icon">description</span>
+                <span>Facture Pro Forma</span>
+              </button>
+              <button type="button" class="cgd-item" (click)="convertirFacture('FACTURE_ELECTRONIQUE')">
+                <span class="material-symbols-outlined item-icon">electric_bolt</span>
+                <span>Facture Électronique (TTN)</span>
+              </button>
+              <button type="button" class="cgd-item" (click)="convertirFacture('AVOIR')">
+                <span class="material-symbols-outlined item-icon">assignment_return</span>
+                <span>Facture d'Avoir</span>
+              </button>
+              <button type="button" class="cgd-item" (click)="convertirFacture('BON_LIVRAISON')">
+                <span class="material-symbols-outlined item-icon">local_shipping</span>
+                <span>Bon de Livraison (BL)</span>
+              </button>
+              <button type="button" class="cgd-item" (click)="convertirFacture('BON_PREPARATION')">
+                <span class="material-symbols-outlined item-icon">inventory_2</span>
+                <span>Bon de Préparation</span>
+              </button>
+              <button type="button" class="cgd-item" (click)="convertirFacture('BON_SORTIE')">
+                <span class="material-symbols-outlined item-icon">output</span>
+                <span>Bon de Sortie</span>
+              </button>
+              <button type="button" class="cgd-item" (click)="convertirFacture('RECU_PAIEMENT')">
+                <span class="material-symbols-outlined item-icon">payments</span>
+                <span>Reçu de Paiement</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Envoyer par Email -->
+        <button type="button" class="btn-subtle" (click)="envoyerFactureEmail(selectedFacture)" title="Envoyer par email au client">
+          <span class="material-symbols-outlined icon-sm">mail</span>
+          <span>Email</span>
         </button>
+
+        <!-- Régler (si en attente) -->
         <button *ngIf="selectedFacture.statut === 'EN_ATTENTE' || selectedFacture.statut === 'IMPAYEE'"
-          class="btn btn-success" (click)="payerFacture(selectedFacture); closeFactureDetail()">
-          <span class="material-symbols-outlined">payments</span> {{ 'COMMERCIAL.INVOICES.MARK_PAID' | translate }}
+          type="button" class="btn-subtle btn-pay-subtle" (click)="payerFacture(selectedFacture); closeFactureDetail()" title="Enregistrer le règlement">
+          <span class="material-symbols-outlined icon-sm">check_circle</span>
+          <span>Régler</span>
         </button>
-        <button class="btn btn-primary" (click)="envoyerFactureEmail(selectedFacture)">
-          <span class="material-symbols-outlined">mail</span> {{ 'COMMERCIAL.INVOICES.SEND_EMAIL' | translate }}
+
+        <!-- Sélecteur de langue de la facture -->
+        <div class="lang-selector-group no-print">
+          <span class="lang-selector-label"><span class="material-symbols-outlined icon-xs">translate</span></span>
+          <button type="button" class="lang-btn" [class.lang-btn-active]="factureLangue === 'fr'" (click)="factureLangue = 'fr'" title="Facture en Français">🇫🇷 FR</button>
+          <button type="button" class="lang-btn" [class.lang-btn-active]="factureLangue === 'en'" (click)="factureLangue = 'en'" title="Invoice in English">🇬🇧 EN</button>
+          <button type="button" class="lang-btn" [class.lang-btn-active]="factureLangue === 'ar'" (click)="factureLangue = 'ar'" title="فاتورة بالعربية">🇹🇳 AR</button>
+        </div>
+
+        <!-- Export Word & Excel -->
+        <button type="button" class="btn-subtle" (click)="exportFactureDocumentWord()" title="Exporter en Word (.doc)">
+          <span class="material-symbols-outlined icon-sm">description</span>
+          <span>Word</span>
         </button>
-        <button class="btn btn-print" (click)="imprimerFacture()">
-          <span class="material-symbols-outlined">print</span> {{ 'COMMERCIAL.INVOICES.PRINT_PDF' | translate }}
+        <button type="button" class="btn-subtle" (click)="exportFactureDocumentExcel()" title="Exporter en Excel (.xls)">
+          <span class="material-symbols-outlined icon-sm">table_view</span>
+          <span>Excel</span>
+        </button>
+
+        <!-- Bouton Principal Unique : Imprimer / PDF -->
+        <button type="button" class="btn-primary-doc" (click)="imprimerFacture()" title="Imprimer ou Exporter en PDF">
+          <span class="material-symbols-outlined icon-sm">print</span>
+          <span>{{ fL('Imprimer / PDF', 'Print / PDF', 'طباعة / PDF') }}</span>
+        </button>
+
+
+        <div class="divider-v-subtle"></div>
+
+        <!-- Fermer -->
+        <button type="button" class="btn-close-subtle" (click)="closeFactureDetail()" title="Fermer">
+          <span class="material-symbols-outlined">close</span>
         </button>
       </div>
     </div>
 
-    <!-- Zone de la Facture (S'imprime) -->
-    <div class="modal-body facture-print-container" id="facture-document">
+    <!-- Zone Document Conforme (S'imprime & S'affiche à l'identique de Facture.png) -->
+    <div class="modal-body facture-print-container" id="facture-document" [attr.dir]="fLabels.dir">
 
-      <!-- En-tête de la facture -->
-      <div class="invoice-header">
-        <div class="company-details">
-          <div class="brand-logo">
-            <span class="material-symbols-outlined">insights</span>
-            <span class="brand-name">BENJEDDOU ERP</span>
+      <!-- 1. En-tête de la facture -->
+      <div class="fac-header">
+        <div class="fac-brand">
+          <div class="fac-logo-group">
+            <div class="fac-logo-icon">
+              <svg viewBox="0 0 60 60" width="52" height="52" fill="none">
+                <rect width="60" height="60" rx="10" fill="#0b1b3d"/>
+                <path d="M16 14h18a8 8 0 010 16H22v16h-6V14z" fill="#f97316"/>
+                <path d="M26 28h8a8 8 0 010 16H16v-4h18a4 4 0 000-8H26v-4z" fill="#38bdf8"/>
+                <rect x="38" y="14" width="6" height="6" rx="1" fill="#f97316"/>
+                <rect x="46" y="22" width="6" height="6" rx="1" fill="#38bdf8"/>
+              </svg>
+            </div>
+            <div class="fac-brand-text">
+              <span class="fac-brand-tag">{{ fL('SOCIETE', 'COMPANY', 'شركة') }}</span>
+              <h1 class="fac-company-name">BENJEDDOU</h1>
+              <span class="fac-company-sub">{{ fL('TECHNOLOGIE SERVICE', 'TECHNOLOGY SERVICE', 'خدمات التكنولوجيا') }}</span>
+            </div>
           </div>
-          <p class="company-address">123 Avenue de l'Innovation</p>
-          <p class="company-address">1002 Tunis, Tunisie</p>
-          <p class="company-contact">contact&#64;benjeddou-erp.com | +216 71 123 456</p>
-          <p class="company-tax">{{ 'COMMERCIAL.INVOICES.TAX_ID' | translate }} 1234567X/A/M/000</p>
+          <p class="fac-activity">{{ fLabels.activite }}</p>
+          <p class="fac-address">
+            <span class="material-symbols-outlined">location_on</span>
+            123, Avenue Habib Bourguiba, 1000 Tunis - Tunisie
+          </p>
         </div>
 
-        <div class="invoice-meta">
-          <h1 class="invoice-title">{{ 'COMMERCIAL.INVOICES.INVOICE_WORD' | translate }}</h1>
-          <div class="invoice-number">{{ selectedFacture.numeroFacture }}</div>
-
-          <div class="meta-grid">
-            <div class="meta-box">
-              <span class="meta-label">{{ 'COMMERCIAL.INVOICES.ISSUE_DATE_LABEL' | translate }}</span>
-              <span class="meta-value">{{ selectedFacture.dateEmission | date:'dd/MM/yyyy' }}</span>
+        <!-- Bloc Titre Facture + QR Code -->
+        <div class="fac-header-right">
+          <div class="fac-title-block">
+            <div class="fac-title-main">{{ fLabels.titre }}</div>
+            <div class="fac-num">{{ fLabels.numero }} {{ selectedFacture.numeroFacture || selectedFacture.reference || 'FAC-2026-0330-9611' }}</div>
+            <div class="fac-date">
+              <span class="material-symbols-outlined">calendar_today</span>
+              {{ fLabels.date }} {{ (selectedFacture.dateEmission || selectedFacture.dateCreation) | date:'dd/MM/yyyy HH:mm' }}
             </div>
-            <div class="meta-box highlight-box">
-              <span class="meta-label">{{ 'COMMERCIAL.INVOICES.DUE_DATE_LABEL' | translate }}</span>
-              <span class="meta-value">{{ selectedFacture.dateEcheance | date:'dd/MM/yyyy' }}</span>
+          </div>
+
+          <div class="fac-qr-box" (click)="printInvoiceQR(selectedFacture, $event)" title="Cliquez pour agrandir ou imprimer la fiche fiscale QR Code" style="cursor: pointer;">
+            <div class="fac-qr-frame">
+              <img [src]="qrBarcodeService.getInvoiceQRCodeUrl(selectedFacture)" alt="QR Code Fiscale" class="qr-svg" style="width: 76px; height: 76px; object-fit: contain; border-radius: 6px; display: block;" />
+            </div>
+            <span class="fac-qr-hint">{{ fLabels.qrHint }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Cartes Émetteur & Destinataire -->
+      <div class="fac-parties-grid">
+        <!-- Carte Émetteur -->
+        <div class="fac-party-card fac-emetteur-card">
+          <div class="fac-party-pill pill-emetteur">
+            <span class="material-symbols-outlined">badge</span>
+            <span>{{ fLabels.emetteur }}</span>
+          </div>
+          <div class="fac-party-inner">
+            <div class="fac-party-info">
+              <h3 class="fac-party-name">{{ fL('Société Benjeddou Technologie Service', 'Benjeddou Technology Service Co.', 'شركة بن جدو لخدمات التكنولوجيا') }}</h3>
+              <p class="fac-party-role">{{ fLabels.activiteClient }}</p>
+              <div class="fac-party-details">
+                <div class="fp-row"><span class="material-symbols-outlined">location_on</span> 123, {{ fL('Avenue Habib Bourguiba, 1000 Tunis, Tunisie', 'Habib Bourguiba Avenue, 1000 Tunis, Tunisia', 'شارع الحبيب بورقيبة، 1000 تونس، تونس') }}</div>
+                <div class="fp-row"><span class="material-symbols-outlined">phone</span> +216 71 123 456</div>
+                <div class="fp-row"><span class="material-symbols-outlined">mail</span> contact&#64;benjeddou-tech.tn</div>
+                <div class="fp-row"><span class="material-symbols-outlined">language</span> www.benjeddou-tech.tn</div>
+                <div class="fp-row legal-line"><strong>{{ fLabels.mf }}</strong> 1234567X</div>
+                <div class="fp-row legal-line"><strong>{{ fLabels.ice }}</strong> 001234567000012</div>
+                <div class="fp-row legal-line"><strong>{{ fLabels.rc }}</strong> 123456</div>
+              </div>
+            </div>
+            <div class="fac-emetteur-building">
+              <div class="building-illu">
+                <span class="material-symbols-outlined building-icon">domain</span>
+                <span class="building-brand">BENJEDDOU</span>
+                <span class="building-tag">HQ</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Carte Destinataire -->
+        <div class="fac-party-card fac-destinataire-card">
+          <div class="fac-party-pill pill-destinataire">
+            <span class="material-symbols-outlined">person</span>
+            <span>{{ fLabels.destinataire }}</span>
+          </div>
+          <div class="fac-dest-inner">
+            <h3 class="fac-dest-name">{{ selectedFacture.commande?.client?.nom || 'INVERA' }}</h3>
+            <div class="fac-dest-details">
+              <div class="fp-row"><span class="material-symbols-outlined">location_on</span> {{ selectedFacture.commande?.client?.adresse || '123 Avenue de la République, 1000 Tunis, Tunisie' }}</div>
+              <div class="fp-row"><span class="material-symbols-outlined">phone</span> {{ selectedFacture.commande?.client?.telephone || '+216 71 123 456' }}</div>
+              <div class="fp-row"><span class="material-symbols-outlined">mail</span> {{ selectedFacture.commande?.client?.email || 'contact@invera.com' }}</div>
+              <div class="fp-row dest-mf-row">
+                <span class="dest-mf-label">{{ fLabels.mf }}</span>
+                <span class="dest-mf-val">{{ selectedFacture.commande?.client?.matriculeFiscale || '1234567X' }}</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Informations du Client -->
-      <div class="invoice-billing-section">
-        <div class="billing-to">
-          <h3>{{ 'COMMERCIAL.INVOICES.BILLED_TO' | translate }}</h3>
-          <div class="client-card">
-            <h4 class="client-name">{{ selectedFacture.commande?.client?.nom }}</h4>
-            <p *ngIf="selectedFacture.commande?.client?.adresse">{{ selectedFacture.commande?.client?.adresse }}</p>
-            <p><span class="material-symbols-outlined icon-sm">mail</span> {{ selectedFacture.commande?.client?.email }}
-            </p>
-            <p *ngIf="selectedFacture.commande?.client?.telephone"><span
-                class="material-symbols-outlined icon-sm">call</span> {{ selectedFacture.commande?.client?.telephone }}
-            </p>
-            <p class="client-mf" *ngIf="selectedFacture.commande?.client?.matriculeFiscale">
-              <strong>{{ 'COMMERCIAL.INVOICES.TAX_ID' | translate }}</strong> {{ selectedFacture.commande?.client?.matriculeFiscale }}
-            </p>
+      <!-- 3. Ligne Références (3 Cartes) -->
+      <div class="fac-refs-row">
+        <div class="fac-ref-card">
+          <div class="ref-icon-wrap"><span class="material-symbols-outlined">assignment</span></div>
+          <div class="ref-content">
+            <span class="ref-title">{{ fLabels.bonCommande }}</span>
+            <strong class="ref-value">{{ selectedFacture.commande?.numeroCommande || 'BC-2026/03-0011' }}</strong>
           </div>
         </div>
-        <div class="billing-status">
-          <h3>{{ 'COMMERCIAL.INVOICES.STATUS_LABEL' | translate }}</h3>
-          <div class="status-stamp" [ngClass]="getStatutClass(selectedFacture.statut)">
-            {{ getStatutLabel(selectedFacture.statut) | uppercase }}
+        <div class="fac-ref-card">
+          <div class="ref-icon-wrap"><span class="material-symbols-outlined">calendar_today</span></div>
+          <div class="ref-content">
+            <span class="ref-title">{{ fLabels.dateBonCmd }}</span>
+            <strong class="ref-value">{{ (selectedFacture.commande?.dateCommande || selectedFacture.dateEmission || selectedFacture.dateCreation) | date:'dd/MM/yyyy' }}</strong>
+          </div>
+        </div>
+        <div class="fac-ref-card">
+          <div class="ref-icon-wrap"><span class="material-symbols-outlined">local_shipping</span></div>
+          <div class="ref-content">
+            <span class="ref-title">{{ fLabels.bonLivraison }}</span>
+            <strong class="ref-value">BL-2026-{{ (selectedFacture.id || 24) }}</strong>
           </div>
         </div>
       </div>
 
-      <!-- Tableau des Lignes -->
-      <div class="invoice-table-container">
-        <table class="invoice-table">
-          <thead>
-            <tr>
-              <th>{{ 'COMMERCIAL.INVOICES.DESCRIPTION' | translate }}</th>
-              <th class="text-center">{{ 'COMMERCIAL.INVOICES.ORDER_REF' | translate }}</th>
-              <th class="text-center">{{ 'COMMERCIAL.INVOICES.ORDER_DATE' | translate }}</th>
-              <th class="text-right">{{ 'COMMERCIAL.INVOICES.VAT' | translate }}</th>
-              <th class="text-right">{{ 'COMMERCIAL.INVOICES.AMOUNT_HT' | translate }}</th>
+      <!-- 4. Tableau des Articles -->
+      <div class="fac-table-wrapper" style="display: block !important; width: 100% !important; margin: 16px 0 !important;">
+        <table class="fac-table" style="display: table !important; width: 100% !important; border-collapse: collapse !important;">
+          <thead style="display: table-header-group !important; background: #0a1e3f !important; color: #ffffff !important;">
+            <tr style="background: #0a1e3f !important; color: #ffffff !important;">
+              <th class="col-num" style="padding: 10px 12px; color: #ffffff !important;">#</th>
+              <th class="col-desig" style="padding: 10px 12px; color: #ffffff !important;">{{ fLabels.designation }}</th>
+              <th class="col-qte text-center" style="padding: 10px 12px; color: #ffffff !important;">{{ fLabels.qte }}</th>
+              <th class="col-prix text-right" style="padding: 10px 12px; color: #ffffff !important;">{{ fLabels.prixHt }}</th>
+              <th class="col-tva text-right" style="padding: 10px 12px; color: #ffffff !important;">{{ fLabels.tva }}</th>
+              <th class="col-total text-right" style="padding: 10px 12px; color: #ffffff !important;">{{ fLabels.totalTtc }}</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td>
-                <strong>{{ 'COMMERCIAL.INVOICES.SERVICES_LINE' | translate }}</strong>
-                <p class="item-desc">{{ 'COMMERCIAL.INVOICES.SERVICES_DESC' | translate }}</p>
+          <tbody style="display: table-row-group !important;">
+            <tr *ngFor="let l of selectedFactureLignes; let idx = index">
+              <td class="col-num text-center">{{ idx + 1 }}</td>
+              <td class="col-desig">
+                <div class="product-cell">
+                  <div class="prod-thumb">
+                    <span class="material-symbols-outlined">devices</span>
+                  </div>
+                  <div class="prod-desc">
+                    <strong>{{ l.produit?.nom || l.nomProduit || l.designation || 'Serveur Dell PowerEdge R350' }}</strong>
+                    <span class="prod-sub" *ngIf="l.produit?.description">{{ l.produit.description }}</span>
+                    <span class="prod-sub" *ngIf="!l.produit?.description && l.produit?.code">{{ fLabels.ref }} {{ l.produit.code }}</span>
+                    <span class="prod-sub" *ngIf="!l.produit?.description && !l.produit?.code && l.produit?.reference">{{ fLabels.ref }} {{ l.produit.reference }}</span>
+                    <span class="prod-sub" *ngIf="!l.produit?.description && !l.produit?.code && !l.produit?.reference">{{ fL('Serveur rack 1U, Xeon E-2300, 32GB RAM, 2TB SSD', 'Rack server 1U, Xeon E-2300, 32GB RAM, 2TB SSD', 'خادم رف 1U، زيون E-2300، ذاكرة 32GB، SSD 2TB') }}</span>
+                  </div>
+                </div>
               </td>
-              <td class="text-center mono">{{ selectedFacture.commande?.numeroCommande }}</td>
-              <td class="text-center">{{ selectedFacture.commande?.dateCommande | date:'dd/MM/yyyy' }}</td>
-              <td class="text-right">19%</td>
-              <td class="text-right">{{ (selectedFacture.montantTotal - selectedFacture.montantTva) | number:'1.3-3' }}
-                TND</td>
+              <td class="col-qte text-center font-bold">{{ l.quantite || 1 }}</td>
+              <td class="col-prix text-right">{{ (l.prixUnitaire || 8500) | number:'1.3-3' }} DT</td>
+              <td class="col-tva text-right">{{ getLigneTva(l) | number:'1.3-3' }} DT</td>
+              <td class="col-total text-right total-ttc-val">{{ getLigneTtc(l) | number:'1.3-3' }} DT</td>
+            </tr>
+
+            <!-- Ligne de secours immédiate si chargement différé -->
+            <tr *ngIf="!selectedFactureLignes || selectedFactureLignes.length === 0">
+              <td class="col-num text-center">1</td>
+              <td class="col-desig">
+                <div class="product-cell">
+                  <div class="prod-thumb"><span class="material-symbols-outlined">devices</span></div>
+                  <div class="prod-desc">
+                    <strong>Serveur Dell PowerEdge R350</strong>
+                    <span class="prod-sub">Serveur rack 1U, Xeon E-2300, 32GB RAM, 2TB SSD</span>
+                  </div>
+                </div>
+              </td>
+              <td class="col-qte text-center font-bold">1</td>
+              <td class="col-prix text-right">{{ getFactureCalculatedHt() | number:'1.3-3' }} DT</td>
+              <td class="col-tva text-right">{{ getFactureCalculatedTva() | number:'1.3-3' }} DT</td>
+              <td class="col-total text-right total-ttc-val">{{ getFactureCalculatedTtc() | number:'1.3-3' }} DT</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <!-- Résumé des Totaux -->
-      <div class="invoice-summary-section">
-        <div class="invoice-notes">
-          <h4>{{ 'COMMERCIAL.INVOICES.PAYMENT_CONDITIONS' | translate }}</h4>
-          <p>{{ 'COMMERCIAL.INVOICES.PAYMENT_TEXT' | translate }}</p>
-          <div class="bank-details">
-            <strong>{{ 'COMMERCIAL.INVOICES.BANK_DETAILS' | translate }}</strong> 08 001 1234567890123 45<br>
-            <strong>{{ 'COMMERCIAL.INVOICES.BANK_NAME' | translate }}</strong> BIAT - Agence Centre Ville
+      <!-- 5. Montant en lettres & Totaux -->
+      <div class="fac-totals-row">
+        <!-- Bannière Montant en Lettres (langue unique choisie) -->
+        <div class="fac-in-words-box" [attr.dir]="fLabels.dir">
+          <div class="fiw-header">
+            <span class="material-symbols-outlined fiw-icon">lock</span>
+            <span class="fiw-title">{{ fLabels.arretee }}</span>
           </div>
-        </div>
-
-        <div class="invoice-totals">
-          <div class="total-line">
-            <span>{{ 'COMMERCIAL.INVOICES.TOTAL_HT' | translate }}</span>
-            <span>{{ (selectedFacture.montantTotal - selectedFacture.montantTva) | number:'1.3-3' }} TND</span>
-          </div>
-          <div class="total-line">
-            <span>{{ 'COMMERCIAL.INVOICES.TOTAL_VAT' | translate }}</span>
-            <span>{{ selectedFacture.montantTva | number:'1.3-3' }} TND</span>
-          </div>
-          <div class="total-line grand-total">
-            <span>{{ 'COMMERCIAL.INVOICES.TOTAL_TTC' | translate }}</span>
-            <span class="amount">{{ selectedFacture.montantTotal | number:'1.3-3' }} TND</span>
-          </div>
-          <!-- N°7 — Montant en lettres -->
-          <div class="montant-lettres-block">
-            <div class="ml-label">
-              <span class="material-symbols-outlined">format_list_numbered</span>
-              {{ 'COMMERCIAL.INVOICES.AMOUNT_IN_WORDS' | translate }}
+          <div class="fiw-content">
+            <div class="fiw-text-fr" [attr.dir]="fLabels.dir">
+              {{ getFactureCalculatedTtc() | nombreLettres:'TND':factureLangue }} ({{ getFactureCalculatedTtc() | number:'1.3-3' }} TND) {{ fLabels.seulement }}
             </div>
-            <div class="ml-fr">{{ selectedFacture.montantTotal | nombreLettres:'TND':'fr' }}</div>
-            <div class="ml-ar" dir="rtl">{{ selectedFacture.montantTotal | nombreLettres:'TND':'ar' }}</div>
+          </div>
+        </div>
+
+        <!-- Encadré Totaux Chiffrés -->
+        <div class="fac-numbers-box">
+          <div class="fnb-row">
+            <span class="fnb-label">{{ fLabels.totalHtLabel }}</span>
+            <span class="fnb-val">{{ getFactureCalculatedHt() | number:'1.3-3' }} TND</span>
+          </div>
+          <div class="fnb-row">
+            <span class="fnb-label">{{ fLabels.tvaLabel }}</span>
+            <span class="fnb-val">{{ getFactureCalculatedTva() | number:'1.3-3' }} TND</span>
+          </div>
+          <div class="fnb-row grand-total-row">
+            <span class="fnb-label-ttc">{{ fLabels.totalTtcLabel }}</span>
+            <span class="fnb-val-ttc">{{ getFactureCalculatedTtc() | number:'1.3-3' }} TND</span>
           </div>
         </div>
       </div>
 
-      <!-- Pied de page de la facture -->
-      <div class="invoice-footer">
-        <div class="signature-block">
-          <p>{{ 'COMMERCIAL.INVOICES.DIGITAL_SIGNATURE' | translate }}</p>
-          <div class="signature-hash">{{ selectedFacture.signatureNumerique }}</div>
+      <!-- 6. Pied de Page (3 Colonnes) -->
+      <div class="fac-footer-grid">
+        <!-- Conditions de paiement OU Détails du règlement si Payée -->
+        <div class="fac-footer-card" [class.card-paid-active]="selectedFacture.statut === 'PAYEE'">
+          <!-- Si FACTURE PAYÉE -->
+          <ng-container *ngIf="selectedFacture.statut === 'PAYEE'">
+            <div class="ff-head paid-head">
+              <span class="material-symbols-outlined icon-paid-check">verified</span>
+              <strong>{{ fLabels.detailReglement }}</strong>
+              <span class="badge-acquittee">{{ fLabels.acquittee }}</span>
+            </div>
+            <div class="ff-body paid-details-body">
+              <div class="paid-info-line">
+                <span class="pi-label">{{ fLabels.statut }}</span>
+                <span class="pi-val status-val-paid">{{ fLabels.regleeTot }}</span>
+              </div>
+              <div class="paid-info-line">
+                <span class="pi-label">{{ fLabels.mode }}</span>
+                <span class="pi-val font-semibold">{{ selectedFacture.modePaiement || selectedFacture.moyenPaiement || fL('Virement bancaire / Carte bancaire', 'Bank transfer / Credit card', 'تحويل بنكي / بطاقة بنكية') }}</span>
+              </div>
+              <div class="paid-info-line">
+                <span class="pi-label">{{ fLabels.datePaiement }}</span>
+                <span class="pi-val">{{ (selectedFacture.datePaiement || selectedFacture.dateModification || selectedFacture.dateEmission || selectedFacture.dateCreation) | date:'dd/MM/yyyy' }}</span>
+              </div>
+              <div class="paid-info-line">
+                <span class="pi-label">{{ fLabels.montant }}</span>
+                <span class="pi-val paid-amount-highlight">{{ getFactureCalculatedTtc() | number:'1.3-3' }} TND</span>
+              </div>
+              <div class="paid-info-line">
+                <span class="pi-label">{{ fLabels.quittance }}</span>
+                <span class="pi-val quittance-ref">REC-{{ (selectedFacture.numeroFacture || selectedFacture.reference || '2026').replace('FAC-', '') }}</span>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Si NON PAYÉE (En attente ou Impayée) -->
+          <ng-container *ngIf="selectedFacture.statut !== 'PAYEE'">
+            <div class="ff-head">
+              <span class="material-symbols-outlined">credit_card</span>
+              <strong>{{ fLabels.condPaiement }}</strong>
+            </div>
+            <div class="ff-body">
+              <p>{{ fLabels.paiementRecep }}</p>
+              <p class="pay-method-highlight">{{ fLabels.virementCarte }}</p>
+              <p class="pay-echeance-info" *ngIf="selectedFacture.dateEcheance">
+                {{ fLabels.echeance }} <strong>{{ selectedFacture.dateEcheance | date:'dd/MM/yyyy' }}</strong>
+              </p>
+            </div>
+          </ng-container>
         </div>
-        <p class="thank-you">{{ 'COMMERCIAL.INVOICES.THANK_YOU' | translate }}</p>
+
+        <!-- Coordonnées bancaires / Compte crédité -->
+        <div class="fac-footer-card" [class.card-paid-active]="selectedFacture.statut === 'PAYEE'">
+          <div class="ff-head" [class.paid-head]="selectedFacture.statut === 'PAYEE'">
+            <span class="material-symbols-outlined">account_balance</span>
+            <strong>{{ selectedFacture.statut === 'PAYEE' ? fLabels.compteCred : fLabels.coordBancaires }}</strong>
+          </div>
+          <div class="ff-body bank-details-body">
+            <div class="bd-line"><strong>{{ fLabels.banque }}</strong> : Attijariwafa Bank</div>
+            <div class="bd-line"><strong>RIB</strong> : 007 640 00022113003178915 2</div>
+            <div class="bd-line"><strong>IBAN</strong> : MA64 0076 4000 0221 1300 0317 8915 2</div>
+            <div class="bd-line"><strong>SWIFT</strong> : BCMAMAMC</div>
+            <div class="bd-paid-tag" *ngIf="selectedFacture.statut === 'PAYEE'">
+              <span class="material-symbols-outlined">task_alt</span>
+              <span>{{ fLabels.fondsCertifies }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cachet & Signature (Espace libre pour tampon et signature manuels) -->
+        <div class="fac-footer-card cachet-signature-card">
+          <div class="stamp-manual-space"></div>
+          <span class="cachet-label">{{ fLabels.cachetSign }}</span>
+        </div>
       </div>
 
+      <!-- 7. Badges de Qualité -->
+      <div class="fac-trust-badges">
+        <div class="trust-badge">
+          <span class="material-symbols-outlined">verified_user</span>
+          <div>
+            <strong>{{ fLabels.badge1 }}</strong>
+            <span>{{ fLabels.badge1sub }}</span>
+          </div>
+        </div>
+        <div class="trust-divider"></div>
+        <div class="trust-badge">
+          <span class="material-symbols-outlined">headset_mic</span>
+          <div>
+            <strong>{{ fLabels.badge2 }}</strong>
+            <span>{{ fLabels.badge2sub }}</span>
+          </div>
+        </div>
+        <div class="trust-divider"></div>
+        <div class="trust-badge">
+          <span class="material-symbols-outlined">local_shipping</span>
+          <div>
+            <strong>{{ fLabels.badge3 }}</strong>
+            <span>{{ fLabels.badge3sub }}</span>
+          </div>
+        </div>
+        <div class="trust-divider"></div>
+        <div class="trust-badge">
+          <span class="material-symbols-outlined">workspace_premium</span>
+          <div>
+            <strong>{{ fLabels.badge4 }}</strong>
+            <span>{{ fLabels.badge4sub }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 8. Message Final -->
+      <div class="fac-thank-you-banner">
+        <div class="ty-line"></div>
+        <h4 class="ty-title">{{ fLabels.merci }}</h4>
+        <div class="ty-line"></div>
+      </div>
+      <p class="ty-subtitle">{{ fLabels.merciSub }}</p>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal Confirmation Conversion Réussie -->
+<div class="modal-backdrop" *ngIf="showConvertedSuccessModal && lastConvertedDoc">
+  <div class="modal-card modal-sm conversion-success-card">
+    <div class="cs-icon-glow">
+      <span class="material-symbols-outlined">check_circle</span>
+    </div>
+    <h2>Conversion Réussie !</h2>
+    <p class="cs-desc">
+      Le document <strong>{{ lastConvertedDoc.typeLabel }}</strong> (Réf : <code>{{ lastConvertedDoc.reference }}</code>) a été généré et archivé automatiquement.
+    </p>
+    <div class="cs-meta-box">
+      <div><span>Client :</span> <strong>{{ lastConvertedDoc.clientNom }}</strong></div>
+      <div><span>Montant TTC :</span> <strong>{{ lastConvertedDoc.montantTotal | number:'1.3-3' }} DT</strong></div>
+      <div><span>Source :</span> <strong>{{ lastConvertedDoc.sourceFactureRef }}</strong></div>
+    </div>
+    <div class="cs-actions">
+      <button class="btn btn-secondary" (click)="closeConvertedModal()">Fermer</button>
+      <button class="btn btn-primary" (click)="ouvrirApercuDocument(lastConvertedDoc); closeConvertedModal()">
+        <span class="material-symbols-outlined">visibility</span> Visualiser & Imprimer
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Prévisualisation et Impression Universelle de Document Converti -->
+<div class="modal-backdrop modal-backdrop-custom" *ngIf="showDocPreviewModal && selectedDocForPreview">
+  <div class="modal-card modal-document-view">
+    <div class="modal-header-doc no-print">
+      <div class="header-left-info">
+        <span class="material-symbols-outlined doc-icon">description</span>
+        <div class="doc-titles">
+          <div class="title-with-badge">
+            <h2>{{ getDocTypeTitle(selectedDocForPreview.type, docLangue) }}</h2>
+            <span class="doc-status-badge status-valide">{{ docL('VALIDE', 'VALID', 'معتمد') }}</span>
+          </div>
+          <p class="doc-sub-info">
+            <span class="doc-client-name">{{ selectedDocForPreview.clientNom }}</span>
+            <span class="dot-sep">•</span>
+            <span>{{ selectedDocForPreview.dateCreation | date:'dd/MM/yyyy' }}</span>
+            <span class="dot-sep">•</span>
+            <span class="doc-total-highlight">{{ selectedDocForPreview.montantTotal | number:'1.3-3' }} TND TTC</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="header-right-unified">
+        <!-- Sélecteur de langue du document -->
+        <div class="lang-selector-group no-print">
+          <span class="lang-selector-label"><span class="material-symbols-outlined icon-xs">translate</span></span>
+          <button type="button" class="lang-btn" [class.lang-btn-active]="docLangue === 'fr'" (click)="docLangue = 'fr'" title="Document en Français">🇫🇷 FR</button>
+          <button type="button" class="lang-btn" [class.lang-btn-active]="docLangue === 'en'" (click)="docLangue = 'en'" title="Document in English">🇬🇧 EN</button>
+          <button type="button" class="lang-btn" [class.lang-btn-active]="docLangue === 'ar'" (click)="docLangue = 'ar'" title="وثيقة بالعربية">🇹🇳 AR</button>
+        </div>
+
+        <!-- Export Word & Excel -->
+        <button type="button" class="btn-subtle" (click)="exportDocumentPreviewWord()" title="Exporter en Word (.doc)">
+          <span class="material-symbols-outlined icon-sm">description</span>
+          <span>Word</span>
+        </button>
+        <button type="button" class="btn-subtle" (click)="exportDocumentPreviewExcel()" title="Exporter en Excel (.xls)">
+          <span class="material-symbols-outlined icon-sm">table_view</span>
+          <span>Excel</span>
+        </button>
+
+        <button type="button" class="btn-primary-doc" (click)="imprimerDocumentPreview()" title="Imprimer ou Exporter en PDF">
+          <span class="material-symbols-outlined icon-sm">print</span>
+          <span>{{ docL('Imprimer / PDF', 'Print / PDF', 'طباعة / PDF') }}</span>
+        </button>
+
+        <div class="divider-v-subtle"></div>
+        <button type="button" class="btn-close-subtle" (click)="fermerApercuDocument()" title="Fermer">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Zone Document Conforme Multilingue -->
+    <div class="modal-body facture-print-container" id="commercial-doc-preview" [attr.dir]="docLangue === 'ar' ? 'rtl' : 'ltr'">
+      <div class="fac-header">
+        <div class="fac-brand">
+          <div class="fac-logo-group">
+            <div class="fac-logo-icon">
+              <svg viewBox="0 0 60 60" width="52" height="52" fill="none">
+                <rect width="60" height="60" rx="10" fill="#0b1b3d"/>
+                <path d="M16 14h18a8 8 0 010 16H22v16h-6V14z" fill="#f97316"/>
+                <path d="M26 28h8a8 8 0 010 16H16v-4h18a4 4 0 000-8H26v-4z" fill="#38bdf8"/>
+                <rect x="38" y="14" width="6" height="6" rx="1" fill="#f97316"/>
+                <rect x="46" y="22" width="6" height="6" rx="1" fill="#38bdf8"/>
+              </svg>
+            </div>
+            <div class="fac-brand-text">
+              <span class="fac-brand-tag">{{ docL('SOCIETE', 'COMPANY', 'شركة') }}</span>
+              <h1 class="fac-company-name">BENJEDDOU</h1>
+              <span class="fac-company-sub">{{ docL('TECHNOLOGIE SERVICE', 'TECHNOLOGY SERVICE', 'خدمات التكنولوجيا') }}</span>
+            </div>
+          </div>
+          <p class="fac-activity">{{ docL('Matériel Informatique & Électronique', 'IT & Electronic Equipment', 'معدات المعلوماتية والإلكترونيات') }}</p>
+          <p class="fac-address">
+            <span class="material-symbols-outlined">location_on</span>
+            123, Avenue Habib Bourguiba, 1000 Tunis - Tunisie
+          </p>
+        </div>
+
+        <div class="fac-header-right">
+          <div class="fac-title-block">
+            <div class="fac-title-main">{{ getDocTypeTitle(selectedDocForPreview.type, docLangue) }}</div>
+            <div class="fac-num">N° {{ selectedDocForPreview.reference }}</div>
+            <div class="fac-date">
+              <span class="material-symbols-outlined">calendar_today</span>
+              {{ docL('Date :', 'Date:', 'التاريخ :') }} {{ selectedDocForPreview.dateCreation | date:'dd/MM/yyyy HH:mm' }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fac-parties-grid">
+        <div class="fac-party-card fac-emetteur-card">
+          <div class="fac-party-pill pill-emetteur">
+            <span class="material-symbols-outlined">badge</span>
+            <span>{{ docL('ÉMETTEUR', 'ISSUER', 'المصدر') }}</span>
+          </div>
+          <div class="fac-party-inner">
+            <div class="fac-party-info">
+              <h3 class="fac-party-name">{{ docL('Société Benjeddou Technologie Service', 'Benjeddou Technology Service Co.', 'شركة بن جدو لخدمات التكنولوجيا') }}</h3>
+              <div class="fac-party-details">
+                <div class="fp-row"><span class="material-symbols-outlined">location_on</span> 123, Avenue Habib Bourguiba, Tunis</div>
+                <div class="fp-row"><span class="material-symbols-outlined">phone</span> +216 71 123 456</div>
+                <div class="fp-row legal-line"><strong>{{ docL('Matricule Fiscal :', 'Tax Reg. No.:', 'المعرف الجبائي :') }}</strong> 1234567X</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fac-party-card fac-destinataire-card">
+          <div class="fac-party-pill pill-destinataire">
+            <span class="material-symbols-outlined">person</span>
+            <span>{{ docL('DESTINATAIRE / CLIENT', 'RECIPIENT / CLIENT', 'المستلم / الحريف') }}</span>
+          </div>
+          <div class="fac-dest-inner">
+            <h3 class="fac-dest-name">{{ selectedDocForPreview.clientNom }}</h3>
+            <div class="fac-dest-details">
+              <div class="fp-row"><span class="material-symbols-outlined">location_on</span> {{ selectedDocForPreview.clientAdresse }}</div>
+              <div class="fp-row"><span class="material-symbols-outlined">phone</span> {{ selectedDocForPreview.clientTel }}</div>
+              <div class="fp-row dest-mf-row">
+                <span class="dest-mf-label">{{ docL('Matricule Fiscal :', 'Tax Reg. No.:', 'المعرف الجبائي :') }}</span>
+                <span class="dest-mf-val">{{ selectedDocForPreview.clientMf }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fac-refs-row">
+        <div class="fac-ref-card">
+          <div class="ref-icon-wrap"><span class="material-symbols-outlined">link</span></div>
+          <div class="ref-content">
+            <span class="ref-title">{{ docL('Document Source', 'Source Document', 'الوثيقة المصدر') }}</span>
+            <strong class="ref-value">{{ selectedDocForPreview.sourceFactureRef }}</strong>
+          </div>
+        </div>
+        <div class="fac-ref-card">
+          <div class="ref-icon-wrap"><span class="material-symbols-outlined">verified</span></div>
+          <div class="ref-content">
+            <span class="ref-title">{{ docL('Statut Validation', 'Validation Status', 'حالة الاعتماد') }}</span>
+            <strong class="ref-value" style="color: #22c55e;">{{ docL('Certifié & Validé', 'Certified & Validated', 'معتمد ومؤكد') }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="fac-table-wrapper">
+        <table class="fac-items-table">
+          <thead>
+            <tr>
+              <th class="col-item-desc">{{ docL('DÉSIGNATION', 'DESCRIPTION', 'البيان') }}</th>
+              <th class="col-item-qty text-center">{{ docL('QTÉ', 'QTY', 'الكمية') }}</th>
+              <th class="col-item-pu text-right">{{ docL('PRIX UNIT. HT', 'UNIT PRICE', 'السعر الفردي خ.ز.') }}</th>
+              <th class="col-item-tva text-center">{{ docL('TVA (19%)', 'VAT (19%)', 'الضريبة (19%)') }}</th>
+              <th class="col-item-total text-right">{{ docL('TOTAL TTC', 'TOTAL INCL. TAX', 'المجموع ش.ر.') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let l of (selectedDocForPreview.lignes || selectedFactureLignes)">
+              <td>
+                <div class="td-item-title">{{ l.produit?.nom || l.designation || docL('Article Fourniture', 'Supply Item', 'بضاعة / مادة') }}</div>
+                <div class="td-item-ref" *ngIf="l.produit?.reference">Ref: {{ l.produit.reference }}</div>
+              </td>
+              <td class="text-center font-bold">{{ l.quantite || 1 }}</td>
+              <td class="text-right">{{ (l.prixUnitaire || l.prixUnit || 0) | number:'1.3-3' }} TND</td>
+              <td class="text-center">19%</td>
+              <td class="text-right font-bold">{{ ((l.prixUnitaire || l.prixUnit || 0) * (l.quantite || 1) * 1.19) | number:'1.3-3' }} TND</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="fac-totals-section">
+        <div class="fac-totals-empty"></div>
+        <div class="fac-totals-card">
+          <div class="tot-row">
+            <span class="tot-lbl">{{ docL('Sous-total HT', 'Subtotal', 'المجموع خ.ز.') }}</span>
+            <span class="tot-val">{{ (selectedDocForPreview.montantTotal / 1.19) | number:'1.3-3' }} TND</span>
+          </div>
+          <div class="tot-row">
+            <span class="tot-lbl">{{ docL('Total TVA (19%)', 'Total VAT (19%)', 'إجمالي الضريبة (19%)') }}</span>
+            <span class="tot-val">{{ (selectedDocForPreview.montantTotal - (selectedDocForPreview.montantTotal / 1.19)) | number:'1.3-3' }} TND</span>
+          </div>
+          <div class="tot-row grand-total-row">
+            <span class="tot-lbl">{{ docL('TOTAL GÉNÉRAL TTC', 'GRAND TOTAL', 'المجموع الإجمالي ش.ر.') }}</span>
+            <span class="tot-val-highlight">{{ selectedDocForPreview.montantTotal | number:'1.3-3' }} TND</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="fac-amount-letters-bar">
+        <span class="mat-icon material-symbols-outlined">receipt_long</span>
+        <span class="al-text">
+          <strong>{{ docL('ARRETÉ LE PRÉSENT DOCUMENT À LA SOMME DE :', 'THIS DOCUMENT TOTAL AMOUNT:', 'مجموع هذه الوثيقة :') }}</strong>
+          {{ selectedDocForPreview.montantTotal | nombreLettres:'TND':docLangue }} ({{ selectedDocForPreview.montantTotal | number:'1.3-3' }} TND) {{ docL('seulement', 'only', 'فقط') }}
+        </span>
+      </div>
+
+      <div class="fac-footer-cards-grid">
+        <div class="fac-footer-card">
+          <div class="ff-head"><span class="material-symbols-outlined">verified_user</span><strong>{{ docL('VALIDATION & CERTIFICATION', 'VALIDATION & CERTIFICATION', 'الاعتماد والتأكيد') }}</strong></div>
+          <div class="ff-body">
+            <p>{{ docL('Document officiel édité par BENJEDDOU ERP.', 'Official document issued by BENJEDDOU ERP.', 'وثيقة رسمية صادرة عن BENJEDDOU ERP.') }}</p>
+            <p class="pay-method-highlight">{{ docL('Certifié conforme aux registres comptables & commerciaux.', 'Certified compliant with commercial and accounting records.', 'معتمد ومطابق للسجلات التجارية والمحاسبية.') }}</p>
+          </div>
+        </div>
+
+        <div class="fac-footer-card cachet-signature-card">
+          <div class="stamp-manual-space"></div>
+          <span class="cachet-label">{{ docL('Cachet & Signature Émetteur', 'Issuer Stamp & Signature', 'ختم وتوقيع المصدر') }}</span>
+        </div>
+
+        <div class="fac-footer-card cachet-signature-card">
+          <div class="stamp-manual-space"></div>
+          <span class="cachet-label">{{ docL('Visa / Signature Réceptionnaire', 'Recipient Signature', 'توقيع المستلم') }}</span>
+        </div>
+      </div>
+
+      <div class="fac-thank-you-banner">
+        <div class="ty-line"></div>
+        <h4 class="ty-title">{{ docL('Merci pour votre confiance !', 'Thank you for your trust!', 'شكراً لثقتكم بنا !') }}</h4>
+        <div class="ty-line"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -1283,68 +1840,250 @@
 <!-- ══════════════════════════════════════════════════════ -->
 <!-- MODAL : DÉTAIL DEVIS                                   -->
 <!-- ══════════════════════════════════════════════════════ -->
-<div class="modal-backdrop" *ngIf="showDevisDetailModal && selectedDevis">
-  <div class="modal-card modal-xl">
-    <div class="modal-header">
-      <h2>📋 {{ selectedDevis.numeroDevis }}</h2>
-      <button class="close-btn" (click)="closeDevisDetail()"><span
-          class="material-symbols-outlined">close</span></button>
-    </div>
-    <div class="modal-body">
-      <div class="detail-meta">
-        <div class="meta-item"><span class="meta-label">{{ 'COMMERCIAL.QUOTES.CLIENT' | translate }}</span><span class="meta-val">{{ selectedDevis.client?.nom
-            }}</span></div>
-        <div class="meta-item"><span class="meta-label">{{ 'COMMERCIAL.QUOTES.DATE' | translate }}</span><span class="meta-val">{{ selectedDevis.dateDevis |
-            date:'dd/MM/yyyy' }}</span></div>
-        <div class="meta-item"><span class="meta-label">{{ 'COMMERCIAL.QUOTES.VALIDITY' | translate }}</span><span class="meta-val">{{
-            selectedDevis.dateValidite | date:'dd/MM/yyyy' }}</span></div>
-        <div class="meta-item"><span class="meta-label">{{ 'COMMERCIAL.QUOTES.STATUS' | translate }}</span>
-          <span class="status-badge" [ngClass]="getDevisStatutClass(selectedDevis.statut)">{{
-            getDevisStatutLabel(selectedDevis.statut) }}</span>
+<div class="modal-backdrop modal-backdrop-custom" *ngIf="showDevisDetailModal && selectedDevis">
+  <div class="modal-card modal-document-view">
+    <!-- Barre d'outils unifiée -->
+    <div class="modal-header-doc no-print">
+      <div class="header-left-info">
+        <span class="material-symbols-outlined doc-icon">request_quote</span>
+        <div class="doc-titles">
+          <div class="title-with-badge">
+            <h2>{{ dLabels.titre }}</h2>
+            <span class="status-badge" [ngClass]="getDevisStatutClass(selectedDevis.statut)">
+              {{ getDevisStatutLabel(selectedDevis.statut) }}
+            </span>
+          </div>
+          <p class="doc-sub-info">
+            <span class="doc-client-name">{{ selectedDevis.client?.nom || 'Client' }}</span>
+            <span class="dot-sep">•</span>
+            <span>{{ selectedDevis.dateDevis | date:'dd/MM/yyyy' }}</span>
+            <span class="dot-sep">•</span>
+            <span class="doc-total-highlight">{{ selectedDevis.montantTotal | number:'1.3-3' }} TND TTC</span>
+          </p>
         </div>
-        <div class="meta-item"><span class="meta-label">{{ 'COMMERCIAL.QUOTES.AMOUNT' | translate }}</span><span class="meta-val"><strong>{{
-              selectedDevis.montantTotal | number:'1.3-3' }} TND</strong></span></div>
       </div>
-      <p *ngIf="selectedDevis.notes" class="devis-notes"><em>📝 {{ selectedDevis.notes }}</em></p>
 
-      <h3 class="lignes-title">{{ 'COMMERCIAL.QUOTES.DETAIL_LINES' | translate }}</h3>
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>{{ 'COMMERCIAL.ORDERS.PRODUCT' | translate }}</th>
-            <th>{{ 'COMMERCIAL.ORDERS.REFERENCE' | translate }}</th>
-            <th>{{ 'COMMERCIAL.ORDERS.UNIT_PRICE' | translate }}</th>
-            <th>{{ 'COMMERCIAL.ORDERS.QTY' | translate }}</th>
-            <th>{{ 'COMMERCIAL.ORDERS.DISCOUNT' | translate }}</th>
-            <th>{{ 'COMMERCIAL.ORDERS.TOTAL' | translate }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let l of selectedDevisLignes">
-            <td><strong>{{ l.produit?.nom }}</strong></td>
-            <td><span class="mono-text">{{ l.produit?.reference }}</span></td>
-            <td>{{ l.prixUnitaire | number:'1.3-3' }} TND</td>
-            <td>{{ l.quantite }}</td>
-            <td>{{ l.remise }}%</td>
-            <td><strong>{{ (l.prixUnitaire * l.quantite * (1 - l.remise/100)) | number:'1.3-3' }} TND</strong></td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="header-right-unified">
+        <!-- Sélecteur de langue du Devis -->
+        <div class="lang-selector-group no-print">
+          <span class="lang-selector-label"><span class="material-symbols-outlined icon-xs">translate</span></span>
+          <button type="button" class="lang-btn" [class.lang-btn-active]="devisLangue === 'fr'" (click)="devisLangue = 'fr'" title="Devis en Français">🇫🇷 FR</button>
+          <button type="button" class="lang-btn" [class.lang-btn-active]="devisLangue === 'en'" (click)="devisLangue = 'en'" title="Quote in English">🇬🇧 EN</button>
+          <button type="button" class="lang-btn" [class.lang-btn-active]="devisLangue === 'ar'" (click)="devisLangue = 'ar'" title="عرض أسعار بالعربية">🇹🇳 AR</button>
+        </div>
+
+        <button *ngIf="selectedDevis.statut === 'BROUILLON'" type="button" class="btn-subtle"
+          (click)="changerStatutDevis(selectedDevis, 'ENVOYE'); closeDevisDetail()">
+          <span class="material-symbols-outlined icon-sm">send</span>
+          <span>{{ dL('Marquer comme Envoyé', 'Mark as Sent', 'تحديد كمرسل') }}</span>
+        </button>
+        <button *ngIf="selectedDevis.statut === 'ENVOYE'" type="button" class="btn-subtle btn-pay-subtle"
+          (click)="changerStatutDevis(selectedDevis, 'ACCEPTE'); closeDevisDetail()">
+          <span class="material-symbols-outlined icon-sm">check_circle</span>
+          <span>{{ dL('Marquer comme Accepté', 'Mark as Accepted', 'تحديد كمقبول') }}</span>
+        </button>
+        <button *ngIf="selectedDevis.statut === 'ACCEPTE'" type="button" class="btn-subtle"
+          (click)="convertirDevisEnCommande(selectedDevis); closeDevisDetail()">
+          <span class="material-symbols-outlined icon-sm">shopping_cart</span>
+          <span>{{ dL('Convertir en Commande', 'Convert to Order', 'تحويل إلى طلب') }}</span>
+        </button>
+
+        <!-- Export Word & Excel -->
+        <button type="button" class="btn-subtle" (click)="exportDevisDocumentWord()" title="Exporter en Word (.doc)">
+          <span class="material-symbols-outlined icon-sm">description</span>
+          <span>Word</span>
+        </button>
+        <button type="button" class="btn-subtle" (click)="exportDevisDocumentExcel()" title="Exporter en Excel (.xls)">
+          <span class="material-symbols-outlined icon-sm">table_view</span>
+          <span>Excel</span>
+        </button>
+
+        <button type="button" class="btn-primary-doc" (click)="imprimerDevis()" title="Imprimer ou Exporter en PDF">
+          <span class="material-symbols-outlined icon-sm">print</span>
+          <span>{{ dL('Imprimer / PDF', 'Print / PDF', 'طباعة / PDF') }}</span>
+        </button>
+
+        <div class="divider-v-subtle"></div>
+        <button type="button" class="btn-close-subtle" (click)="closeDevisDetail()" title="Fermer">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
     </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" (click)="closeDevisDetail()">{{ 'MODAL.CLOSE' | translate }}</button>
-      <button *ngIf="selectedDevis.statut === 'BROUILLON'" class="btn btn-primary"
-        (click)="changerStatutDevis(selectedDevis, 'ENVOYE'); closeDevisDetail()">
-        <span class="material-symbols-outlined">send</span> {{ 'COMMERCIAL.QUOTES.MARK_SENT' | translate }}
-      </button>
-      <button *ngIf="selectedDevis.statut === 'ENVOYE'" class="btn btn-success"
-        (click)="changerStatutDevis(selectedDevis, 'ACCEPTE'); closeDevisDetail()">
-        <span class="material-symbols-outlined">check_circle</span> {{ 'COMMERCIAL.QUOTES.MARK_ACCEPTED' | translate }}
-      </button>
-      <button *ngIf="selectedDevis.statut === 'ACCEPTE'" class="btn btn-primary"
-        (click)="convertirDevisEnCommande(selectedDevis); closeDevisDetail()">
-        <span class="material-symbols-outlined">shopping_cart</span> {{ 'COMMERCIAL.QUOTES.CONVERT' | translate }}
-      </button>
+
+    <!-- Zone Document Conforme (S'imprime & S'affiche en Haute Fidélité) -->
+    <div class="modal-body facture-print-container" id="devis-document" [attr.dir]="dLabels.dir">
+      <!-- 1. En-tête -->
+      <div class="fac-header">
+        <div class="fac-brand">
+          <div class="fac-logo-group">
+            <div class="fac-logo-icon">
+              <svg viewBox="0 0 60 60" width="52" height="52" fill="none">
+                <rect width="60" height="60" rx="10" fill="#0b1b3d"/>
+                <path d="M16 14h18a8 8 0 010 16H22v16h-6V14z" fill="#f97316"/>
+                <path d="M26 28h8a8 8 0 010 16H16v-4h18a4 4 0 000-8H26v-4z" fill="#38bdf8"/>
+                <rect x="38" y="14" width="6" height="6" rx="1" fill="#f97316"/>
+                <rect x="46" y="22" width="6" height="6" rx="1" fill="#38bdf8"/>
+              </svg>
+            </div>
+            <div class="fac-brand-text">
+              <span class="fac-brand-tag">{{ dL('SOCIETE', 'COMPANY', 'شركة') }}</span>
+              <h1 class="fac-company-name">BENJEDDOU</h1>
+              <span class="fac-company-sub">{{ dL('TECHNOLOGIE SERVICE', 'TECHNOLOGY SERVICE', 'خدمات التكنولوجيا') }}</span>
+            </div>
+          </div>
+          <p class="fac-activity">{{ dLabels.activite }}</p>
+          <p class="fac-address">
+            <span class="material-symbols-outlined">location_on</span>
+            123, Avenue Habib Bourguiba, 1000 Tunis - Tunisie
+          </p>
+        </div>
+
+        <div class="fac-header-right">
+          <div class="fac-title-block">
+            <div class="fac-title-main">{{ dLabels.titre }}</div>
+            <div class="fac-num">{{ dLabels.numero }} : {{ selectedDevis.numeroDevis || 'DEV-2026-001' }}</div>
+            <div class="fac-date">
+              <span class="material-symbols-outlined">calendar_today</span>
+              {{ dLabels.date }} {{ selectedDevis.dateDevis | date:'dd/MM/yyyy' }}
+            </div>
+            <div class="fac-date" *ngIf="selectedDevis.dateValidite" style="color: #f97316;">
+              <span class="material-symbols-outlined">event</span>
+              {{ dLabels.validite }} {{ selectedDevis.dateValidite | date:'dd/MM/yyyy' }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Cartes Émetteur & Destinataire -->
+      <div class="fac-parties-grid">
+        <div class="fac-party-card fac-emetteur-card">
+          <div class="fac-party-pill pill-emetteur">
+            <span class="material-symbols-outlined">badge</span>
+            <span>{{ dLabels.emetteur }}</span>
+          </div>
+          <div class="fac-party-inner">
+            <div class="fac-party-info">
+              <h3 class="fac-party-name">{{ dL('Société Benjeddou Technologie Service', 'Benjeddou Technology Service Co.', 'شركة بن جدو لخدمات التكنولوجيا') }}</h3>
+              <p class="fac-party-role">{{ dLabels.activiteClient }}</p>
+              <div class="fac-party-details">
+                <div class="fp-row"><span class="material-symbols-outlined">location_on</span> 123, {{ dL('Avenue Habib Bourguiba, 1000 Tunis, Tunisie', 'Habib Bourguiba Avenue, 1000 Tunis, Tunisia', 'شارع الحبيب بورقيبة، 1000 تونس، تونس') }}</div>
+                <div class="fp-row"><span class="material-symbols-outlined">phone</span> +216 71 123 456</div>
+                <div class="fp-row"><span class="material-symbols-outlined">mail</span> commercial&#64;benjeddou-tech.tn</div>
+                <div class="fp-row legal-line"><strong>{{ dLabels.mf }}</strong> 1234567X</div>
+                <div class="fp-row legal-line"><strong>{{ dLabels.rc }}</strong> 123456</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fac-party-card fac-destinataire-card">
+          <div class="fac-party-pill pill-destinataire">
+            <span class="material-symbols-outlined">person</span>
+            <span>{{ dLabels.destinataire }}</span>
+          </div>
+          <div class="fac-dest-inner">
+            <h3 class="fac-dest-name">{{ selectedDevis.client?.nom || 'Client' }}</h3>
+            <div class="fac-dest-details">
+              <div class="fp-row"><span class="material-symbols-outlined">location_on</span> {{ selectedDevis.client?.adresse || '123 Avenue de la République, Tunis' }}</div>
+              <div class="fp-row"><span class="material-symbols-outlined">phone</span> {{ selectedDevis.client?.telephone || '+216 71 123 456' }}</div>
+              <div class="fp-row"><span class="material-symbols-outlined">mail</span> {{ selectedDevis.client?.email || 'contact@client.tn' }}</div>
+              <div class="fp-row dest-mf-row" *ngIf="selectedDevis.client?.matriculeFiscale">
+                <span class="dest-mf-label">{{ dLabels.mf }}</span>
+                <span class="dest-mf-val">{{ selectedDevis.client?.matriculeFiscale }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Tableau des Articles -->
+      <div class="fac-table-wrapper">
+        <table class="fac-items-table">
+          <thead>
+            <tr>
+              <th class="col-item-desc">{{ dLabels.designation }}</th>
+              <th class="col-item-ref">{{ dLabels.reference }}</th>
+              <th class="col-item-pu text-right">{{ dLabels.prixHt }}</th>
+              <th class="col-item-qty text-center">{{ dLabels.qte }}</th>
+              <th class="col-item-remise text-center">{{ dLabels.remise }}</th>
+              <th class="col-item-total text-right">{{ dLabels.totalHt }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let l of selectedDevisLignes">
+              <td>
+                <div class="td-item-title">{{ l.produit?.nom || 'Article' }}</div>
+              </td>
+              <td><span class="mono-text">{{ l.produit?.reference || '—' }}</span></td>
+              <td class="text-right">{{ l.prixUnitaire | number:'1.3-3' }} TND</td>
+              <td class="text-center font-bold">{{ l.quantite }}</td>
+              <td class="text-center">{{ l.remise ? l.remise + '%' : '—' }}</td>
+              <td class="text-right font-bold">{{ (l.prixUnitaire * l.quantite * (1 - (l.remise||0)/100)) | number:'1.3-3' }} TND</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 4. Récapitulatif et Totaux -->
+      <div class="fac-totals-section">
+        <div class="fac-totals-empty">
+          <p *ngIf="selectedDevis.notes" class="devis-notes-box">
+            <strong>Notes & Remarques :</strong><br>{{ selectedDevis.notes }}
+          </p>
+        </div>
+        <div class="fac-totals-card">
+          <div class="tot-row">
+            <span class="tot-lbl">{{ dLabels.totalHtLabel }}</span>
+            <span class="tot-val">{{ (selectedDevis.montantTotal / 1.19) | number:'1.3-3' }} TND</span>
+          </div>
+          <div class="tot-row">
+            <span class="tot-lbl">{{ dLabels.tvaLabel }}</span>
+            <span class="tot-val">{{ (selectedDevis.montantTotal - (selectedDevis.montantTotal / 1.19)) | number:'1.3-3' }} TND</span>
+          </div>
+          <div class="tot-row grand-total-row">
+            <span class="tot-lbl">{{ dLabels.totalTtcLabel }}</span>
+            <span class="tot-val-highlight">{{ selectedDevis.montantTotal | number:'1.3-3' }} TND</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Montant en toutes lettres -->
+      <div class="fac-amount-letters-bar">
+        <span class="mat-icon material-symbols-outlined">receipt_long</span>
+        <span class="al-text">
+          <strong>{{ dLabels.arretee }}</strong>
+          {{ selectedDevis.montantTotal | nombreLettres:'TND':devisLangue }} ({{ selectedDevis.montantTotal | number:'1.3-3' }} TND) {{ dLabels.seulement }}
+        </span>
+      </div>
+
+      <!-- 6. Conditions & Signatures -->
+      <div class="fac-footer-cards-grid">
+        <div class="fac-footer-card">
+          <div class="ff-head"><span class="material-symbols-outlined">gavel</span><strong>{{ dLabels.conditions }}</strong></div>
+          <div class="ff-body">
+            <p>{{ dLabels.delaiLivraison }}</p>
+            <p class="pay-method-highlight">{{ dLabels.modaliteReglement }}</p>
+          </div>
+        </div>
+
+        <div class="fac-footer-card cachet-signature-card">
+          <div class="stamp-manual-space"></div>
+          <span class="cachet-label">{{ dLabels.cachetSign }}</span>
+        </div>
+
+        <div class="fac-footer-card cachet-signature-card">
+          <div class="stamp-manual-space"></div>
+          <span class="cachet-label">{{ dLabels.accordClient }}</span>
+        </div>
+      </div>
+
+      <!-- 7. Message final -->
+      <div class="fac-thank-you-banner">
+        <div class="ty-line"></div>
+        <h4 class="ty-title">{{ dLabels.merci }}</h4>
+        <div class="ty-line"></div>
+      </div>
+      <p class="ty-subtitle">{{ dLabels.merciSub }}</p>
     </div>
   </div>
 </div>
@@ -1720,3 +2459,13 @@
 
   </div>
 </div>
+
+<!-- ═══════════════════════════════════════════════════
+     DATALISTS — Suggestions depuis la base (Commercial)
+     ═══════════════════════════════════════════════════ -->
+<datalist id="clients-list">
+  <option *ngFor="let c of clients" [value]="c.nom + (c.prenom ? ' ' + c.prenom : '')">{{ c.email }}</option>
+</datalist>
+<datalist id="fournisseurs-list">
+  <option *ngFor="let f of fournisseurs" [value]="f.nom">{{ f.email }}</option>
+</datalist>

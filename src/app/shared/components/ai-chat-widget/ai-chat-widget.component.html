@@ -1,0 +1,202 @@
+<!-- ══════════════════════════════════════════════════════════════
+     AI ASSISTANT FLOATING DYNAMIC BUTTON (FAB)
+     Positionnement dynamique : Gauche en LTR, Droite en RTL
+     Micro-animations premium : pulsation lumineuse, lévitation, lueur
+     ══════════════════════════════════════════════════════════════ -->
+<div class="ai-widget-wrapper" [class.is-rtl]="currentLang === 'ar'" [attr.dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
+
+  <!-- Animated Glowing Ring -->
+  <div class="ai-fab-glow-ring" [class.active]="!isOpen"></div>
+
+  <!-- FAB Button -->
+  <button
+    class="ai-fab"
+    (click)="toggleChat()"
+    [class.ai-fab-active]="isOpen"
+    [title]="labelTitle"
+    [attr.aria-label]="labelTitle">
+
+    <!-- Glowing backdrop blur -->
+    <div class="ai-fab-glow-layer"></div>
+
+    <!-- Icon: Robot / Brain with Sparkles when Closed -->
+    <span class="ai-fab-icon" *ngIf="!isOpen">
+      <svg class="ai-robot-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Robot head outer -->
+        <rect x="5" y="8" width="22" height="18" rx="6" fill="rgba(255,255,255,0.2)" stroke="white" stroke-width="1.8"/>
+        <!-- Antenna -->
+        <line x1="16" y1="3" x2="16" y2="8" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="16" cy="3" r="2" fill="#ffd166" class="ai-antenna-orb"/>
+        <!-- Eyes -->
+        <circle cx="11" cy="16" r="2.4" fill="white" class="ai-robot-eye left-eye"/>
+        <circle cx="21" cy="16" r="2.4" fill="white" class="ai-robot-eye right-eye"/>
+        <!-- Smile -->
+        <path d="M12 21C13.2 22.2 18.8 22.2 20 21" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
+        <!-- Ear pods -->
+        <rect x="2" y="13" width="3" height="8" rx="1.5" fill="white"/>
+        <rect x="27" y="13" width="3" height="8" rx="1.5" fill="white"/>
+      </svg>
+      <!-- Unread Notification Badge -->
+      <span class="ai-fab-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+    </span>
+
+    <!-- Close Icon when Open -->
+    <span class="ai-fab-close-icon" *ngIf="isOpen">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M18 6L6 18M6 6l12 12" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </span>
+
+    <!-- Floating Tooltip Pill (idle) -->
+    <span class="ai-fab-pill" *ngIf="!isOpen">
+      <span class="ai-pill-dot"></span>
+      <span class="ai-pill-text">{{ labelTitle }}</span>
+    </span>
+  </button>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       CHAT PANEL
+       Positionnement fluide aligné sur le FAB (LTR à gauche, RTL à droite)
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="ai-panel" [class.ai-panel-open]="isOpen" [attr.dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
+
+    <!-- ── Header ── -->
+    <div class="ai-header">
+      <div class="ai-header-left">
+        <div class="ai-bot-avatar">
+          <svg viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="16" fill="url(#hg)"/>
+            <circle cx="10" cy="16" r="2.2" fill="white"/>
+            <circle cx="16" cy="16" r="2.2" fill="white"/>
+            <circle cx="22" cy="16" r="2.2" fill="white"/>
+            <defs>
+              <linearGradient id="hg" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#818cf8"/>
+                <stop offset="100%" style="stop-color:#a78bfa"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span class="ai-online-dot"></span>
+        </div>
+        <div class="ai-header-info">
+          <span class="ai-header-name">{{ labelTitle }}</span>
+          <span class="ai-header-status">{{ labelOnline }}</span>
+        </div>
+      </div>
+
+      <div class="ai-header-right">
+        <!-- Language Switcher Pills -->
+        <div class="ai-lang-pills">
+          <button [class.active]="currentLang === 'fr'" (click)="setLang('fr')">FR</button>
+          <button [class.active]="currentLang === 'en'" (click)="setLang('en')">EN</button>
+          <button [class.active]="currentLang === 'ar'" (click)="setLang('ar')">ع</button>
+        </div>
+        <!-- Clear History Button -->
+        <button class="ai-header-btn" (click)="clearHistory()" [title]="labelClear">
+          <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
+            <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Messages ── -->
+    <div class="ai-messages" #messagesContainer>
+
+      <!-- Welcome screen (no messages) -->
+      <div class="ai-welcome" *ngIf="messages.length === 0">
+        <div class="ai-welcome-icon">
+          <svg viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="24" fill="url(#wg)"/>
+            <circle cx="15" cy="24" r="3.5" fill="white"/>
+            <circle cx="24" cy="24" r="3.5" fill="white"/>
+            <circle cx="33" cy="24" r="3.5" fill="white"/>
+            <defs>
+              <linearGradient id="wg" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#6366f1"/>
+                <stop offset="100%" style="stop-color:#8b5cf6"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <h3>{{ labelWelcome }}</h3>
+        <p>{{ labelWelcomeSub }}</p>
+        <div class="ai-chips-grid">
+          <button class="ai-chip" *ngFor="let s of suggestions; trackBy: trackBySuggestion" (click)="sendSuggestion(s.text)">
+            <span class="chip-emoji">{{ s.icon }}</span>
+            <span>{{ s.label }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Message bubbles -->
+      <ng-container *ngFor="let msg of messages; trackBy: trackByMessage">
+        <div class="ai-row" [class.ai-row-user]="msg.role === 'user'" [class.ai-row-bot]="msg.role === 'assistant'">
+          <!-- Bot avatar -->
+          <div class="ai-row-avatar" *ngIf="msg.role === 'assistant'">
+            <svg viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="12" fill="url(#bg)"/>
+              <circle cx="8" cy="12" r="1.7" fill="white"/>
+              <circle cx="12" cy="12" r="1.7" fill="white"/>
+              <circle cx="16" cy="12" r="1.7" fill="white"/>
+              <defs>
+                <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#6366f1"/>
+                  <stop offset="100%" style="stop-color:#8b5cf6"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+
+          <!-- Bubble -->
+          <div class="ai-bubble" [class.bubble-user]="msg.role === 'user'" [class.bubble-bot]="msg.role === 'assistant'">
+            <!-- Typing dots -->
+            <div class="ai-dots" *ngIf="msg.loading">
+              <span></span><span></span><span></span>
+            </div>
+            <!-- Text -->
+            <div class="ai-bubble-content" *ngIf="!msg.loading" [innerHTML]="renderMarkdown(msg.content)"></div>
+            <!-- Time -->
+            <span class="ai-bubble-ts">{{ msg.timestamp | date:'HH:mm' }}</span>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- ── Quick chips ── -->
+    <div class="ai-quick-row" *ngIf="messages.length > 0 && !isTyping">
+      <button class="ai-qchip" *ngFor="let s of quickSuggestions; trackBy: trackByQuick" (click)="sendSuggestion(s.text)">
+        {{ s.label }}
+      </button>
+    </div>
+
+    <!-- ── Input area ── -->
+    <div class="ai-input-zone">
+      <div class="ai-input-box" [class.focused]="inputFocused">
+        <textarea
+          #inputArea
+          class="ai-textarea"
+          [(ngModel)]="inputMessage"
+          [placeholder]="labelPlaceholder"
+          (keydown)="onKeyDown($event)"
+          (input)="autoResize($event)"
+          (focus)="inputFocused=true"
+          (blur)="inputFocused=false"
+          rows="1"
+          [disabled]="isTyping"
+        ></textarea>
+        <button class="ai-send"
+          (click)="sendMessage()"
+          [disabled]="!inputMessage.trim() || isTyping"
+          [class.ai-send-ready]="inputMessage.trim() && !isTyping">
+          <svg viewBox="0 0 24 24" fill="none" *ngIf="!isTyping">
+            <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div class="ai-spinner" *ngIf="isTyping"></div>
+        </button>
+      </div>
+      <p class="ai-footer-note">{{ labelDisclaimer }}</p>
+    </div>
+  </div>
+
+</div>

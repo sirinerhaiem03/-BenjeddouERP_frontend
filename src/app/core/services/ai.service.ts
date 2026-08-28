@@ -1,15 +1,38 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, BehaviorSubject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AiService {
   private apiUrl = 'http://localhost:9090/api/ai';
+  private isOpenSubject = new BehaviorSubject<boolean>(false);
+  public isOpen$ = this.isOpenSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
-  chatWithAssistant(message: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/chat`, { message });
+  toggleChat(): void {
+    this.isOpenSubject.next(!this.isOpenSubject.value);
+  }
+
+  openChat(): void {
+    this.isOpenSubject.next(true);
+  }
+
+  closeChat(): void {
+    this.isOpenSubject.next(false);
+  }
+
+  get isOpen(): boolean {
+    return this.isOpenSubject.value;
+  }
+
+  chatWithAssistant(message: string, lang: string = 'fr', route: string = '', role: string = ''): Observable<any> {
+    const token = localStorage.getItem('accessToken') || localStorage.getItem('token') || '';
+    let headers = new HttpHeaders();
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+    return this.http.post<any>(`${this.apiUrl}/chat`, { message, lang, route, role }, { headers });
   }
 
   processOcrDocument(file: File): Observable<any> {

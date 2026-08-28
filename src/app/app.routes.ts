@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { portailClientGuard } from './core/guards/portail-client.guard';
 import { superadminGuard } from './core/guards/superadmin.guard';
+import { permissionGuard } from './core/guards/permission.guard';
 
 export const routes: Routes = [
   {
@@ -15,6 +16,11 @@ export const routes: Routes = [
   {
     path: 'register',
     loadComponent: () => import('./features/auth/register-client/register-client.component').then(c => c.RegisterClientComponent)
+  },
+  {
+    path: 'register-admin',
+    redirectTo: 'register',
+    pathMatch: 'full'
   },
   {
     path: 'abonnement',
@@ -53,7 +59,13 @@ export const routes: Routes = [
       },
       {
         path: 'home',
-        loadComponent: () => import('./features/dashboard/dashboard.component').then(c => c.DashboardComponent)
+        loadComponent: () => import('./features/dashboard/dashboard.component').then(c => c.DashboardComponent),
+        canActivate: [permissionGuard],
+        data: { module: 'dashboard' }
+      },
+      {
+        path: 'acces-refuse',
+        loadComponent: () => import('./features/acces-refuse/acces-refuse.component').then(c => c.AccesRefuseComponent)
       },
       {
         path: 'mon-profil',
@@ -61,11 +73,15 @@ export const routes: Routes = [
       },
       {
         path: 'products',
-        loadComponent: () => import('./features/stock/stock.component').then(c => c.StockComponent)
+        loadComponent: () => import('./features/stock/stock.component').then(c => c.StockComponent),
+        canActivate: [permissionGuard],
+        data: { module: 'stock' }
       },
       {
         path: 'commercial',
-        loadComponent: () => import('./features/commercial/commercial.component').then(c => c.CommercialComponent)
+        loadComponent: () => import('./features/commercial/commercial.component').then(c => c.CommercialComponent),
+        canActivate: [permissionGuard],
+        data: { module: 'ventes' }
       },
       {
         path: 'admin-users',
@@ -89,11 +105,15 @@ export const routes: Routes = [
       },
       {
         path: 'achats',
-        loadComponent: () => import('./features/achats/achats.component').then(c => c.AchatsComponent)
+        loadComponent: () => import('./features/achats/achats.component').then(c => c.AchatsComponent),
+        canActivate: [permissionGuard],
+        data: { module: 'achats' }
       },
       {
         path: 'finance',
-        loadComponent: () => import('./features/finance/finance.component').then(c => c.FinanceComponent)
+        loadComponent: () => import('./features/finance/finance.component').then(c => c.FinanceComponent),
+        canActivate: [permissionGuard],
+        data: { module: 'comptabilite' }
       },
       // ── Espace Client (visible uniquement pour le rôle CLIENT) ──────────
       {
@@ -160,7 +180,12 @@ export const routes: Routes = [
       {
         path: 'branding',
         loadComponent: () => import('./features/dashboard/enterprise-branding.component').then(c => c.EnterpriseBrandingComponent)
+      },
+      {
+        path: 'db-management',
+        loadComponent: () => import('./features/superadmin/sa-db-management/db-management.component').then(c => c.DbManagementComponent)
       }
+
     ]
   },
 
@@ -226,7 +251,12 @@ export const routes: Routes = [
       {
         path: 'taux',
         loadComponent: () => import('./features/superadmin/sa-taux/sa-taux.component').then(c => c.SaTauxComponent)
+      },
+      {
+        path: 'db-management',
+        loadComponent: () => import('./features/superadmin/sa-db-management/db-management.component').then(c => c.DbManagementComponent)
       }
+
     ]
   },
 

@@ -97,11 +97,30 @@
         <span class="sa-nav-label">{{ 'SUPERADMIN.NAV_CUSTOMIZATION' | translate }}</span>
       </a>
 
+      <div class="sa-nav-section">DONNÉES</div>
+
+      <!-- Gestion des Bases de Données -->
+      <a routerLink="/superadmin/db-management" routerLinkActive="sa-active" class="sa-nav-item" id="nav-db-management">
+        <span class="material-symbols-outlined">storage</span>
+        <span class="sa-nav-label">Gestion des Bases de Données</span>
+      </a>
 
     </nav>
 
     <!-- Footer sidebar -->
     <div class="sa-sidebar-footer">
+      <!-- Actions d'outils intégrées (Assistant IA & Thème) -->
+      <div class="sa-sidebar-tools-row">
+        <button class="sa-tool-btn tool-ai" (click)="aiService.toggleChat()" [title]="'Assistant IA'">
+          <span class="material-symbols-outlined">smart_toy</span>
+          <span class="sa-tool-label" *ngIf="sidebarOpen">Assistant IA</span>
+        </button>
+        <button class="sa-tool-btn tool-theme" (click)="toggleTheme()" [title]="'Paramètres du Thème'">
+          <span class="material-symbols-outlined">{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</span>
+          <span class="sa-tool-label" *ngIf="sidebarOpen">{{ isDarkMode ? 'Clair' : 'Sombre' }}</span>
+        </button>
+      </div>
+
       <div class="sa-user-card">
         <div class="sa-user-avatar">{{ userInitial }}</div>
         <div class="sa-user-info">

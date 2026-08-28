@@ -143,38 +143,45 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   loadAdminData(): void {
     this.adminService.getDashboardStats().subscribe({
       next: (data) => {
-        // Only update if real API data has the expected structure
-        if (data && data.revenueChart && data.rolesChart) {
-          this.adminStats = data;
-        } else {
-          // Merge real counts into mock structure
-          const mock = this.getMockAdminStats();
-          this.adminStats = { ...mock, ...data, revenueChart: mock.revenueChart, rolesChart: mock.rolesChart };
-        }
+        // Données réelles de l'API — chaque admin voit sa propre base (tenant)
+        this.adminStats = data;
         this.cdr.detectChanges();
-        // Redraw charts with real data
+        // Redessiner les graphiques avec les données réelles
         setTimeout(() => this.initAdminChartsById(), 150);
       },
-      error: () => {
-        // Mock data was already set in ngOnInit – charts are already drawn
+      error: (err) => {
+        // Fallback sur données mock si l'API est indisponible
+        console.warn('[Dashboard] API indisponible, données mock utilisées', err);
+        if (!this.adminStats) {
+          this.adminStats = this.getMockAdminStats();
+          setTimeout(() => this.initAdminChartsById(), 150);
+        }
       }
     });
   }
 
   private getMockAdminStats(): any {
     return {
-      totalUsers: this.commercialKpis.totalClients || 8,
-      activeUsers: 6,
-      pendingKyc: 2,
-      totalTransactions: 124,
-      totalRevenue: this.commercialKpis.totalCA || 48750,
+      totalUsers: 0,
+      activeUsers: 0,
+      pendingKyc: 0,
+      totalTransactions: 0,
+      totalRevenue: 0,
+      totalFactures: 0,
+      facturesAttente: 0,
+      totalClients: 0,
+      totalCommandes: 0,
+      commandesMois: 0,
+      totalDevis: 0,
+      totalProduits: 0,
+      produitsEnAlerte: 0,
       revenueChart: {
-        labels: ['Mar 25','Avr 25','Mai 25','Jun 25','Jul 25','Aoû 25'],
-        data: [8200, 11500, 9800, 14200, 12600, 16800]
+        labels: ['Jan','Fév','Mar','Avr','Mai','Jun'],
+        data: [0, 0, 0, 0, 0, 0]
       },
       rolesChart: {
-        labels: ['Administrateurs','Commerciaux','Comptables','Stock'],
-        data: [2, 3, 1, 2]
+        labels: ['Admins','Commerciaux','Comptables','Stock','Clients'],
+        data: [0, 0, 0, 0, 0]
       }
     };
   }
@@ -296,16 +303,22 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         this.commercialCommandes = data;
         this.computeCommercialKpis();
         setTimeout(() => this.buildCommercialCharts(), 300);
+      },
+      error: (err) => {
+        console.warn('[Dashboard] Commandes non disponibles:', err?.status);
+        this.computeCommercialKpis();
       }
     });
     this.commercialService.getFactures().subscribe({
       next: (data) => {
         this.commercialKpis.totalFactures = data.length;
         this.commercialKpis.facturesEnAttente = data.filter((f: any) => f.statut === 'EN_ATTENTE').length;
-      }
+      },
+      error: () => {}
     });
     this.commercialService.getClients().subscribe({
-      next: (data) => { this.commercialKpis.totalClients = data.length; }
+      next: (data) => { this.commercialKpis.totalClients = data.length; },
+      error: () => {}
     });
   }
 

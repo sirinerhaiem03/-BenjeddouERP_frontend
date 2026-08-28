@@ -138,37 +138,227 @@
   color: #0f172a !important;
 }
 
-/* ── Zones de Saisie & Auto-Suggestions (Point 9.1) ── */
-input.input-field,
-input.form-control,
-select.form-control,
-textarea.form-control,
-.input-wrapper input {
-  background-color: #ffffff !important;
+/* ═══════════════════════════════════════════════════════════════════
+   DESIGN SYSTEM — ZONES DE SAISIE (global, tous modules, tous thèmes)
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Base : TOUS les inputs, selects, textareas ────────────────── */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]),
+select,
+textarea {
+  background: #ffffff !important;
   color: #0f172a !important;
-  border: 1.5px solid #cbd5e1 !important;
-  border-radius: 8px !important;
-  padding: 10px 14px !important;
-  font-size: 0.9rem !important;
-  transition: all 0.2s ease !important;
-}
-
-[data-theme="dark"] input.input-field,
-[data-theme="dark"] input.form-control,
-[data-theme="dark"] select.form-control,
-[data-theme="dark"] textarea.form-control {
-  background-color: #1e293b !important;
-  color: #f8fafc !important;
-  border-color: #334155 !important;
-}
-
-input.input-field:focus,
-input.form-control:focus,
-select.form-control:focus,
-textarea.form-control:focus {
-  border-color: rgba(249, 115, 22, 0.8) !important;
-  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2) !important;
+  border: 1.5px solid #d1d5db !important;
+  border-radius: 10px !important;
+  padding: 9px 14px !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  line-height: 1.5 !important;
+  width: 100%;
+  box-sizing: border-box;
   outline: none !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease !important;
+  -webkit-appearance: none;
+  appearance: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+}
+
+/* Hover */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):hover,
+select:hover,
+textarea:hover {
+  border-color: #9ca3af !important;
+}
+
+/* Focus — Ring orange primary */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):focus,
+select:focus,
+textarea:focus {
+  outline: none !important;
+  border-color: rgb(var(--primary-rgb, 249, 115, 22)) !important;
+  box-shadow: 0 0 0 3.5px rgba(var(--primary-rgb, 249, 115, 22), 0.18) !important;
+  background: #ffffff !important;
+}
+
+/* Select : flèche custom */
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23ea580c' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  padding-right: 36px !important;
+  cursor: pointer;
+}
+
+/* Textarea : pas de resize horizontal */
+textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+/* Input avec datalist/list — indicateur dropdown */
+input[list] {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  padding-right: 36px !important;
+}
+
+/* Disabled */
+input:disabled, select:disabled, textarea:disabled {
+  background: #f8fafc !important;
+  color: #94a3b8 !important;
+  border-color: #e2e8f0 !important;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Readonly */
+input[readonly], textarea[readonly] {
+  background: #f8fafc !important;
+  color: #64748b !important;
+  cursor: default;
+}
+
+/* ── Thème Sombre (dark / professional / aqua) ─────────────────── */
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]),
+[data-theme="dark"] select,
+[data-theme="dark"] textarea,
+[data-theme-preset="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]),
+[data-theme-preset="dark"] select,
+[data-theme-preset="dark"] textarea,
+[data-theme-preset="professional"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]),
+[data-theme-preset="professional"] select,
+[data-theme-preset="professional"] textarea,
+[data-theme-preset="aqua"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]),
+[data-theme-preset="aqua"] select,
+[data-theme-preset="aqua"] textarea {
+  background: rgba(255,255,255,0.07) !important;
+  color: #f1f5f9 !important;
+  border: 1.5px solid rgba(255,255,255,0.18) !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2) !important;
+}
+
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):hover,
+[data-theme="dark"] select:hover, [data-theme="dark"] textarea:hover,
+[data-theme-preset="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):hover,
+[data-theme-preset="dark"] select:hover, [data-theme-preset="dark"] textarea:hover,
+[data-theme-preset="professional"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):hover,
+[data-theme-preset="professional"] select:hover, [data-theme-preset="professional"] textarea:hover,
+[data-theme-preset="aqua"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):hover,
+[data-theme-preset="aqua"] select:hover, [data-theme-preset="aqua"] textarea:hover {
+  border-color: rgba(255,255,255,0.35) !important;
+}
+
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):focus,
+[data-theme="dark"] select:focus, [data-theme="dark"] textarea:focus,
+[data-theme-preset="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):focus,
+[data-theme-preset="dark"] select:focus, [data-theme-preset="dark"] textarea:focus,
+[data-theme-preset="professional"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):focus,
+[data-theme-preset="professional"] select:focus, [data-theme-preset="professional"] textarea:focus,
+[data-theme-preset="aqua"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):focus,
+[data-theme-preset="aqua"] select:focus, [data-theme-preset="aqua"] textarea:focus {
+  background: rgba(255,255,255,0.12) !important;
+  border-color: rgb(var(--primary-rgb, 249, 115, 22)) !important;
+  box-shadow: 0 0 0 3.5px rgba(var(--primary-rgb, 249, 115, 22), 0.25) !important;
+}
+
+/* ── Autocomplete Dropdown (app-autocomplete-input) ────────────── */
+.autocomplete-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  z-index: 9999;
+  max-height: 240px;
+  overflow-y: auto;
+  animation: dropdownFadeIn 0.15s ease;
+}
+
+@keyframes dropdownFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.autocomplete-item {
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #0f172a;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.15s;
+}
+
+.autocomplete-item:last-child { border-bottom: none; }
+
+.autocomplete-item:hover,
+.autocomplete-item.active {
+  background: rgba(249, 115, 22, 0.06);
+  color: #ea580c;
+}
+
+.autocomplete-item .ac-icon {
+  font-size: 16px;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.autocomplete-item:hover .ac-icon,
+.autocomplete-item.active .ac-icon { color: #ea580c; }
+
+.autocomplete-item .ac-label { flex: 1; }
+.autocomplete-item .ac-sub {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.autocomplete-empty {
+  padding: 14px;
+  text-align: center;
+  font-size: 12.5px;
+  color: #94a3b8;
+}
+
+/* Dark mode autocomplete */
+[data-theme="dark"] .autocomplete-dropdown,
+[data-theme-preset="dark"] .autocomplete-dropdown,
+[data-theme-preset="professional"] .autocomplete-dropdown,
+[data-theme-preset="aqua"] .autocomplete-dropdown {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .autocomplete-item,
+[data-theme-preset="dark"] .autocomplete-item,
+[data-theme-preset="professional"] .autocomplete-item,
+[data-theme-preset="aqua"] .autocomplete-item {
+  color: #f1f5f9;
+  border-bottom-color: #334155;
+}
+
+/* ── RTL — Arabe ────────────────────────────────────────────────── */
+[dir="rtl"] select {
+  background-position: left 12px center !important;
+  padding-right: 14px !important;
+  padding-left: 36px !important;
+}
+
+[dir="rtl"] input[list] {
+  background-position: left 12px center !important;
+  padding-right: 14px !important;
+  padding-left: 36px !important;
+}
+
+[dir="rtl"] .autocomplete-dropdown {
+  text-align: right;
 }
 
 /* Cartes et panneaux blancs */
@@ -1640,5 +1830,76 @@ app-portail-devis .devis-card:hover {
 }
 
 /* ══ END PORTAIL GLOBAL STYLES ══ */
+
+/* ══════════════════════════════════════════════════════════════
+   AI ASSISTANT FAB & PANEL GLOBAL POSITIONING (ZERO OVERLAP)
+   ══════════════════════════════════════════════════════════════ */
+
+/* LTR Inside Dashboard (Sidebar on LEFT) */
+body:has(.app-layout):not([dir="rtl"]) .ai-fab,
+body:has(.app-layout):not([dir="rtl"]) .ai-fab-glow-ring {
+  left: calc(260px + 36px) !important;
+  right: auto !important;
+}
+body:has(.app-layout):not([dir="rtl"]) .ai-panel {
+  left: calc(260px + 36px) !important;
+  right: auto !important;
+  transform-origin: bottom left !important;
+}
+
+/* LTR with Collapsed Sidebar */
+body:has(.app-layout.sidebar-collapsed):not([dir="rtl"]) .ai-fab,
+body:has(.app-layout.sidebar-collapsed):not([dir="rtl"]) .ai-fab-glow-ring {
+  left: calc(68px + 30px) !important;
+  right: auto !important;
+}
+body:has(.app-layout.sidebar-collapsed):not([dir="rtl"]) .ai-panel {
+  left: calc(68px + 30px) !important;
+  right: auto !important;
+}
+
+/* RTL Inside Dashboard (Sidebar on RIGHT) */
+body:has(.app-layout)[dir="rtl"] .ai-fab,
+body:has(.app-layout)[dir="rtl"] .ai-fab-glow-ring {
+  right: calc(260px + 36px) !important;
+  left: auto !important;
+}
+body:has(.app-layout)[dir="rtl"] .ai-panel {
+  right: calc(260px + 36px) !important;
+  left: auto !important;
+  transform-origin: bottom right !important;
+}
+
+/* RTL with Collapsed Sidebar */
+body:has(.app-layout.sidebar-collapsed)[dir="rtl"] .ai-fab,
+body:has(.app-layout.sidebar-collapsed)[dir="rtl"] .ai-fab-glow-ring {
+  right: calc(68px + 30px) !important;
+  left: auto !important;
+}
+body:has(.app-layout.sidebar-collapsed)[dir="rtl"] .ai-panel {
+  right: calc(68px + 30px) !important;
+  left: auto !important;
+}
+
+/* Public pages (Landing, Login, etc. without sidebar) */
+body:not(:has(.app-layout)):not([dir="rtl"]) .ai-fab,
+body:not(:has(.app-layout)):not([dir="rtl"]) .ai-fab-glow-ring {
+  left: 28px !important;
+  right: auto !important;
+}
+body:not(:has(.app-layout)):not([dir="rtl"]) .ai-panel {
+  left: 28px !important;
+  right: auto !important;
+}
+
+body:not(:has(.app-layout))[dir="rtl"] .ai-fab,
+body:not(:has(.app-layout))[dir="rtl"] .ai-fab-glow-ring {
+  right: 28px !important;
+  left: auto !important;
+}
+body:not(:has(.app-layout))[dir="rtl"] .ai-panel {
+  right: 28px !important;
+  left: auto !important;
+}
 
 

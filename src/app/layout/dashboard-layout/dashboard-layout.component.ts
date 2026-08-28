@@ -6,11 +6,13 @@ import { AuthService } from '../../core/services/auth.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { StockService } from '../../core/services/stock.service';
 import { LanguageService } from '../../core/services/language.service';
+import { PermissionService } from '../../core/services/permission.service';
 import { TrialBannerComponent } from '../../shared/trial-banner/trial-banner.component';
 import { GlobalSearchComponent } from '../../shared/components/global-search/global-search.component';
 import { trigger, transition, style, animate } from '@angular/animations';
 
 import { NotificationService, AppNotification } from '../../core/services/notification.service';
+import { AiService } from '../../core/services/ai.service';
 
 export type ThemePreset = 'light' | 'dark' | 'professional' | 'aqua';
 export type LogoutPosition = 'both' | 'sidebar' | 'header';
@@ -101,7 +103,9 @@ export class DashboardLayoutComponent implements OnInit {
     private langService: LanguageService,
     private router: Router,
     private stockService: StockService,
-    public notificationService: NotificationService
+    public notificationService: NotificationService,
+    public aiService: AiService,
+    public permissionService: PermissionService
   ) {
     this.currentLang = this.langService.currentLang;
   }
@@ -133,6 +137,11 @@ export class DashboardLayoutComponent implements OnInit {
     // Charger prefs depuis localStorage
     this.loadUserPrefs();
 
+    // Appliquer RTL depuis la langue sauvegardée
+    const savedLang = localStorage.getItem('selectedLanguage') || 'fr';
+    this.currentLang = savedLang;
+    this.applyDocumentDir(savedLang);
+
     // Appliquer thème preset
     this.applyThemePreset(this.activeThemePreset);
 
@@ -145,19 +154,42 @@ export class DashboardLayoutComponent implements OnInit {
     if (roles.includes('ROLE_ADMIN') || roles.includes('ROLE_STOCK') || roles.includes('ROLE_COMMERCIAL')) {
       this.loadStockAlerts();
     }
+
+    // Charger les permissions RBAC (non-ADMIN uniquement — async, non-bloquant)
+    if (!this.authService.hasRole('ROLE_ADMIN') && !this.authService.hasRole('ROLE_SUPERADMIN')) {
+      this.permissionService.charger().subscribe();
+    }
+  }
+
+  /** Applique la direction RTL/LTR sur <html> et met à jour la sidebar */
+  private applyDocumentDir(lang: string): void {
+    const isRtl = lang === 'ar';
+    document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
+    document.documentElement.lang = lang;
+    document.body.dir = isRtl ? 'rtl' : 'ltr';
+    // Sidebar RTL = positionnée à droite (extrême gauche en logique RTL)
+    if (isRtl && this.sidebarPosition !== 'right') {
+      this.sidebarPosition = 'right';
+    } else if (!isRtl && this.sidebarPosition === 'right') {
+      this.sidebarPosition = 'left';
+    }
   }
 
   /** Calcule les flags de rôle une seule fois au lieu d'utiliser des getters */
   private _computeRoleFlags(): void {
     const roles = this.authService.getUserRoles();
-    const rolesInternes = ['ROLE_ADMIN', 'ROLE_SUPERADMIN', 'ROLE_STOCK', 'ROLE_COMMERCIAL', 'ROLE_COMPTABLE'];
-    this.isStockRole = roles.includes('ROLE_STOCK') && !roles.includes('ROLE_ADMIN');
+    const isSuperAdmin = roles.includes('ROLE_SUPERADMIN');
+    this.isStockRole = roles.includes('ROLE_STOCK') && !roles.includes('ROLE_ADMIN') && !isSuperAdmin;
     this.isClientRole = roles.includes('ROLE_CLIENT') || roles.includes('CLIENT');
-    this.isTrialUser = !!(this.user?.modeTrial) && !roles.some(r => rolesInternes.includes(r));
+    this.isTrialUser = !!(this.user?.modeTrial) && !isSuperAdmin;
     const msg = localStorage.getItem('trialMessage');
     if (msg) {
-      const match = msg.match(/(\d+) utilisation/);
+      const match = msg.match(/(\d+)/);
       this.trialRestant = match ? parseInt(match[1]) : 0;
+    } else if (this.user?.modeTrial) {
+      const max = (this.user as any).nbUtilisationsMax ?? 30;
+      const used = (this.user as any).nbUtilisations ?? 0;
+      this.trialRestant = Math.max(0, max - used);
     }
     this.showLogoutInSidebar = this.logoutPosition === 'sidebar' || this.logoutPosition === 'both';
     this.showLogoutInHeader = this.logoutPosition === 'header' || this.logoutPosition === 'both';
@@ -355,6 +387,7 @@ export class DashboardLayoutComponent implements OnInit {
 
   doLogout(): void {
     this.showTrialLogoutModal = false;
+    this.permissionService.vider(); // Vider le cache des permissions à la déconnexion
     this.authService.logout();
     this.router.navigate(['/login']);
   }
@@ -409,12 +442,8 @@ export class DashboardLayoutComponent implements OnInit {
     this.currentLang = lang;
     this.langMenuOpen = false;
     this.settingsPanelOpen = false;
-    // Auto RTL pour arabe
-    if (lang === 'ar') {
-      this.sidebarPosition = 'right';
-    } else if (this.sidebarPosition === 'right') {
-      this.sidebarPosition = 'left';
-    }
+    // Appliquer RTL / LTR immédiatement sur <html> et <body>
+    this.applyDocumentDir(lang);
     this.saveUserPrefs();
   }
 
@@ -451,6 +480,14 @@ export class DashboardLayoutComponent implements OnInit {
   // ─ Méthodes utilitaires rôle ───────────────────────────────────
   hasRole(role: string): boolean {
     return this.authService.hasRole(role);
+  }
+
+  /**
+   * Retourne true si l'utilisateur peut CONSULTER le module donné.
+   * Utilisé dans le template de la sidebar pour masquer les sections non autorisées.
+   */
+  peutVoir(module: string): boolean {
+    return this.permissionService.peutConsulter(module);
   }
 
   getRoleLabel(): string {

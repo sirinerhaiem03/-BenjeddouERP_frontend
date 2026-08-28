@@ -487,3 +487,47 @@
   direction: ltr;
   text-align: right;
 }
+
+/* ══════════════════════════════════════════════════════════════
+   AI ASSISTANT FAB & PANEL RTL POSITIONING (ZERO OVERLAP)
+   ══════════════════════════════════════════════════════════════ */
+[dir="rtl"] .ai-fab,
+[dir="rtl"] .ai-fab-glow-ring {
+  left: auto !important;
+  right: calc(260px + 36px) !important;
+}
+
+[dir="rtl"] .ai-panel {
+  left: auto !important;
+  right: calc(260px + 36px) !important;
+  transform-origin: bottom right !important;
+}
+
+[dir="rtl"].sidebar-collapsed .ai-fab,
+[dir="rtl"].sidebar-collapsed .ai-fab-glow-ring,
+[dir="rtl"] .sidebar-collapsed ~ * .ai-fab,
+[dir="rtl"] .sidebar-collapsed ~ * .ai-fab-glow-ring,
+body:has(.app-layout.sidebar-collapsed)[dir="rtl"] .ai-fab,
+body:has(.app-layout.sidebar-collapsed)[dir="rtl"] .ai-fab-glow-ring {
+  left: auto !important;
+  right: calc(68px + 30px) !important;
+}
+
+[dir="rtl"].sidebar-collapsed .ai-panel,
+[dir="rtl"] .sidebar-collapsed ~ * .ai-panel,
+body:has(.app-layout.sidebar-collapsed)[dir="rtl"] .ai-panel {
+  left: auto !important;
+  right: calc(68px + 30px) !important;
+}
+
+/* Public pages in RTL (Landing, Login, etc. without sidebar) */
+body:not(:has(.app-layout))[dir="rtl"] .ai-fab,
+body:not(:has(.app-layout))[dir="rtl"] .ai-fab-glow-ring {
+  left: auto !important;
+  right: 28px !important;
+}
+
+body:not(:has(.app-layout))[dir="rtl"] .ai-panel {
+  left: auto !important;
+  right: 28px !important;
+}

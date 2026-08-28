@@ -318,7 +318,7 @@
           <div class="mc-field">
             <label>{{ 'MOTEUR_CALCUL.VARIABLE.LABEL' | translate }}</label>
             <input type="text" [(ngModel)]="v.libelle"
-              [placeholder]="'MOTEUR_CALCUL.VARIABLE.LABEL_PH' | translate" class="mc-input">
+              [placeholder]="'MOTEUR_CALCUL.VARIABLE.LABEL_PH' | translate" class="mc-input" list="libelles-calcul-list">
           </div>
 
           <div class="mc-actions">
@@ -913,3 +913,14 @@
     </div>
   </div>
 </div>
+
+<!-- DATALISTS — Suggestions Moteur de Calcul -->
+<datalist id="libelles-calcul-list">
+  <option value="Intérêts crédit long terme"></option>
+  <option value="Agios compte courant"></option>
+  <option value="Pénalités de retard"></option>
+  <option value="Intérêts leasing"></option>
+  <option value="Calcul TVA"></option>
+  <option value="Découvert bancaire"></option>
+  <option value="Intérêts emprunt"></option>
+</datalist>

@@ -6,6 +6,7 @@ import { ThemeService } from '../../core/services/theme.service';
 import { LanguageService } from '../../core/services/language.service';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { AiService } from '../../core/services/ai.service';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -28,6 +29,7 @@ export class SuperadminLayoutComponent implements OnInit {
     private router: Router,
     public themeService: ThemeService,
     public langService: LanguageService,
+    public aiService: AiService,
     private translate: TranslateService
   ) {
     this.translate.setDefaultLang('fr');

@@ -448,19 +448,28 @@ export class TrialBannerComponent implements OnInit {
 
   refreshBanner(): void {
     const user = this.authService.getCurrentUser();
-    if (!user) { this.visible = false; return; }
-
-    const trialMsg = localStorage.getItem('trialMessage');
-    if (user.modeTrial && trialMsg) {
-      this.visible  = true;
-      this.message  = trialMsg;
-      this.critique = localStorage.getItem('trialCritique') === 'true';
-      const match = trialMsg.match(/(\d+)/);
-      this.restant = match ? parseInt(match[1]) : 0;
-      this.progressWidth = ((this.restant / 30) * 100) + '%';
-    } else {
+    if (!user || !user.modeTrial) {
       this.visible = false;
+      return;
     }
+
+    this.visible = true;
+    const trialMsg = localStorage.getItem('trialMessage');
+    const max = (user as any).nbUtilisationsMax ?? 30;
+    const used = (user as any).nbUtilisations ?? 0;
+    const calculatedRestant = Math.max(0, max - used);
+
+    if (trialMsg) {
+      this.message = trialMsg;
+      const match = trialMsg.match(/(\d+)/);
+      this.restant = match ? parseInt(match[1]) : calculatedRestant;
+    } else {
+      this.restant = calculatedRestant;
+      this.message = `⚠️ Mode essai — Il vous reste ${this.restant} visites avant le blocage de l'accès à la plateforme.`;
+    }
+
+    this.critique = this.restant <= 5 || localStorage.getItem('trialCritique') === 'true';
+    this.progressWidth = ((this.restant / 30) * 100) + '%';
   }
 
   private checkShowModal(): void {
@@ -471,7 +480,7 @@ export class TrialBannerComponent implements OnInit {
       this.modalVisible = true;
       sessionStorage.setItem(this.MODAL_SESSION_KEY, Date.now().toString());
       this.startAutoDismiss();
-    }, 800);
+    }, 500);
   }
 
   private startAutoDismiss(): void {

@@ -39,7 +39,7 @@
       <ul>
 
         <!-- ── Tableau de Bord ── -->
-        <li>
+        <li *ngIf="hasRole('ROLE_ADMIN') || peutVoir('dashboard')">
           <a routerLink="home" routerLinkActive="active" class="nav-item nav-main-link"
             [title]="!sidebarOpen ? ('NAV.DASHBOARD' | translate) : null">
             <span class="nav-icon material-symbols-outlined">dashboard</span>
@@ -49,7 +49,7 @@
         </li>
 
         <!-- ── GESTION COMMERCIALE ── -->
-        <ng-container *ngIf="hasRole('ROLE_ADMIN') || hasRole('ROLE_COMMERCIAL')">
+        <ng-container *ngIf="hasRole('ROLE_ADMIN') || peutVoir('ventes')">
           <li class="nav-group">
             <button class="nav-group-toggle" (click)="toggleGroup('commercial')" [class.open]="isGroupOpen('commercial')"
               [title]="!sidebarOpen ? ('NAV.COMMERCIAL' | translate) : null">
@@ -80,7 +80,7 @@
         </ng-container>
 
         <!-- ── STOCK & INVENTAIRE ── -->
-        <ng-container *ngIf="hasRole('ROLE_ADMIN') || hasRole('ROLE_COMMERCIAL') || hasRole('ROLE_STOCK')">
+        <ng-container *ngIf="hasRole('ROLE_ADMIN') || peutVoir('stock')">
           <li class="nav-group">
             <button class="nav-group-toggle" (click)="toggleGroup('stock')" [class.open]="isGroupOpen('stock')"
               [title]="!sidebarOpen ? ('NAV.STOCK' | translate) : null">
@@ -110,7 +110,7 @@
         </ng-container>
 
         <!-- ── ACHATS ── -->
-        <ng-container *ngIf="hasRole('ROLE_ADMIN') || hasRole('ROLE_ACHAT')">
+        <ng-container *ngIf="hasRole('ROLE_ADMIN') || peutVoir('achats')">
           <li class="nav-group">
             <button class="nav-group-toggle" (click)="toggleGroup('achats')" [class.open]="isGroupOpen('achats')"
               [title]="!sidebarOpen ? ('NAV.PURCHASES' | translate) : null">
@@ -135,7 +135,7 @@
         </ng-container>
 
         <!-- ── FINANCE ── -->
-        <ng-container *ngIf="hasRole('ROLE_ADMIN') || hasRole('ROLE_COMPTABLE')">
+        <ng-container *ngIf="hasRole('ROLE_ADMIN') || peutVoir('comptabilite') || peutVoir('tresorerie')">
           <li class="nav-group">
             <button class="nav-group-toggle" (click)="toggleGroup('finance')" [class.open]="isGroupOpen('finance')"
               [title]="!sidebarOpen ? ('NAV.FINANCE' | translate) : null">
@@ -246,6 +246,9 @@
               <li><a routerLink="branding" routerLinkActive="active" class="nav-sub-link nav-sub-link-branding">
                 <span class="material-symbols-outlined">palette</span><span>{{ 'NAV.VISUAL_IDENTITY' | translate }}</span>
               </a></li>
+              <li><a routerLink="db-management" routerLinkActive="active" class="nav-sub-link nav-sub-link-db">
+                <span class="material-symbols-outlined">storage</span><span>Gestion des Bases de Données</span>
+              </a></li>
             </ul>
           </li>
         </ng-container>
@@ -289,6 +292,7 @@
 
     <!-- ── Sidebar Bottom — User Account ── -->
     <div class="sidebar-bottom">
+
 
       <!-- Trial badge -->
       <div class="sidebar-trial-badge" *ngIf="isTrialUser && sidebarOpen">

@@ -316,45 +316,75 @@
   position: relative;
   display: flex;
   align-items: center;
-}
-
-.input-icon {
-  position: absolute;
-  left: 14px;
-  color: var(--text-light);
-  font-size: 20px;
-  pointer-events: none;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 100%;
 }
 
 .input-field {
-  padding-left: 44px;
+  width: 100%;
+  padding: 12px 16px;
   height: 48px;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1.5px solid var(--border-color, #e2e8f0);
+  border-radius: 12px;
+  font-size: 0.95rem;
+  background-color: var(--bg-card, #ffffff);
+  color: var(--text-primary, #0f172a);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+  box-sizing: border-box;
 }
 
-/* Input active neon glow effect */
+/* Input active focus effect */
 .input-field:focus {
-  border-color: hsl(var(--primary));
-  box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.15);
-  background-color: var(--bg-secondary);
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
+  background-color: #ffffff;
 }
 
-/* Make input icon light up on focus-within */
-.input-wrapper:focus-within .input-icon {
-  color: hsl(var(--primary));
-  transform: scale(1.1);
+/* Password visibility toggle button positioned cleanly at the end */
+.visibility-btn {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 8px;
+  transition: color 0.2s, background-color 0.2s;
+  z-index: 2;
+}
+
+.visibility-btn:hover {
+  color: #4f46e5;
+  background-color: rgba(79, 70, 229, 0.08);
+}
+
+.visibility-btn .material-symbols-outlined {
+  font-size: 20px;
+}
+
+/* Space for visibility button in password inputs */
+.input-wrapper:has(.visibility-btn) .input-field {
+  padding-right: 48px;
+}
+
+[dir="rtl"] .visibility-btn {
+  right: auto;
+  left: 12px;
+}
+
+[dir="rtl"] .input-wrapper:has(.visibility-btn) .input-field {
+  padding-right: 16px;
+  padding-left: 48px;
 }
 
 /* Validation glow for invalid inputs */
 .input-field.ng-touched.ng-invalid {
   border-color: #ef4444 !important;
   box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12) !important;
-}
-
-.input-field.ng-touched.ng-invalid + .input-icon,
-.input-wrapper:focus-within .input-field.ng-touched.ng-invalid ~ .input-icon {
-  color: #ef4444;
 }
 
 
@@ -839,6 +869,24 @@
   opacity: 0.9;
   transform: translateY(-1px);
   box-shadow: 0 5px 14px rgba(249, 115, 22, 0.4);
+}
+
+/* CTA Administrateur Entreprise */
+.admin-register-cta {
+  border-color: rgba(30, 64, 175, 0.2);
+  background: linear-gradient(135deg, rgba(30, 64, 175, 0.06), rgba(15, 23, 42, 0.04));
+}
+.admin-register-cta:hover {
+  border-color: rgba(30, 64, 175, 0.4);
+  background: linear-gradient(135deg, rgba(30, 64, 175, 0.1), rgba(15, 23, 42, 0.06));
+}
+.admin-register-cta .cta-title { color: #1e40af; }
+.cta-btn-admin {
+  background: linear-gradient(135deg, #1e40af, #1e3a8a);
+  box-shadow: 0 3px 10px rgba(30, 64, 175, 0.3);
+}
+.cta-btn-admin:hover {
+  box-shadow: 0 5px 14px rgba(30, 64, 175, 0.4);
 }
 
 /* ══════════════════════════════════════════════════

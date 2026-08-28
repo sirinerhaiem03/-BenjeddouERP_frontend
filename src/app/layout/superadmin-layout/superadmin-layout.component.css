@@ -231,6 +231,112 @@
   border-top: 1px solid rgba(139, 92, 246, 0.15);
 }
 
+.sa-sidebar-tools-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sa-tool-btn {
+  flex: 1 1 50%;
+  width: 50%;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sa-tool-btn.tool-ai {
+  background: #7c3aed;
+  color: #ffffff;
+  border: 1px solid #6d28d9;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+}
+
+.sa-tool-btn.tool-ai:hover {
+  background: #6d28d9;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+  transform: translateY(-1px);
+}
+
+.sa-tool-btn.tool-theme {
+  background: #ede9fe;
+  color: #5b21b6;
+  border: 1px solid #c4b5fd;
+}
+
+.sa-light .sa-tool-btn.tool-theme {
+  background: #f3e8ff;
+  color: #6d28d9;
+  border: 1px solid #ddd6fe;
+}
+
+.sa-tool-btn.tool-theme:hover {
+  background: #ddd6fe;
+  color: #4c1d95;
+}
+
+.sa-tool-btn .material-symbols-outlined {
+  font-size: 19px;
+}
+
+/* ── RTL Support ─────────────────────────────────── */
+html[dir="rtl"] .sa-sidebar,
+:host-context([dir="rtl"]) .sa-sidebar {
+  right: 0 !important;
+  left: auto !important;
+  border-right: none !important;
+  border-left: 1px solid rgba(139, 92, 246, 0.2) !important;
+  text-align: right;
+}
+
+html[dir="rtl"] .sa-app:not(.collapsed) .sa-main,
+:host-context([dir="rtl"]) .sa-app:not(.collapsed) .sa-main {
+  margin-left: 0 !important;
+  margin-right: 260px !important;
+}
+
+html[dir="rtl"] .sa-app.collapsed .sa-main,
+:host-context([dir="rtl"]) .sa-app.collapsed .sa-main {
+  margin-left: 0 !important;
+  margin-right: 70px !important;
+}
+
+html[dir="rtl"] .sa-nav-item,
+:host-context([dir="rtl"]) .sa-nav-item {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+html[dir="rtl"] .sa-sidebar-tools-row,
+:host-context([dir="rtl"]) .sa-sidebar-tools-row {
+  flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .sa-tool-btn,
+:host-context([dir="rtl"]) .sa-tool-btn {
+  flex-direction: row-reverse;
+}
+
+:host-context([dir="rtl"]) .sa-topbar-left { flex-direction: row-reverse; }
+:host-context([dir="rtl"]) .sa-topbar-right { flex-direction: row-reverse; }
+:host-context([dir="rtl"]) .sa-lang-menu { right: auto; left: 0; text-align: right; }
+:host-context([dir="rtl"]) .sa-lang-menu button { text-align: right; }
+
 .sa-user-card {
   display: flex;
   align-items: center;

@@ -203,6 +203,9 @@
           <button class="btn-export" (click)="exportEcrituresCSV()" title="CSV Excel">
             <span class="material-symbols-outlined">table_view</span> CSV
           </button>
+          <button class="btn-export" (click)="exportEcrituresExcel()" title="Export Excel">
+            <span class="material-symbols-outlined">grid_on</span> Excel
+          </button>
           <button class="btn-export" (click)="exportEcrituresPDF()" title="Export PDF">
             <span class="material-symbols-outlined">picture_as_pdf</span> PDF
           </button>
@@ -315,12 +318,27 @@
           <span class="material-symbols-outlined">info</span>
           {{ 'FINANCE.VAT.NOTE' | translate }}
         </p>
-        <!-- P2 : Export TVA XML -->
-        <div class="decl-export-row">
+        <!-- P2 : Export TVA XML & Word & Excel & Impression Officielle -->
+        <div class="decl-export-row" style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
           <button class="btn-export-xml" (click)="exporterTvaXml()">
             <span class="material-symbols-outlined">file_download</span>
             {{ 'FINANCE.VAT.EXPORT_XML' | translate }}
           </button>
+          <button type="button" class="btn-export-xml" (click)="exportDeclarationTvaWord()" style="background:#1e293b; border-color:#334155;">
+            <span class="material-symbols-outlined">description</span> Word
+          </button>
+          <button type="button" class="btn-export-xml" (click)="exportDeclarationTvaExcel()" style="background:#1e293b; border-color:#334155;">
+            <span class="material-symbols-outlined">table_view</span> Excel
+          </button>
+          <button type="button" class="btn-export-xml" (click)="imprimerDeclarationTva(finDocLangue)" style="background:#0b1b3d; border-color:#1e293b;">
+            <span class="material-symbols-outlined">print</span>
+            {{ finDocLangue === 'ar' ? 'طباعة التصريح الجبائي الرسمي' : (finDocLangue === 'en' ? 'Print Official VAT Return' : 'Imprimer Déclaration Officielle DGI') }}
+          </button>
+          <div class="lang-selector-group no-print" style="display:inline-flex; gap:4px; margin-left:8px;">
+            <button type="button" class="btn btn-sm" [style.background]="finDocLangue === 'fr' ? '#f97316' : '#f1f5f9'" [style.color]="finDocLangue === 'fr' ? '#fff' : '#475569'" (click)="finDocLangue = 'fr'" style="padding:4px 8px; border-radius:4px; font-size:11px; font-weight:700; border:none; cursor:pointer;">🇫🇷 FR</button>
+            <button type="button" class="btn btn-sm" [style.background]="finDocLangue === 'en' ? '#f97316' : '#f1f5f9'" [style.color]="finDocLangue === 'en' ? '#fff' : '#475569'" (click)="finDocLangue = 'en'" style="padding:4px 8px; border-radius:4px; font-size:11px; font-weight:700; border:none; cursor:pointer;">🇬🇧 EN</button>
+            <button type="button" class="btn btn-sm" [style.background]="finDocLangue === 'ar' ? '#f97316' : '#f1f5f9'" [style.color]="finDocLangue === 'ar' ? '#fff' : '#475569'" (click)="finDocLangue = 'ar'" style="padding:4px 8px; border-radius:4px; font-size:11px; font-weight:700; border:none; cursor:pointer;">🇹🇳 AR</button>
+          </div>
           <span class="decl-export-hint">Fichier : DeclarationTVA_{{ moisSelectionne | number:'2.0-0' }}_{{ anneeSelectionnee }}.xml</span>
         </div>
       </div>
@@ -330,10 +348,27 @@
     <div *ngIf="activeTab === 'resultat'">
       <div class="section-header">
         <h2 class="section-title"><span class="material-symbols-outlined">bar_chart</span> {{ 'FINANCE.RESULT.TITLE' | translate }}</h2>
-        <div class="annee-selector">
-          <select class="form-control" [(ngModel)]="anneeSelectionnee" (change)="loadCompteResultat()">
-            <option *ngFor="let a of anneeOptions" [ngValue]="a">{{ a }}</option>
-          </select>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div class="lang-selector-group no-print" style="display:inline-flex; gap:4px;">
+            <button type="button" class="btn btn-sm" [style.background]="finDocLangue === 'fr' ? '#f97316' : '#f1f5f9'" [style.color]="finDocLangue === 'fr' ? '#fff' : '#475569'" (click)="finDocLangue = 'fr'" style="padding:4px 8px; border-radius:4px; font-size:11px; font-weight:700; border:none; cursor:pointer;">🇫🇷 FR</button>
+            <button type="button" class="btn btn-sm" [style.background]="finDocLangue === 'en' ? '#f97316' : '#f1f5f9'" [style.color]="finDocLangue === 'en' ? '#fff' : '#475569'" (click)="finDocLangue = 'en'" style="padding:4px 8px; border-radius:4px; font-size:11px; font-weight:700; border:none; cursor:pointer;">🇬🇧 EN</button>
+            <button type="button" class="btn btn-sm" [style.background]="finDocLangue === 'ar' ? '#f97316' : '#f1f5f9'" [style.color]="finDocLangue === 'ar' ? '#fff' : '#475569'" (click)="finDocLangue = 'ar'" style="padding:4px 8px; border-radius:4px; font-size:11px; font-weight:700; border:none; cursor:pointer;">🇹🇳 AR</button>
+          </div>
+          <button type="button" class="btn-primary" (click)="exportCompteResultatWord()" style="background:#1e293b; display:flex; align-items:center; gap:6px;" title="Exporter en Word (.doc)">
+            <span class="material-symbols-outlined" style="font-size:16px;">description</span> Word
+          </button>
+          <button type="button" class="btn-primary" (click)="exportCompteResultatExcel()" style="background:#1e293b; display:flex; align-items:center; gap:6px;" title="Exporter en Excel (.xls)">
+            <span class="material-symbols-outlined" style="font-size:16px;">table_view</span> Excel
+          </button>
+          <button type="button" class="btn-primary" (click)="imprimerCompteResultat(finDocLangue)" style="background:#059669; display:flex; align-items:center; gap:6px;">
+            <span class="material-symbols-outlined" style="font-size:16px;">print</span>
+            {{ finDocLangue === 'ar' ? 'طباعة القوائم المالية' : (finDocLangue === 'en' ? 'Print Financial Statement' : 'Imprimer États Financiers') }}
+          </button>
+          <div class="annee-selector">
+            <select class="form-control" [(ngModel)]="anneeSelectionnee" (change)="loadCompteResultat()">
+              <option *ngFor="let a of anneeOptions" [ngValue]="a">{{ a }}</option>
+            </select>
+          </div>
         </div>
       </div>
 

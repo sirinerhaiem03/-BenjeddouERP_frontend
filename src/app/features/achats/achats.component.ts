@@ -6,13 +6,17 @@ import { HttpClient, HttpClientModule, HttpHeaders } from '@angular/common/http'
 import { Router } from '@angular/router';
 import { Chart, registerables } from 'chart.js';
 import { ExportService } from '../../core/services/export.service';
+import { PermissionService } from '../../core/services/permission.service';
+import { AppPermissionDirective } from '../../shared/directives/app-permission.directive';
 Chart.register(...registerables);
 
+
+import { NombreLettresPipe } from '../../shared/pipes/nombre-lettres.pipe';
 
 @Component({
   selector: 'app-achats',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule, DecimalPipe, DatePipe, TranslateModule],
+  imports: [CommonModule, FormsModule, HttpClientModule, DecimalPipe, DatePipe, TranslateModule, AppPermissionDirective, NombreLettresPipe],
   templateUrl: './achats.component.html',
   styleUrls: ['./achats.component.css']
 })
@@ -91,7 +95,7 @@ export class AchatsComponent implements OnInit, OnDestroy, AfterViewInit {
   private chartStatut: Chart | null = null;
   private chartFournisseur: Chart | null = null;
 
-  constructor(private http: HttpClient, public router: Router, private exportService: ExportService) {}
+  constructor(private http: HttpClient, public router: Router, private exportService: ExportService, public permissionService: PermissionService) {}
 
   ngOnInit(): void {
     this.loadAll();
@@ -571,6 +575,12 @@ export class AchatsComponent implements OnInit, OnDestroy, AfterViewInit {
       `${this.commandesFiltrees.length} commande(s) — ${new Date().getFullYear()}`
     );
   }
+  exportCommandesExcel(): void {
+    this.exportService.exportTableToExcel(
+      this._commandeCols, this._commandeRows,
+      'Bons de Commande Achats — BENJEDDOU ERP',
+      `bons-achat-${new Date().toISOString().slice(0, 10)}`);
+  }
   exportCommandesWord(): void {
     this.exportService.exportTableToWord(
       this._commandeCols, this._commandeRows,
@@ -583,6 +593,12 @@ export class AchatsComponent implements OnInit, OnDestroy, AfterViewInit {
 
   exportReceptionsCSV(): void {
     this.exportService.exportToCSV(this._receptionCols, this._receptionRows,
+      `receptions-${new Date().toISOString().slice(0, 10)}`);
+  }
+  exportReceptionsExcel(): void {
+    this.exportService.exportTableToExcel(
+      this._receptionCols, this._receptionRows,
+      'Réceptions Fournisseurs — BENJEDDOU ERP',
       `receptions-${new Date().toISOString().slice(0, 10)}`);
   }
   exportReceptionsPDF(): void {
@@ -602,4 +618,446 @@ export class AchatsComponent implements OnInit, OnDestroy, AfterViewInit {
   printReceptions(): void {
     this.exportService.printElement('receptions-table', 'Réceptions Fournisseurs — BENJEDDOU ERP');
   }
+
+
+  // ══════════════════════════════════════════════════════════
+  // DOCUMENTS ACHATS MULTILINGUES (FR / EN / AR)
+  // ══════════════════════════════════════════════════════════
+  achatDocLangue: 'fr' | 'en' | 'ar' = 'fr';
+
+  imprimerBonCommandeAchat(cmd?: any, langOverride?: string): void {
+    const c = cmd || this.commandeDetail;
+    if (!c) return;
+
+    const lang = (langOverride || this.achatDocLangue || localStorage.getItem('erp_lang') || 'fr').toLowerCase();
+    const isAr = lang === 'ar';
+    const isEn = lang === 'en';
+    const dir = isAr ? 'rtl' : 'ltr';
+
+    const t = {
+      title: isAr ? 'أمر شراء / طلبيّة تزوّد' : (isEn ? 'PURCHASE ORDER' : 'BON DE COMMANDE ACHAT'),
+      num: isAr ? 'رقم الطلب' : (isEn ? 'PO Number' : 'N° Bon'),
+      date: isAr ? 'تاريخ الطلب' : (isEn ? 'Order Date' : 'Date de Commande'),
+      buyer: isAr ? 'المشتري / المؤسسة' : (isEn ? 'BUYER / COMPANY' : 'ACHETEUR / ÉMETTEUR'),
+      supplier: isAr ? 'المزود / المورد' : (isEn ? 'SUPPLIER / VENDOR' : 'FOURNISSEUR'),
+      activity: isAr ? 'معدات المعلوماتية والإلكترونيات' : (isEn ? 'IT & Electronic Equipment' : 'Matériel Informatique & Électronique'),
+      mf: isAr ? 'المعرف الجبائي :' : (isEn ? 'Tax ID:' : 'Matricule Fiscal :'),
+      status: isAr ? 'الحالة' : (isEn ? 'Status' : 'Statut'),
+      colNum: '#',
+      colDesignation: isAr ? 'البيان / المادة' : (isEn ? 'Description' : 'Désignation'),
+      colQty: isAr ? 'الكمية' : (isEn ? 'Qty' : 'Quantité'),
+      colPu: isAr ? 'السعر الفردي خ.ز.' : (isEn ? 'Unit Price Excl. Tax' : 'Prix Unit. HT'),
+      colTotal: isAr ? 'المجموع خ.ز.' : (isEn ? 'Total Excl. Tax' : 'Total HT'),
+      subtotal: isAr ? 'المجموع خ.ز.' : (isEn ? 'Subtotal' : 'Sous-total HT'),
+      tva: isAr ? 'الضريبة (19%)' : (isEn ? 'VAT (19%)' : 'TVA (19%)'),
+      grandTotal: isAr ? 'المجموع الإجمالي ش.ر.' : (isEn ? 'GRAND TOTAL' : 'TOTAL GÉNÉRAL TTC'),
+      notes: isAr ? 'ملاحظات وشروط التسليم' : (isEn ? 'Notes & Delivery Terms' : 'Notes & Conditions de Livraison'),
+      sigBuyer: isAr ? 'توقيع وختم قسم المشتريات' : (isEn ? 'Purchasing Dept. Stamp & Signature' : 'Service Achats (Cachet & Signature)'),
+      sigSupplier: isAr ? 'تأكيد وقبول المزود' : (isEn ? 'Supplier Acknowledgment' : 'Accusé de Réception Fournisseur'),
+      footer: isAr ? 'BENJEDDOU ERP — أمر شراء رسمي موجه للمزود' : (isEn ? 'BENJEDDOU ERP — Official Purchase Order' : 'BENJEDDOU ERP — Bon de Commande Achat Officiel')
+    };
+
+    const dateStr = new Date(c.dateCommande || Date.now()).toLocaleDateString(isAr ? 'ar-TN' : (isEn ? 'en-US' : 'fr-TN'));
+    const totalTtc = c.montantTotal || 0;
+    const totalHt = totalTtc / 1.19;
+    const montantTva = totalTtc - totalHt;
+
+    const rowsHtml = (c.lignes || []).map((l: any, idx: number) => `
+      <tr>
+        <td style="text-align:center;">${idx + 1}</td>
+        <td><strong>${l.designation || l.produit?.nom || 'Article'}</strong></td>
+        <td style="text-align:center; font-weight:700;">${l.quantite}</td>
+        <td style="text-align:right;">${(l.prixUnitaire || 0).toFixed(3)} TND</td>
+        <td style="text-align:right; font-weight:700;">${((l.quantite || 1) * (l.prixUnitaire || 0)).toFixed(3)} TND</td>
+      </tr>
+    `).join('');
+
+    const html = `<!DOCTYPE html>
+<html lang="${lang}" dir="${dir}">
+<head>
+  <meta charset="UTF-8">
+  <title>${t.title} - ${c.numeroCommande}</title>
+  <style>
+    body { font-family: ${isAr ? "'Tahoma', Arial, sans-serif" : "'Segoe UI', Arial, sans-serif"}; padding: 24px; color: #0f172a; direction: ${dir}; }
+    .doc-page { max-width: 850px; margin: auto; border: 1px solid #e2e8f0; border-radius: 12px; padding: 28px; background: #fff; box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+    .header { display: flex; justify-content: space-between; border-bottom: 3px solid #f97316; padding-bottom: 16px; margin-bottom: 20px; }
+    .brand h1 { color: #f97316; font-size: 22pt; margin: 0; }
+    .brand p { font-size: 9pt; color: #64748b; margin-top: 4px; }
+    .badge-po { background: #0b1b3d; color: #fff; padding: 10px 18px; border-radius: 8px; text-align: ${isAr ? 'left' : 'right'}; }
+    .badge-po h2 { margin: 0; font-size: 14pt; color: #f97316; }
+    .parties { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .party-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; text-align: ${isAr ? 'right' : 'left'}; }
+    .party-title { font-size: 8pt; font-weight: 800; color: #f97316; text-transform: uppercase; margin-bottom: 6px; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 9.5pt; }
+    th { background: #1e293b; color: #fff; padding: 9px 12px; text-align: ${isAr ? 'right' : 'left'}; font-size: 8.5pt; }
+    td { padding: 9px 12px; border-bottom: 1px solid #e2e8f0; }
+    .totals-grid { display: flex; justify-content: flex-end; margin-bottom: 20px; }
+    .totals-box { width: 280px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }
+    .tot-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 9pt; }
+    .tot-grand { font-weight: 800; font-size: 11pt; color: #f97316; border-top: 2px solid #e2e8f0; margin-top: 6px; padding-top: 6px; }
+    .signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 24px; }
+    .sig-box { border: 1px dashed #cbd5e1; border-radius: 8px; padding: 14px; min-height: 85px; text-align: ${isAr ? 'right' : 'left'}; }
+    .footer { text-align: center; font-size: 8pt; color: #94a3b8; margin-top: 20px; padding-top: 10px; border-top: 1px solid #f1f5f9; }
+    @media print { body { padding: 0; } .doc-page { border: none; box-shadow: none; } }
+  </style>
+</head>
+<body>
+  <div class="doc-page">
+    <div class="header">
+      <div class="brand">
+        <h1>BENJEDDOU ERP</h1>
+        <p>${t.activity}<br>123, Avenue Habib Bourguiba, Tunis</p>
+      </div>
+      <div class="badge-po">
+        <h2>${t.title}</h2>
+        <div>${t.num} : <strong>${c.numeroCommande}</strong></div>
+        <div>${t.date} : ${dateStr}</div>
+      </div>
+    </div>
+
+    <div class="parties">
+      <div class="party-box">
+        <div class="party-title">${t.buyer}</div>
+        <strong>Société Benjeddou Technologie Service</strong><br>
+        123, Avenue Habib Bourguiba, 1000 Tunis<br>
+        Tel : +216 71 123 456 | MF : 1234567X
+      </div>
+      <div class="party-box">
+        <div class="party-title">${t.supplier}</div>
+        <strong>${c.fournisseur?.nom || 'Fournisseur Agréé'}</strong><br>
+        ${c.fournisseur?.adresse || 'Tunisie'}<br>
+        Tel : ${c.fournisseur?.telephone || '—'} | Email : ${c.fournisseur?.email || '—'}
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:40px; text-align:center;">${t.colNum}</th>
+          <th>${t.colDesignation}</th>
+          <th style="width:70px; text-align:center;">${t.colQty}</th>
+          <th style="width:110px; text-align:right;">${t.colPu}</th>
+          <th style="width:120px; text-align:right;">${t.colTotal}</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rowsHtml || '<tr><td colspan="5" style="text-align:center; padding:20px;">Aucune ligne</td></tr>'}
+      </tbody>
+    </table>
+
+    <div class="totals-grid">
+      <div class="totals-box">
+        <div class="tot-row"><span>${t.subtotal} :</span><strong>${totalHt.toFixed(3)} TND</strong></div>
+        <div class="tot-row"><span>${t.tva} :</span><strong>${montantTva.toFixed(3)} TND</strong></div>
+        <div class="tot-row tot-grand"><span>${t.grandTotal} :</span><span>${totalTtc.toFixed(3)} TND</span></div>
+      </div>
+    </div>
+
+    <div *ngIf="c.notes" style="background:#fffbeb; border:1px solid #fef3c7; padding:10px 14px; border-radius:6px; font-size:8.5pt; margin-bottom:16px;">
+      <strong>${t.notes} :</strong> ${c.notes}
+    </div>
+
+    <div class="signatures">
+      <div class="sig-box"><span style="font-size:8.5pt; font-weight:700; color:#64748b;">${t.sigBuyer}</span></div>
+      <div class="sig-box"><span style="font-size:8.5pt; font-weight:700; color:#64748b;">${t.sigSupplier}</span></div>
+    </div>
+
+    <div class="footer">${t.footer} — ${dateStr}</div>
+  </div>
+</body>
+</html>`;
+
+    const win = window.open('', '_blank', 'width=900,height=750');
+    if (win) {
+      win.document.write(html);
+      win.document.close();
+      win.focus();
+      setTimeout(() => win.print(), 500);
+    }
+  }
+
+  imprimerBonReception(rec: any, langOverride?: string): void {
+    const lang = (langOverride || this.achatDocLangue || localStorage.getItem('erp_lang') || 'fr').toLowerCase();
+    const isAr = lang === 'ar';
+    const isEn = lang === 'en';
+    const dir = isAr ? 'rtl' : 'ltr';
+
+    const t = {
+      title: isAr ? 'وصل استلام ومراقبة بضائع المورد' : (isEn ? 'GOODS RECEIPT & CONFORMITY NOTE' : 'BON DE RÉCEPTION MARCHANDISES'),
+      supplier: isAr ? 'المزود' : (isEn ? 'Supplier' : 'Fournisseur'),
+      product: isAr ? 'المنتج' : (isEn ? 'Product' : 'Produit Réceptionné'),
+      warehouse: isAr ? 'مستودع التخزين' : (isEn ? 'Target Warehouse' : 'Entrepôt de Stockage'),
+      qtyOrdered: isAr ? 'الكمية المطلوبة' : (isEn ? 'Qty Ordered' : 'Quantité Commandée'),
+      qtyReceived: isAr ? 'الكمية المستلمة' : (isEn ? 'Qty Received' : 'Quantité Reçue'),
+      conformity: isAr ? 'مطابقة الجودة' : (isEn ? 'Conformity' : 'Contrôle Qualité'),
+      notes: isAr ? 'ملاحظات الاستلام' : (isEn ? 'Observations' : 'Observations'),
+      stamp: isAr ? 'توقيع وختم أمين المستودع' : (isEn ? 'Warehouse Manager Stamp' : 'Visa & Cachet Magasinier'),
+      footer: isAr ? 'BENJEDDOU ERP — وصل استلام معتمد ومسجل في المخزون' : (isEn ? 'BENJEDDOU ERP — Certified Goods Receipt Note' : 'BENJEDDOU ERP — Bon de Réception Conforme Enregistré')
+    };
+
+    const dateStr = new Date(rec?.dateReception || Date.now()).toLocaleDateString(isAr ? 'ar-TN' : (isEn ? 'en-US' : 'fr-TN'));
+
+    const html = `<!DOCTYPE html>
+<html lang="${lang}" dir="${dir}">
+<head>
+  <meta charset="UTF-8">
+  <title>${t.title}</title>
+  <style>
+    body { font-family: ${isAr ? "'Tahoma', Arial, sans-serif" : "'Segoe UI', Arial, sans-serif"}; padding: 24px; color: #0f172a; direction: ${dir}; }
+    .card { max-width: 800px; margin: auto; border: 2px solid #22c55e; border-radius: 12px; padding: 24px; background: #fff; }
+    .header { display: flex; justify-content: space-between; border-bottom: 2px solid #e2e8f0; padding-bottom: 14px; margin-bottom: 16px; }
+    .badge { background: #166534; color: #fff; padding: 8px 16px; border-radius: 8px; font-weight: 700; text-align: center; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .item { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; text-align: ${isAr ? 'right' : 'left'}; }
+    .item label { font-size: 8pt; color: #64748b; font-weight: 700; display: block; }
+    .item value { font-size: 11pt; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <div><h2 style="color:#166534; margin:0;">BENJEDDOU ERP</h2><p style="margin:2px 0; font-size:9pt; color:#64748b;">Service Contrôle & Réception Achats</p></div>
+      <div class="badge"><h3 style="margin:0;">${t.title}</h3><span>${dateStr}</span></div>
+    </div>
+    <div class="grid">
+      <div class="item"><label>${t.supplier}</label><value>${rec?.fournisseurNom || 'Fournisseur'}</value></div>
+      <div class="item"><label>${t.product}</label><value>${rec?.produitNom || 'Article'}</value></div>
+      <div class="item"><label>${t.warehouse}</label><value>${rec?.entrepotNom || 'Entrepôt Principal'}</value></div>
+      <div class="item"><label>${t.conformity}</label><value style="color:#16a34a;">${rec?.statut || 'CONFORME'}</value></div>
+      <div class="item"><label>${t.qtyOrdered}</label><value>${rec?.quantiteCommandee || 0}</value></div>
+      <div class="item"><label>${t.qtyReceived}</label><value style="color:#166534; font-size:13pt;">${rec?.quantiteRecue || 0}</value></div>
+      <div class="item" style="grid-column: span 2;"><label>${t.notes}</label><value>${rec?.observations || 'Aucune anomalie signalée.'}</value></div>
+    </div>
+    <div style="margin-top:20px; border:1px dashed #cbd5e1; padding:14px; border-radius:8px; min-height:80px; text-align:${isAr ? 'right' : 'left'};">
+      <span style="font-size:8.5pt; color:#64748b; font-weight:700;">${t.stamp}</span>
+    </div>
+    <div style="text-align:center; font-size:8pt; color:#94a3b8; margin-top:16px;">${t.footer}</div>
+  </div>
+</body>
+</html>`;
+
+    const win = window.open('', '_blank', 'width=850,height=600');
+    if (win) {
+      win.document.write(html);
+      win.document.close();
+      win.focus();
+      setTimeout(() => win.print(), 500);
+    }
+  }
+
+  imprimerDemandeAchat(da?: any, langOverride?: string): void {
+    const lang = (langOverride || this.achatDocLangue || localStorage.getItem('erp_lang') || 'fr').toLowerCase();
+    const isAr = lang === 'ar';
+    const isEn = lang === 'en';
+    const dir = isAr ? 'rtl' : 'ltr';
+
+    const t = {
+      title: isAr ? 'مطلب شراء داخلي (DA)' : (isEn ? 'INTERNAL PURCHASE REQUISITION' : 'DEMANDE D\'ACHAT INTERNE (DA)'),
+      ref: isAr ? 'رمز المطلب' : (isEn ? 'Requisition Ref' : 'Réf Demande'),
+      date: isAr ? 'تاريخ المطلب' : (isEn ? 'Date' : 'Date Demande'),
+      dept: isAr ? 'القسم الطالب' : (isEn ? 'Department' : 'Département Demandeur'),
+      applicant: isAr ? 'مقدم المطلب' : (isEn ? 'Requested By' : 'Demandeur'),
+      product: isAr ? 'المادة / الخدمة' : (isEn ? 'Item / Service' : 'Désignation Besoin'),
+      qty: isAr ? 'الكمية المقدرة' : (isEn ? 'Estimated Qty' : 'Quantité Demandée'),
+      budget: isAr ? 'الميزانية التقديرية' : (isEn ? 'Estimated Cost' : 'Budget Estimé'),
+      justification: isAr ? 'التعليل والمبرر' : (isEn ? 'Justification' : 'Justification du Besoin'),
+      approval: isAr ? 'موافقة الإدارة والاعتماد' : (isEn ? 'Management Approval' : 'Visa Chef de Département & Direction'),
+      footer: isAr ? 'BENJEDDOU ERP — وثيقة داخلية للمصادقة على الشراء' : (isEn ? 'BENJEDDOU ERP — Internal Purchase Requisition' : 'BENJEDDOU ERP — Document Interne de Demande d\'Achat')
+    };
+
+    const dateStr = new Date(da?.dateCreation || Date.now()).toLocaleDateString(isAr ? 'ar-TN' : (isEn ? 'en-US' : 'fr-TN'));
+
+    const html = `<!DOCTYPE html>
+<html lang="${lang}" dir="${dir}">
+<head>
+  <meta charset="UTF-8">
+  <title>${t.title}</title>
+  <style>
+    body { font-family: ${isAr ? "'Tahoma', Arial, sans-serif" : "'Segoe UI', Arial, sans-serif"}; padding: 24px; color: #0f172a; direction: ${dir}; }
+    .card { max-width: 800px; margin: auto; border: 2px solid #3b82f6; border-radius: 12px; padding: 24px; background: #fff; }
+    .header { display: flex; justify-content: space-between; border-bottom: 2px solid #e2e8f0; padding-bottom: 14px; margin-bottom: 16px; }
+    .badge { background: #1e40af; color: #fff; padding: 8px 16px; border-radius: 8px; font-weight: 700; text-align: center; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .item { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; text-align: ${isAr ? 'right' : 'left'}; }
+    .item label { font-size: 8pt; color: #64748b; font-weight: 700; display: block; }
+    .item value { font-size: 11pt; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <div><h2 style="color:#1e40af; margin:0;">BENJEDDOU ERP</h2><p style="margin:2px 0; font-size:9pt; color:#64748b;">Département Achats & Approvisionnements</p></div>
+      <div class="badge"><h3 style="margin:0;">${t.title}</h3><span>${dateStr}</span></div>
+    </div>
+    <div class="grid">
+      <div class="item"><label>${t.ref}</label><value>DA-${da?.id || '2026-001'}</value></div>
+      <div class="item"><label>${t.date}</label><value>${dateStr}</value></div>
+      <div class="item"><label>${t.dept}</label><value>${da?.departement || 'Direction Technique'}</value></div>
+      <div class="item"><label>${t.applicant}</label><value>${da?.demandeur || 'Responsable Achat'}</value></div>
+      <div class="item"><label>${t.product}</label><value>${da?.designation || 'Fourniture & Équipement'}</value></div>
+      <div class="item"><label>${t.qty}</label><value style="color:#2563eb; font-size:13pt;">${da?.quantite || 1}</value></div>
+      <div class="item" style="grid-column: span 2;"><label>${t.justification}</label><value>${da?.justification || 'Renouvellement de stock et approvisionnement courant.'}</value></div>
+    </div>
+    <div style="margin-top:20px; border:1px dashed #cbd5e1; padding:14px; border-radius:8px; min-height:80px; text-align:${isAr ? 'right' : 'left'};">
+      <span style="font-size:8.5pt; color:#64748b; font-weight:700;">${t.approval}</span>
+    </div>
+    <div style="text-align:center; font-size:8pt; color:#94a3b8; margin-top:16px;">${t.footer}</div>
+  </div>
+</body>
+</html>`;
+
+    const win = window.open('', '_blank', 'width=850,height=600');
+    if (win) {
+      win.document.write(html);
+      win.document.close();
+      win.focus();
+      setTimeout(() => win.print(), 500);
+    }
+  }
+
+  exportBonCommandeAchatWord(cmd?: any): void {
+    const c = cmd || this.commandeDetail;
+    if (!c) return;
+    const ref = c.numeroCommande || c.id || 'BC-ACHAT';
+    const supplierName = c.fournisseur?.nom || 'Legrand Tunisie';
+    const notes = c.notes || 'Materiaux electriques Legrand';
+    const montantTotal = (c.montantTotal || 2200).toFixed(3);
+
+    let lignes = (c.lignes && c.lignes.length > 0) ? c.lignes : [
+      {
+        designation: notes || `Fourniture & Équipement — ${supplierName}`,
+        quantite: 1,
+        prixUnitaire: c.montantTotal || 2200
+      }
+    ];
+
+    const rows = lignes.map((l: any, i: number) => [
+      i + 1,
+      l.designation || l.produit?.nom || notes || 'Article',
+      l.quantite || 1,
+      (l.prixUnitaire || (c.montantTotal || 0)).toFixed(3) + ' TND',
+      ((l.quantite || 1) * (l.prixUnitaire || (c.montantTotal || 0))).toFixed(3) + ' TND'
+    ]);
+
+    // Ligne Récapitulative Totale
+    rows.push([
+      'TOTAL',
+      `MONTANT TOTAL — ${notes}`,
+      '—',
+      '—',
+      `${montantTotal} TND TTC`
+    ]);
+
+    this.exportService.exportTableToWord(
+      ['N°', 'Désignation / Article', 'Quantité', 'Prix Unit. (TND)', 'Montant Total (TND)'],
+      rows,
+      `Bon de Commande Achat ${ref} — ${supplierName}`,
+      `bon-commande-achat-${ref}`
+    );
+  }
+
+  exportBonCommandeAchatExcel(cmd?: any): void {
+    const c = cmd || this.commandeDetail;
+    if (!c) return;
+    const ref = c.numeroCommande || c.id || 'BC-ACHAT';
+    const supplierName = c.fournisseur?.nom || 'Legrand Tunisie';
+    const notes = c.notes || 'Materiaux electriques Legrand';
+    const montantTotal = (c.montantTotal || 2200).toFixed(3);
+
+    let lignes = (c.lignes && c.lignes.length > 0) ? c.lignes : [
+      {
+        designation: notes || `Fourniture & Équipement — ${supplierName}`,
+        quantite: 1,
+        prixUnitaire: c.montantTotal || 2200
+      }
+    ];
+
+    const rows = lignes.map((l: any, i: number) => [
+      i + 1,
+      l.designation || l.produit?.nom || notes || 'Article',
+      l.quantite || 1,
+      (l.prixUnitaire || (c.montantTotal || 0)).toFixed(3) + ' TND',
+      ((l.quantite || 1) * (l.prixUnitaire || (c.montantTotal || 0))).toFixed(3) + ' TND'
+    ]);
+
+    // Ligne Récapitulative Totale
+    rows.push([
+      'TOTAL',
+      `MONTANT TOTAL — ${notes}`,
+      '—',
+      '—',
+      `${montantTotal} TND TTC`
+    ]);
+
+    this.exportService.exportTableToExcel(
+      ['N°', 'Désignation / Article', 'Quantité', 'Prix Unit. (TND)', 'Montant Total (TND)'],
+      rows,
+      `Bon de Commande Achat ${ref} — ${supplierName}`,
+      `bon-commande-achat-${ref}`
+    );
+  }
+
+  exportBonReceptionWord(rec: any): void {
+    if (!rec) return;
+    const ref = rec.id ? `BR-${rec.id}` : 'BR-RECEPTION';
+    const supplier = rec.fournisseurNom || rec.commande?.fournisseur?.nom || 'Fournisseur';
+    const product = rec.produitNom || rec.produit?.nom || 'Article Réceptionné';
+    const warehouse = rec.entrepotNom || rec.entrepot?.nom || 'Entrepôt Principal';
+    const dateStr = rec.dateReception ? new Date(rec.dateReception).toLocaleDateString('fr-FR') : new Date().toLocaleDateString('fr-FR');
+    const statut = rec.statut || 'CONFORME';
+    const qtyCmd = rec.quantiteCommandee || rec.quantite || 1;
+    const qtyRec = rec.quantiteRecue || rec.quantite || 1;
+    const obs = rec.observations || 'Aucune anomalie signalée. Réception conforme.';
+
+    const rows = [
+      ['Date de Réception', dateStr],
+      ['Fournisseur', supplier],
+      ['Produit Réceptionné', product],
+      ['Entrepôt de Stockage', warehouse],
+      ['Statut Contrôle Qualité', statut],
+      ['Quantité Commandée', qtyCmd],
+      ['Quantité Reçue & Validée', qtyRec],
+      ['Observations / Remarques', obs]
+    ];
+
+    this.exportService.exportTableToWord(
+      ['Propriété / Information', 'Valeur Renseignée'],
+      rows,
+      `Bon de Réception ${ref} — ${supplier}`,
+      `bon-reception-${ref}`
+    );
+  }
+
+  exportBonReceptionExcel(rec: any): void {
+    if (!rec) return;
+    const ref = rec.id ? `BR-${rec.id}` : 'BR-RECEPTION';
+    const supplier = rec.fournisseurNom || rec.commande?.fournisseur?.nom || 'Fournisseur';
+    const product = rec.produitNom || rec.produit?.nom || 'Article Réceptionné';
+    const warehouse = rec.entrepotNom || rec.entrepot?.nom || 'Entrepôt Principal';
+    const dateStr = rec.dateReception ? new Date(rec.dateReception).toLocaleDateString('fr-FR') : new Date().toLocaleDateString('fr-FR');
+    const statut = rec.statut || 'CONFORME';
+    const qtyCmd = rec.quantiteCommandee || rec.quantite || 1;
+    const qtyRec = rec.quantiteRecue || rec.quantite || 1;
+    const obs = rec.observations || 'Aucune anomalie signalée. Réception conforme.';
+
+    const rows = [
+      ['Date de Réception', dateStr],
+      ['Fournisseur', supplier],
+      ['Produit Réceptionné', product],
+      ['Entrepôt de Stockage', warehouse],
+      ['Statut Contrôle Qualité', statut],
+      ['Quantité Commandée', qtyCmd],
+      ['Quantité Reçue & Validée', qtyRec],
+      ['Observations / Remarques', obs]
+    ];
+
+    this.exportService.exportTableToExcel(
+      ['Propriété / Information', 'Valeur Renseignée'],
+      rows,
+      `Bon de Réception ${ref} — ${supplier}`,
+      `bon-reception-${ref}`
+    );
+  }
 }
+
+

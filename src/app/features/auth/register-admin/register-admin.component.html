@@ -1,0 +1,396 @@
+<div class="ra-page">
+
+  <!-- ═══════════════════════════ HEADER ═══════════════════════════ -->
+  <header class="ra-header">
+    <div class="ra-header-inner">
+      <a routerLink="/" class="ra-logo">
+        <div class="ra-logo-icon">
+          <span class="material-symbols-outlined">domain</span>
+        </div>
+        <span class="ra-logo-text">BENJEDDOU <strong>ERP</strong></span>
+      </a>
+      <div class="ra-header-links">
+        <a routerLink="/login" class="ra-link">Se connecter</a>
+        <a routerLink="/register" class="ra-link-outline">Espace Client</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════ CONTENU ═══════════════════════════ -->
+  <main class="ra-main">
+
+    <!-- Hero colonne gauche -->
+    <aside class="ra-aside">
+      <div class="ra-aside-badge">🏢 Espace Administrateur</div>
+      <h1 class="ra-aside-title">Créez votre<br><span class="ra-accent">espace entreprise</span></h1>
+      <p class="ra-aside-desc">
+        En quelques minutes, votre environnement ERP complet est prêt —
+        base de données dédiée, isolation totale, accès immédiat.
+      </p>
+
+      <!-- Avantages -->
+      <div class="ra-features">
+        <div class="ra-feat">
+          <div class="ra-feat-icon">🔒</div>
+          <div>
+            <div class="ra-feat-title">Base de données dédiée</div>
+            <div class="ra-feat-desc">Isolation physique complète — vos données n'appartiennent qu'à vous</div>
+          </div>
+        </div>
+        <div class="ra-feat">
+          <div class="ra-feat-icon">⚡</div>
+          <div>
+            <div class="ra-feat-title">Opérationnel en 2 minutes</div>
+            <div class="ra-feat-desc">Création automatique de votre environnement complet</div>
+          </div>
+        </div>
+        <div class="ra-feat">
+          <div class="ra-feat-icon">🧑‍💼</div>
+          <div>
+            <div class="ra-feat-title">Accès administrateur complet</div>
+            <div class="ra-feat-desc">Commercial, Stock, Achats, Finance, Documents et plus</div>
+          </div>
+        </div>
+        <div class="ra-feat">
+          <div class="ra-feat-icon">🌐</div>
+          <div>
+            <div class="ra-feat-title">Multi-langue & Multi-thème</div>
+            <div class="ra-feat-desc">Français, Arabe, Anglais — thème clair, sombre ou professionnel</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Formulaire colonne droite -->
+    <div class="ra-card">
+
+      <!-- Stepper -->
+      <div class="ra-stepper" *ngIf="currentStep < 4">
+        <div class="ra-step" [class.active]="currentStep === 1" [class.done]="currentStep > 1">
+          <div class="ra-step-num">
+            <span *ngIf="currentStep <= 1">1</span>
+            <span class="material-symbols-outlined" *ngIf="currentStep > 1">check</span>
+          </div>
+          <div class="ra-step-label">Identité</div>
+        </div>
+        <div class="ra-step-line" [class.done]="currentStep > 1"></div>
+        <div class="ra-step" [class.active]="currentStep === 2" [class.done]="currentStep > 2">
+          <div class="ra-step-num">
+            <span *ngIf="currentStep <= 2">2</span>
+            <span class="material-symbols-outlined" *ngIf="currentStep > 2">check</span>
+          </div>
+          <div class="ra-step-label">Entreprise</div>
+        </div>
+        <div class="ra-step-line" [class.done]="currentStep > 2"></div>
+        <div class="ra-step" [class.active]="currentStep === 3" [class.done]="currentStep > 3">
+          <div class="ra-step-num">
+            <span *ngIf="currentStep <= 3">3</span>
+            <span class="material-symbols-outlined" *ngIf="currentStep > 3">check</span>
+          </div>
+          <div class="ra-step-label">Vérification</div>
+        </div>
+      </div>
+
+      <!-- Message d'erreur global -->
+      <div class="ra-alert-error" *ngIf="globalError">
+        <span class="material-symbols-outlined">error</span> {{ globalError }}
+      </div>
+
+      <!-- ═══════════════════════════════════════════
+           ÉTAPE 1 — Identité Administrateur
+           ═══════════════════════════════════════════ -->
+      <div *ngIf="currentStep === 1" class="ra-step-content">
+        <div class="ra-step-header">
+          <span class="material-symbols-outlined ra-step-icon">person</span>
+          <div>
+            <h2 class="ra-step-title">Vos informations personnelles</h2>
+            <p class="ra-step-subtitle">Ces informations identifient le responsable du compte administrateur.</p>
+          </div>
+        </div>
+
+        <div class="ra-form-row">
+          <div class="ra-field" [class.ra-field-error]="errors.prenom">
+            <label>Prénom <span class="required">*</span></label>
+            <input type="text" [(ngModel)]="form.prenom" placeholder="Mohamed" autocomplete="given-name">
+            <div class="ra-error-msg" *ngIf="errors.prenom">{{ errors.prenom }}</div>
+          </div>
+          <div class="ra-field" [class.ra-field-error]="errors.nom">
+            <label>Nom <span class="required">*</span></label>
+            <input type="text" [(ngModel)]="form.nom" placeholder="Benjeddou" autocomplete="family-name">
+            <div class="ra-error-msg" *ngIf="errors.nom">{{ errors.nom }}</div>
+          </div>
+        </div>
+
+        <div class="ra-field" [class.ra-field-error]="errors.nomUtilisateur">
+          <label>Nom d'utilisateur <span class="required">*</span></label>
+          <div class="ra-input-with-badge">
+            <input type="text" [(ngModel)]="form.nomUtilisateur" placeholder="admin_benjeddou"
+              (input)="checkUsername()" autocomplete="username">
+            <span class="ra-check-badge ok" *ngIf="usernameAvailable === true">✓ Disponible</span>
+            <span class="ra-check-badge err" *ngIf="usernameAvailable === false">✗ Pris</span>
+            <span class="ra-check-badge pending" *ngIf="usernameChecking">...</span>
+          </div>
+          <div class="ra-error-msg" *ngIf="errors.nomUtilisateur">{{ errors.nomUtilisateur }}</div>
+        </div>
+
+        <div class="ra-field" [class.ra-field-error]="errors.email">
+          <label>Email professionnel <span class="required">*</span></label>
+          <div class="ra-input-with-badge">
+            <input type="email" [(ngModel)]="form.email" placeholder="admin@entreprise.com"
+              (input)="checkEmail()" autocomplete="email">
+            <span class="ra-check-badge ok" *ngIf="emailAvailable === true">✓ Disponible</span>
+            <span class="ra-check-badge err" *ngIf="emailAvailable === false">✗ Utilisé</span>
+          </div>
+          <div class="ra-error-msg" *ngIf="errors.email">{{ errors.email }}</div>
+        </div>
+
+        <div class="ra-field" [class.ra-field-error]="errors.telephone">
+          <label>Téléphone <span class="required">*</span></label>
+          <input type="tel" [(ngModel)]="form.telephone" placeholder="+216 XX XXX XXX" autocomplete="tel">
+          <div class="ra-error-msg" *ngIf="errors.telephone">{{ errors.telephone }}</div>
+        </div>
+
+        <!-- Mot de passe -->
+        <div class="ra-field" [class.ra-field-error]="errors.motDePasse">
+          <label>Mot de passe <span class="required">*</span></label>
+          <div class="ra-pass-wrap">
+            <input [type]="showPass ? 'text' : 'password'" [(ngModel)]="form.motDePasse"
+              placeholder="Mot de passe sécurisé" autocomplete="new-password">
+            <button type="button" class="ra-pass-eye" (click)="showPass = !showPass">
+              <span class="material-symbols-outlined">{{ showPass ? 'visibility_off' : 'visibility' }}</span>
+            </button>
+          </div>
+
+          <!-- Barre de force -->
+          <div class="ra-strength" *ngIf="form.motDePasse">
+            <div class="ra-strength-bar">
+              <div class="ra-strength-fill"
+                [style.width]="(passwordStrength.score * 20) + '%'"
+                [style.background]="passwordStrength.color"></div>
+            </div>
+            <span class="ra-strength-label" [style.color]="passwordStrength.color">
+              {{ passwordStrength.label }}
+            </span>
+          </div>
+
+          <!-- Critères -->
+          <div class="ra-criteria" *ngIf="form.motDePasse">
+            <span [class.ok]="pwdLongueur">{{ pwdLongueur ? '✓' : '·' }} 8 caractères minimum</span>
+            <span [class.ok]="pwdHasMajuscule">{{ pwdHasMajuscule ? '✓' : '·' }} Une majuscule</span>
+            <span [class.ok]="pwdHasChiffre">{{ pwdHasChiffre ? '✓' : '·' }} Un chiffre</span>
+            <span [class.ok]="pwdHasSymbole">{{ pwdHasSymbole ? '✓' : '·' }} Un symbole</span>
+          </div>
+          <div class="ra-error-msg" *ngIf="errors.motDePasse">{{ errors.motDePasse }}</div>
+        </div>
+
+        <div class="ra-field" [class.ra-field-error]="errors.confirmMotDePasse">
+          <label>Confirmer le mot de passe <span class="required">*</span></label>
+          <div class="ra-pass-wrap">
+            <input [type]="showPassConfirm ? 'text' : 'password'" [(ngModel)]="form.confirmMotDePasse"
+              placeholder="Répétez votre mot de passe" autocomplete="new-password">
+            <button type="button" class="ra-pass-eye" (click)="showPassConfirm = !showPassConfirm">
+              <span class="material-symbols-outlined">{{ showPassConfirm ? 'visibility_off' : 'visibility' }}</span>
+            </button>
+          </div>
+          <div class="ra-error-msg" *ngIf="errors.confirmMotDePasse">{{ errors.confirmMotDePasse }}</div>
+        </div>
+
+        <button class="ra-btn-primary" (click)="etape1Suivant()" [disabled]="loading">
+          <span>Continuer</span>
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </button>
+
+        <p class="ra-login-link">
+          Déjà un compte ? <a routerLink="/login">Se connecter</a>
+        </p>
+      </div>
+
+      <!-- ═══════════════════════════════════════════
+           ÉTAPE 2 — Informations Entreprise
+           ═══════════════════════════════════════════ -->
+      <div *ngIf="currentStep === 2" class="ra-step-content">
+        <div class="ra-step-header">
+          <span class="material-symbols-outlined ra-step-icon">business</span>
+          <div>
+            <h2 class="ra-step-title">Votre entreprise</h2>
+            <p class="ra-step-subtitle">Ces informations servent à nommer et configurer votre espace ERP dédié.</p>
+          </div>
+        </div>
+
+        <div class="ra-field" [class.ra-field-error]="errors.societe">
+          <label>Nom de l'entreprise <span class="required">*</span></label>
+          <input type="text" [(ngModel)]="form.societe" placeholder="BENJEDDOU SARL"
+            autocomplete="organization">
+          <div class="ra-hint">Ce nom sera utilisé pour identifier votre espace ERP.</div>
+          <div class="ra-error-msg" *ngIf="errors.societe">{{ errors.societe }}</div>
+        </div>
+
+        <div class="ra-field" [class.ra-field-error]="errors.secteur">
+          <label>Secteur d'activité <span class="required">*</span></label>
+          <select [(ngModel)]="form.secteur">
+            <option value="">-- Sélectionner un secteur --</option>
+            <option *ngFor="let s of secteurs" [value]="s">{{ s }}</option>
+          </select>
+          <div class="ra-error-msg" *ngIf="errors.secteur">{{ errors.secteur }}</div>
+        </div>
+
+        <div class="ra-field">
+          <label>Taille de l'entreprise</label>
+          <select [(ngModel)]="form.tailleEntreprise">
+            <option value="">-- Optionnel --</option>
+            <option *ngFor="let t of taillesEntreprise" [value]="t">{{ t }}</option>
+          </select>
+        </div>
+
+        <div class="ra-field">
+          <label>Adresse du siège social</label>
+          <textarea [(ngModel)]="form.adresse" rows="3"
+            placeholder="Rue, Ville, Code postal, Pays" autocomplete="street-address"></textarea>
+        </div>
+
+        <!-- CGU -->
+        <div class="ra-cgu" [class.ra-cgu-error]="cguError">
+          <label class="ra-checkbox-label">
+            <input type="checkbox" [(ngModel)]="cguAcceptees" (change)="cguError = false">
+            <span>
+              J'accepte les
+              <a href="/cgu" target="_blank">Conditions Générales d'Utilisation</a>
+              et la
+              <a href="/confidentialite" target="_blank">Politique de Confidentialité</a>
+            </span>
+          </label>
+          <div class="ra-error-msg" *ngIf="cguError">Vous devez accepter les CGU pour continuer.</div>
+        </div>
+
+        <div class="ra-btn-row">
+          <button class="ra-btn-secondary" (click)="retourEtape(1)">
+            <span class="material-symbols-outlined">arrow_back</span> Retour
+          </button>
+          <button class="ra-btn-primary" (click)="etape2Suivant()" [disabled]="loading">
+            <span *ngIf="loading" class="ra-spinner"></span>
+            <span *ngIf="!loading">Envoyer le code OTP</span>
+            <span *ngIf="!loading" class="material-symbols-outlined">send</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════
+           ÉTAPE 3 — Vérification OTP
+           ═══════════════════════════════════════════ -->
+      <div *ngIf="currentStep === 3" class="ra-step-content">
+        <div class="ra-step-header">
+          <span class="material-symbols-outlined ra-step-icon">mark_email_read</span>
+          <div>
+            <h2 class="ra-step-title">Vérification de l'email</h2>
+            <p class="ra-step-subtitle">Un code à 6 chiffres a été envoyé à <strong>{{ form.email }}</strong>.</p>
+          </div>
+        </div>
+
+        <!-- Cases OTP -->
+        <div class="ra-otp-wrap" [class.ra-otp-shake]="otpShake">
+          <input
+            *ngFor="let d of otpDigits; let i = index"
+            [id]="'otp-admin-' + i"
+            type="text" inputmode="numeric" maxlength="1"
+            class="ra-otp-digit"
+            [value]="otpDigits[i]"
+            (input)="onOtpInput($event, i)"
+            (keydown)="onOtpKeydown($event, i)">
+        </div>
+
+        <div class="ra-otp-error" *ngIf="otpError">
+          <span class="material-symbols-outlined">error</span> {{ otpError }}
+        </div>
+
+        <!-- Renvoi -->
+        <div class="ra-resend">
+          <button *ngIf="resendCountdown === 0" class="ra-resend-btn" (click)="renvoyerOtp()" [disabled]="loading">
+            <span class="material-symbols-outlined">refresh</span> Renvoyer le code
+          </button>
+          <span *ngIf="resendCountdown > 0" class="ra-resend-countdown">
+            Renvoi possible dans {{ resendCountdown }}s
+          </span>
+        </div>
+
+        <div class="ra-btn-row">
+          <button class="ra-btn-secondary" (click)="retourEtape(2)" [disabled]="loading">
+            <span class="material-symbols-outlined">arrow_back</span> Retour
+          </button>
+          <button class="ra-btn-primary" (click)="etape3VerifierOtp()" [disabled]="loading || otpCode.length < 6">
+            <span *ngIf="loading" class="ra-spinner"></span>
+            <span *ngIf="!loading">Valider &amp; Créer mon espace</span>
+            <span *ngIf="!loading" class="material-symbols-outlined">rocket_launch</span>
+          </button>
+        </div>
+
+        <!-- Spinner de création en cours -->
+        <div class="ra-creating" *ngIf="loading">
+          <div class="ra-creating-icon">
+            <span class="material-symbols-outlined ra-spin">autorenew</span>
+          </div>
+          <div class="ra-creating-text">
+            <strong>Création de votre espace en cours…</strong>
+            <span>Initialisation de la base de données dédiée</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════
+           ÉTAPE 4 — Confirmation Succès
+           ═══════════════════════════════════════════ -->
+      <div *ngIf="currentStep === 4" class="ra-step-content ra-success-screen">
+        <div class="ra-success-icon">
+          <span class="material-symbols-outlined">check_circle</span>
+        </div>
+        <h2 class="ra-success-title">Votre espace est prêt !</h2>
+        <p class="ra-success-desc">
+          L'environnement ERP de <strong>{{ inscriptionResult?.societe }}</strong>
+          a été créé et initialisé avec succès.
+        </p>
+
+        <!-- Carte infos espace -->
+        <div class="ra-env-card" *ngIf="inscriptionResult">
+          <div class="ra-env-row">
+            <span class="material-symbols-outlined">person</span>
+            <div>
+              <div class="ra-env-label">Identifiant de connexion</div>
+              <div class="ra-env-value">{{ inscriptionResult.nomUtilisateur }}</div>
+            </div>
+          </div>
+          <div class="ra-env-row">
+            <span class="material-symbols-outlined">domain</span>
+            <div>
+              <div class="ra-env-label">Entreprise</div>
+              <div class="ra-env-value">{{ inscriptionResult.societe }}</div>
+            </div>
+          </div>
+          <div class="ra-env-row">
+            <span class="material-symbols-outlined">storage</span>
+            <div>
+              <div class="ra-env-label">Base de données dédiée</div>
+              <div class="ra-env-value ra-env-schema">{{ inscriptionResult.schemaName }}</div>
+            </div>
+          </div>
+          <div class="ra-env-row">
+            <span class="material-symbols-outlined">shield</span>
+            <div>
+              <div class="ra-env-label">Rôle</div>
+              <div class="ra-env-value">Administrateur Entreprise</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ra-success-info">
+          <span class="material-symbols-outlined">info</span>
+          Votre base de données est isolée et sécurisée. Personne d'autre ne peut y accéder.
+        </div>
+
+        <button class="ra-btn-primary ra-btn-large" (click)="retourLogin()">
+          <span class="material-symbols-outlined">login</span>
+          Se connecter maintenant
+        </button>
+      </div>
+
+    </div><!-- fin ra-card -->
+  </main>
+</div>

@@ -560,11 +560,11 @@ import { LanguageService, AppLang } from '../../core/services/language.service';
             </svg>
           </div>
           <div>
-            <h2>Démonstrations BENJEDDOU ERP</h2>
-            <p>Découvrez les fonctionnalités clés de la plateforme · {{ demoVideos.length }} vidéos disponibles</p>
+            <h2>{{ t('demoModalTitle') }}</h2>
+            <p>{{ t('demoModalSubtitle') }}</p>
           </div>
         </div>
-        <button class="demo-close-btn" (click)="closeDemoModal()" title="Fermer (Échap)">✕</button>
+        <button class="demo-close-btn" (click)="closeDemoModal()" [title]="t('demoModalClose')">✕</button>
       </div>
 
       <!-- Body: Player + Playlist -->
@@ -585,11 +585,11 @@ import { LanguageService, AppLang } from '../../core/services/language.service';
                 preload="auto"
                 (ended)="nextDemo()"
               >
-                Votre navigateur ne supporte pas la balise video.
+                {{ t('demoVideoNotSupported') }}
               </video>
               <div class="demo-video-overlay-badge">
                 <span class="demo-live-dot"></span>
-                Démo réelle · {{ currentDemo.title }}
+                {{ t('demoRealTag') }} · {{ currentDemo.title }}
               </div>
             </div>
 
@@ -926,7 +926,7 @@ import { LanguageService, AppLang } from '../../core/services/language.service';
         <!-- Right: Playlist (masqué si 1 seule vidéo) -->
         <div class="demo-playlist-side" *ngIf="demoVideos.length > 1">
           <div class="demo-playlist-header">
-            <p class="demo-playlist-title">Catalogue des démos</p>
+            <p class="demo-playlist-title">{{ t('demoCatalogTitle') }}</p>
             <p class="demo-playlist-count">{{ activeDemo + 1 }} / {{ demoVideos.length }} — {{ currentDemo.category }}</p>
           </div>
           <div class="demo-playlist-list">
@@ -960,10 +960,10 @@ import { LanguageService, AppLang } from '../../core/services/language.service';
         <div class="demo-footer-nav" *ngIf="demoVideos.length > 1">
           <button class="demo-nav-btn" (click)="prevDemo()" [disabled]="activeDemo === 0">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
-            Précédent
+            {{ t('demoPrev') }}
           </button>
           <button class="demo-nav-btn" (click)="nextDemo()" [disabled]="activeDemo === demoVideos.length - 1">
-            Suivant
+            {{ t('demoNext') }}
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
           </button>
         </div>
@@ -980,7 +980,7 @@ import { LanguageService, AppLang } from '../../core/services/language.service';
         <!-- CTA -->
         <a routerLink="/register" class="demo-cta-btn" (click)="closeDemoModal()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-          Essai gratuit – 30 connexions
+          {{ t('demoCta') }}
         </a>
       </div>
 
@@ -3150,7 +3150,17 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewInit {
       modulesCol: 'Modules',
       securityCol: 'Sécurité',
       supportCol: 'Support',
-      allRightsReserved: '© 2026 BENJEDDOU ERP — Tous droits réservés'
+      allRightsReserved: '© 2026 BENJEDDOU ERP — Tous droits réservés',
+      // Démo Vidéos Modal
+      demoModalTitle: 'Démonstrations BENJEDDOU ERP',
+      demoModalSubtitle: 'Découvrez les fonctionnalités clés de la plateforme · 8 vidéos disponibles',
+      demoModalClose: 'Fermer (Échap)',
+      demoRealTag: 'Démo réelle',
+      demoCatalogTitle: 'Catalogue des démos',
+      demoPrev: 'Précédent',
+      demoNext: 'Suivant',
+      demoCta: 'Essai gratuit – 30 connexions',
+      demoVideoNotSupported: 'Votre navigateur ne supporte pas la balise vidéo.'
     },
     en: {
       navFeatures: 'Features',
@@ -3199,7 +3209,17 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewInit {
       modulesCol: 'Modules',
       securityCol: 'Security',
       supportCol: 'Support',
-      allRightsReserved: '© 2026 BENJEDDOU ERP — All rights reserved'
+      allRightsReserved: '© 2026 BENJEDDOU ERP — All rights reserved',
+      // Demo Videos Modal
+      demoModalTitle: 'BENJEDDOU ERP Demonstrations',
+      demoModalSubtitle: 'Discover key platform features · 8 videos available',
+      demoModalClose: 'Close (Esc)',
+      demoRealTag: 'Live Demo',
+      demoCatalogTitle: 'Demo Catalog',
+      demoPrev: 'Previous',
+      demoNext: 'Next',
+      demoCta: 'Free Trial – 30 Logins',
+      demoVideoNotSupported: 'Your browser does not support HTML5 video.'
     },
     ar: {
       navFeatures: 'المميزات',
@@ -3248,7 +3268,17 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewInit {
       modulesCol: 'الموديولات',
       securityCol: 'الأمان',
       supportCol: 'الدعم الفني',
-      allRightsReserved: '© 2026 BENJEDDOU ERP — جميع الحقوق محفوظة'
+      allRightsReserved: '© 2026 BENJEDDOU ERP — جميع الحقوق محفوظة',
+      // Demo Videos Modal
+      demoModalTitle: 'عروض توضيحية لـ BENJEDDOU ERP',
+      demoModalSubtitle: 'اكتشف أهم ميزات المنصة · 8 عروض متوفرة',
+      demoModalClose: 'إغلاق (Esc)',
+      demoRealTag: 'عرض حقيقي',
+      demoCatalogTitle: 'دليل العروض التوضيحية',
+      demoPrev: 'السابق',
+      demoNext: 'التالي',
+      demoCta: 'تجربة مجانية – 30 دخول',
+      demoVideoNotSupported: 'متصفحك لا يدعم تشغيل الفيديو.'
     }
   };
 
@@ -3269,105 +3299,308 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewInit {
     }, 50);
   }
 
-  // Catalogue complet des 8 démonstrations vidéo ERP
-  demoVideos = [
-    {
-      id: 0,
-      title: 'Présentation Générale ERP SaaS',
-      desc: 'Vue d\'ensemble de la plateforme SaaS multi-tenant : tableau de bord, KPIs et navigation intuitive.',
-      emoji: '🚀',
-      color: '#f97316',
-      bg: 'rgba(249,115,22,0.12)',
-      duration: '~1 min 30',
-      category: 'Vue globale',
-      youtubeId: 'QODLTaE-RAI',
-      videoFile: ''
-    },
-    {
-      id: 1,
-      title: 'Moteur de Calcul & Taux Multi-Périodes',
-      desc: 'Calculs d\'intérêts automatisés à taux fixe ou variable, tableau dynamique éditable et exports PDF/Word.',
-      emoji: '🧮',
-      color: '#3b82f6',
-      bg: 'rgba(59,130,246,0.12)',
-      duration: '~1 min 15',
-      category: 'Moteur Calcul',
-      youtubeId: 'QODLTaE-RAI',
-      videoFile: ''
-    },
-    {
-      id: 2,
-      title: 'Finance, Facturation & Relances',
-      desc: 'Gestion complète du cycle financier : devis, facturation, suivi des règlements et relances automatiques.',
-      emoji: '💳',
-      color: '#10b981',
-      bg: 'rgba(16,185,129,0.12)',
-      duration: '~1 min 20',
-      category: 'Finance',
-      youtubeId: 'QODLTaE-RAI',
-      videoFile: ''
-    },
-    {
-      id: 3,
-      title: 'Gestion des Stocks & Multi-Entrepôts',
-      desc: 'Suivi des mouvements de stocks en temps réel, alerte de seuil critique et gestion multi-entrepôts.',
-      emoji: '📦',
-      color: '#8b5cf6',
-      bg: 'rgba(139,92,246,0.12)',
-      duration: '~1 min',
-      category: 'Stocks',
-      youtubeId: 'QODLTaE-RAI',
-      videoFile: ''
-    },
-    {
-      id: 4,
-      title: 'Module Commercial & CRM Ventes',
-      desc: 'Pipeline commercial, devis automatiques, commandes clients et suivi du cycle de vente.',
-      emoji: '🤝',
-      color: '#f59e0b',
-      bg: 'rgba(245,158,11,0.12)',
-      duration: '~1 min 10',
-      category: 'Commercial',
-      youtubeId: 'QODLTaE-RAI',
-      videoFile: ''
-    },
-    {
-      id: 5,
-      title: 'Portail Client Self-Service',
-      desc: 'Espace dédié aux clients : consultation des factures, devis, commandes et demandes de devis en ligne.',
-      emoji: '🏢',
-      color: '#ec4899',
-      bg: 'rgba(236,72,153,0.12)',
-      duration: '~1 min',
-      category: 'Portail',
-      youtubeId: 'QODLTaE-RAI',
-      videoFile: 'demo-portail-client.mp4'
-    },
-    {
-      id: 6,
-      title: 'Sécurité, RBAC & Audit des Logs',
-      desc: 'Authentification JWT, rôles granulaires, traçabilité des accès et protection anti-brute force.',
-      emoji: '🔐',
-      color: '#6366f1',
-      bg: 'rgba(99,102,241,0.12)',
-      duration: '~1 min',
-      category: 'Sécurité',
-      youtubeId: 'QODLTaE-RAI',
-      videoFile: ''
-    },
-    {
-      id: 7,
-      title: 'Administration SaaS Multi-Tenant',
-      desc: 'Gestion des entreprises clientes, isolation des bases de données et statistiques globales.',
-      emoji: '⚡',
-      color: '#06b6d4',
-      bg: 'rgba(6,182,212,0.12)',
-      duration: '~1 min 25',
-      category: 'Admin SaaS',
-      youtubeId: 'QODLTaE-RAI',
-      videoFile: ''
+  // Catalogue complet des 8 démonstrations vidéo ERP multilingue
+  get demoVideos() {
+    const lang = this.languageService.currentLang || 'fr';
+    if (lang === 'ar') {
+      return [
+        {
+          id: 0,
+          title: 'نظرة عامة على نظام ERP SaaS',
+          desc: 'استعراض شامل لمنصة السحاب متعددة المؤسسات: لوحة القيادة، المؤشرات والتنقل السلس.',
+          emoji: '🚀',
+          color: '#f97316',
+          bg: 'rgba(249,115,22,0.12)',
+          duration: '~1 دقيقة و30 ث',
+          category: 'نظرة عامة',
+          youtubeId: 'QODLTaE-RAI',
+          videoFile: ''
+        },
+        {
+          id: 1,
+          title: 'محرك الحسابات وأسعار الفائدة المتعددة',
+          desc: 'حسابات الفائدة التلقائية بأسعار ثابتة أو متغيرة، جدول ديناميكي قابل للتعديل وتصدير PDF/Word.',
+          emoji: '🧮',
+          color: '#3b82f6',
+          bg: 'rgba(59,130,246,0.12)',
+          duration: '~1 دقيقة و15 ث',
+          category: 'محرك الحسابات',
+          youtubeId: 'QODLTaE-RAI',
+          videoFile: ''
+        },
+        {
+          id: 2,
+          title: 'المالية، الفوترة والمتابعة التلقائية',
+          desc: 'إدارة شاملة للدورة المالية: عروض الأسعار، الفواتير، متابعة المدفوعات والتذكيرات التلقائية.',
+          emoji: '💳',
+          color: '#10b981',
+          bg: 'rgba(16,185,129,0.12)',
+          duration: '~1 دقيقة و20 ث',
+          category: 'المالية',
+          youtubeId: 'QODLTaE-RAI',
+          videoFile: ''
+        },
+        {
+          id: 3,
+          title: 'إدارة المخزون والمستودعات المتعددة',
+          desc: 'متابعة حركة المخزون في الوقت الفعلي، تنبيهات النقص وإدارة المستودعات المتعددة.',
+          emoji: '📦',
+          color: '#8b5cf6',
+          bg: 'rgba(139,92,246,0.12)',
+          duration: '~1 دقيقة',
+          category: 'المخزون',
+          youtubeId: 'QODLTaE-RAI',
+          videoFile: ''
+        },
+        {
+          id: 4,
+          title: 'الموديول التجاري وإدارة المبيعات',
+          desc: 'مسار المبيعات، عروض الأسعار التلقائية، طلبيات الحرفاء ومتابعة دورة البيع.',
+          emoji: '🤝',
+          color: '#f59e0b',
+          bg: 'rgba(245,158,11,0.12)',
+          duration: '~1 دقيقة و10 ث',
+          category: 'المبيعات',
+          youtubeId: 'QODLTaE-RAI',
+          videoFile: ''
+        },
+        {
+          id: 5,
+          title: 'بوابة الحريف للخدمة الذاتية',
+          desc: 'فضاء مخصص للحرفاء: الاطلاع على الفواتير، عروض الأسعار، الطلبيات وطلب عروض أسعار أونلاين.',
+          emoji: '🏢',
+          color: '#ec4899',
+          bg: 'rgba(236,72,153,0.12)',
+          duration: '~1 دقيقة',
+          category: 'بوابة الحريف',
+          youtubeId: 'QODLTaE-RAI',
+          videoFile: 'demo-portail-client.mp4'
+        },
+        {
+          id: 6,
+          title: 'الأمان، الصلاحيات وسجلات التدقيق',
+          desc: 'مصادقة JWT، أدوار وصلاحيات دقيقة، تتبع كامل للعمليات وحماية ضد الهجمات.',
+          emoji: '🔐',
+          color: '#6366f1',
+          bg: 'rgba(99,102,241,0.12)',
+          duration: '~1 دقيقة',
+          category: 'الأمان',
+          youtubeId: 'QODLTaE-RAI',
+          videoFile: ''
+        },
+        {
+          id: 7,
+          title: 'إدارة منصة SaaS متعددة المؤسسات',
+          desc: 'إدارة المؤسسات المشتركة، عزل تام لقواعد البيانات وإحصائيات عامة للمنصة.',
+          emoji: '⚡',
+          color: '#06b6d4',
+          bg: 'rgba(6,182,212,0.12)',
+          duration: '~1 دقيقة و25 ث',
+          category: 'إدارة المنصة',
+          youtubeId: 'QODLTaE-RAI',
+          videoFile: ''
+        }
+      ];
+    } else if (lang === 'en') {
+      return [
+        {
+          id: 0,
+          title: 'General ERP SaaS Overview',
+          desc: 'Overview of the multi-tenant SaaS platform: dashboard, KPIs and intuitive navigation.',
+          emoji: '🚀',
+          color: '#f97316',
+          bg: 'rgba(249,115,22,0.12)',
+          duration: '~1 min 30',
+          category: 'Global View',
+          youtubeId: 'QODLTaE-RAI',
+          videoFile: ''
+        },
+        {
+          id: 1,
+          title: 'Calculation Engine & Multi-Period Rates',
+          desc: 'Automated interest calculations with fixed or variable rates, editable dynamic table and PDF/Word exports.',
+          emoji: '🧮',
+          color: '#3b82f6',
+          bg: 'rgba(59,130,246,0.12)',
+          duration: '~1 min 15',
+          category: 'Calc Engine',
+          youtubeId: 'QODLTaE-RAI',
+          videoFile: ''
+        },
+        {
+          id: 2,
+          title: 'Finance, Billing & Payment Reminders',
+          desc: 'End-to-end financial cycle management: quotes, invoicing, payment tracking and automatic reminders.',
+          emoji: '💳',
+          color: '#10b981',
+          bg: 'rgba(16,185,129,0.12)',
+          duration: '~1 min 20',
+          category: 'Finance',
+          youtubeId: 'QODLTaE-RAI',
+          videoFile: ''
+        },
+        {
+          id: 3,
+          title: 'Inventory & Multi-Warehouse Management',
+          desc: 'Real-time stock movement tracking, critical threshold alerts and multi-warehouse management.',
+          emoji: '📦',
+          color: '#8b5cf6',
+          bg: 'rgba(139,92,246,0.12)',
+          duration: '~1 min',
+          category: 'Inventory',
+          youtubeId: 'QODLTaE-RAI',
+          videoFile: ''
+        },
+        {
+          id: 4,
+          title: 'Commercial & Sales CRM Module',
+          desc: 'Sales pipeline, automatic quotes, customer orders and sales cycle tracking.',
+          emoji: '🤝',
+          color: '#f59e0b',
+          bg: 'rgba(245,158,11,0.12)',
+          duration: '~1 min 10',
+          category: 'Sales CRM',
+          youtubeId: 'QODLTaE-RAI',
+          videoFile: ''
+        },
+        {
+          id: 5,
+          title: 'Self-Service Customer Portal',
+          desc: 'Dedicated customer area: view invoices, quotes, orders and submit quote requests online.',
+          emoji: '🏢',
+          color: '#ec4899',
+          bg: 'rgba(236,72,153,0.12)',
+          duration: '~1 min',
+          category: 'Client Portal',
+          youtubeId: 'QODLTaE-RAI',
+          videoFile: 'demo-portail-client.mp4'
+        },
+        {
+          id: 6,
+          title: 'Security, RBAC & Audit Logs',
+          desc: 'JWT authentication, granular roles, access traceability and anti-brute force protection.',
+          emoji: '🔐',
+          color: '#6366f1',
+          bg: 'rgba(99,102,241,0.12)',
+          duration: '~1 min',
+          category: 'Security',
+          youtubeId: 'QODLTaE-RAI',
+          videoFile: ''
+        },
+        {
+          id: 7,
+          title: 'Multi-Tenant SaaS Administration',
+          desc: 'Tenant company management, complete database isolation and global platform analytics.',
+          emoji: '⚡',
+          color: '#06b6d4',
+          bg: 'rgba(6,182,212,0.12)',
+          duration: '~1 min 25',
+          category: 'SaaS Admin',
+          youtubeId: 'QODLTaE-RAI',
+          videoFile: ''
+        }
+      ];
     }
-  ];
+    // Par défaut : Français
+    return [
+      {
+        id: 0,
+        title: 'Présentation Générale ERP SaaS',
+        desc: 'Vue d\'ensemble de la plateforme SaaS multi-tenant : tableau de bord, KPIs et navigation intuitive.',
+        emoji: '🚀',
+        color: '#f97316',
+        bg: 'rgba(249,115,22,0.12)',
+        duration: '~1 min 30',
+        category: 'Vue globale',
+        youtubeId: 'QODLTaE-RAI',
+        videoFile: ''
+      },
+      {
+        id: 1,
+        title: 'Moteur de Calcul & Taux Multi-Périodes',
+        desc: 'Calculs d\'intérêts automatisés à taux fixe ou variable, tableau dynamique éditable et exports PDF/Word.',
+        emoji: '🧮',
+        color: '#3b82f6',
+        bg: 'rgba(59,130,246,0.12)',
+        duration: '~1 min 15',
+        category: 'Moteur Calcul',
+        youtubeId: 'QODLTaE-RAI',
+        videoFile: ''
+      },
+      {
+        id: 2,
+        title: 'Finance, Facturation & Relances',
+        desc: 'Gestion complète du cycle financier : devis, facturation, suivi des règlements et relances automatiques.',
+        emoji: '💳',
+        color: '#10b981',
+        bg: 'rgba(16,185,129,0.12)',
+        duration: '~1 min 20',
+        category: 'Finance',
+        youtubeId: 'QODLTaE-RAI',
+        videoFile: ''
+      },
+      {
+        id: 3,
+        title: 'Gestion des Stocks & Multi-Entrepôts',
+        desc: 'Suivi des mouvements de stocks en temps réel, alerte de seuil critique et gestion multi-entrepôts.',
+        emoji: '📦',
+        color: '#8b5cf6',
+        bg: 'rgba(139,92,246,0.12)',
+        duration: '~1 min',
+        category: 'Stocks',
+        youtubeId: 'QODLTaE-RAI',
+        videoFile: ''
+      },
+      {
+        id: 4,
+        title: 'Module Commercial & CRM Ventes',
+        desc: 'Pipeline commercial, devis automatiques, commandes clients et suivi du cycle de vente.',
+        emoji: '🤝',
+        color: '#f59e0b',
+        bg: 'rgba(245,158,11,0.12)',
+        duration: '~1 min 10',
+        category: 'Commercial',
+        youtubeId: 'QODLTaE-RAI',
+        videoFile: ''
+      },
+      {
+        id: 5,
+        title: 'Portail Client Self-Service',
+        desc: 'Espace dédié aux clients : consultation des factures, devis, commandes et demandes de devis en ligne.',
+        emoji: '🏢',
+        color: '#ec4899',
+        bg: 'rgba(236,72,153,0.12)',
+        duration: '~1 min',
+        category: 'Portail',
+        youtubeId: 'QODLTaE-RAI',
+        videoFile: 'demo-portail-client.mp4'
+      },
+      {
+        id: 6,
+        title: 'Sécurité, RBAC & Audit des Logs',
+        desc: 'Authentification JWT, rôles granulaires, traçabilité des accès et protection anti-brute force.',
+        emoji: '🔐',
+        color: '#6366f1',
+        bg: 'rgba(99,102,241,0.12)',
+        duration: '~1 min',
+        category: 'Sécurité',
+        youtubeId: 'QODLTaE-RAI',
+        videoFile: ''
+      },
+      {
+        id: 7,
+        title: 'Administration SaaS Multi-Tenant',
+        desc: 'Gestion des entreprises clientes, isolation des bases de données et statistiques globales.',
+        emoji: '⚡',
+        color: '#06b6d4',
+        bg: 'rgba(6,182,212,0.12)',
+        duration: '~1 min 25',
+        category: 'Admin SaaS',
+        youtubeId: 'QODLTaE-RAI',
+        videoFile: ''
+      }
+    ];
+  }
 
 
   get currentDemo() {

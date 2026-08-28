@@ -121,7 +121,82 @@
         <div class="adm-kpi-num">{{ adminStats.totalTransactions }}</div>
         <div class="adm-kpi-lbl">{{ 'DASHBOARD.ADMIN_TRANS' | translate }}</div>
         <div class="adm-kpi-progress"><div class="adm-kpi-fill" style="width:58%"></div></div>
-        <div class="adm-kpi-foot">Enregistrées ce mois</div>
+        <div class="adm-kpi-foot">Sessions enregistrées</div>
+      </div>
+
+      <!-- Clients -->
+      <div class="adm-kpi-card adm-kpi-indigo">
+        <div class="adm-kpi-accent"></div>
+        <div class="adm-kpi-row">
+          <div class="adm-kpi-icon">
+            <span class="material-symbols-outlined">groups</span>
+          </div>
+          <div class="adm-kpi-chip adm-chip-up">
+            <span class="material-symbols-outlined">person_add</span>
+            <span>Portail</span>
+          </div>
+        </div>
+        <div class="adm-kpi-num">{{ adminStats.totalClients }}</div>
+        <div class="adm-kpi-lbl">Clients</div>
+        <div class="adm-kpi-progress"><div class="adm-kpi-fill"
+          [style.width.%]="adminStats.totalUsers ? (adminStats.totalClients / adminStats.totalUsers * 100) : 0"></div></div>
+        <div class="adm-kpi-foot">{{ adminStats.totalClients }} clients actifs</div>
+      </div>
+
+      <!-- Commandes ce mois -->
+      <div class="adm-kpi-card adm-kpi-teal">
+        <div class="adm-kpi-accent"></div>
+        <div class="adm-kpi-row">
+          <div class="adm-kpi-icon">
+            <span class="material-symbols-outlined">shopping_cart</span>
+          </div>
+          <div class="adm-kpi-chip adm-chip-up">
+            <span class="material-symbols-outlined">trending_up</span>
+            <span>Ce mois</span>
+          </div>
+        </div>
+        <div class="adm-kpi-num">{{ adminStats.commandesMois }}</div>
+        <div class="adm-kpi-lbl">Commandes du mois</div>
+        <div class="adm-kpi-progress"><div class="adm-kpi-fill"
+          [style.width.%]="adminStats.totalCommandes ? (adminStats.commandesMois / adminStats.totalCommandes * 100) : 0"></div></div>
+        <div class="adm-kpi-foot">{{ adminStats.totalCommandes }} total commandes</div>
+      </div>
+
+      <!-- Devis -->
+      <div class="adm-kpi-card adm-kpi-rose">
+        <div class="adm-kpi-accent"></div>
+        <div class="adm-kpi-row">
+          <div class="adm-kpi-icon">
+            <span class="material-symbols-outlined">description</span>
+          </div>
+          <div class="adm-kpi-chip adm-chip-neutral">
+            <span class="material-symbols-outlined">edit_note</span>
+            <span>Devis</span>
+          </div>
+        </div>
+        <div class="adm-kpi-num">{{ adminStats.totalDevis }}</div>
+        <div class="adm-kpi-lbl">Devis émis</div>
+        <div class="adm-kpi-progress"><div class="adm-kpi-fill" style="width:65%"></div></div>
+        <div class="adm-kpi-foot">{{ adminStats.facturesAttente }} factures en attente</div>
+      </div>
+
+      <!-- Produits en alerte stock -->
+      <div class="adm-kpi-card" [ngClass]="adminStats.produitsEnAlerte > 0 ? 'adm-kpi-danger' : 'adm-kpi-ok'">
+        <div class="adm-kpi-accent"></div>
+        <div class="adm-kpi-row">
+          <div class="adm-kpi-icon">
+            <span class="material-symbols-outlined">inventory_2</span>
+          </div>
+          <div class="adm-kpi-chip" [ngClass]="adminStats.produitsEnAlerte > 0 ? 'adm-chip-danger' : 'adm-chip-ok'">
+            <span class="material-symbols-outlined">{{ adminStats.produitsEnAlerte > 0 ? 'warning' : 'check_circle' }}</span>
+            <span>{{ adminStats.produitsEnAlerte > 0 ? 'Alerte' : 'OK' }}</span>
+          </div>
+        </div>
+        <div class="adm-kpi-num">{{ adminStats.produitsEnAlerte }}</div>
+        <div class="adm-kpi-lbl">Produits en alerte stock</div>
+        <div class="adm-kpi-progress"><div class="adm-kpi-fill"
+          [style.width.%]="adminStats.totalProduits ? (adminStats.produitsEnAlerte / adminStats.totalProduits * 100) : 0"></div></div>
+        <div class="adm-kpi-foot">{{ adminStats.totalProduits }} produits au total</div>
       </div>
     </div>
 

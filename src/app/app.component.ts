@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-
 import { HeartbeatService } from './core/services/session-timeout.service';
-import { ChatbotComponent } from './shared/chatbot/chatbot.component';
 import { TrialBannerComponent } from './shared/components/trial-banner/trial-banner.component';
+import { AiChatWidgetComponent } from './shared/components/ai-chat-widget/ai-chat-widget.component';
 import { AuthService } from './core/services/auth.service';
 
 import { LanguageService } from './core/services/language.service';
@@ -11,11 +10,10 @@ import { LanguageService } from './core/services/language.service';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, ChatbotComponent, TrialBannerComponent],
+  imports: [RouterOutlet, AiChatWidgetComponent],
   template: `
     <router-outlet></router-outlet>
-    <app-chatbot></app-chatbot>
-    <app-trial-banner></app-trial-banner>
+    <app-ai-chat-widget></app-ai-chat-widget>
   `
 })
 export class AppComponent implements OnInit {

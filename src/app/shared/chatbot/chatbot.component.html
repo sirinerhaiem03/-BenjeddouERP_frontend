@@ -1,6 +1,8 @@
-<div class="chatbot-container" [class.open]="isOpen">
+<div class="chatbot-container" [class.open]="isOpen" [attr.dir]="isRtl ? 'rtl' : 'ltr'">
+
   <!-- Chat Window -->
   <div class="chat-window">
+    <!-- Header -->
     <div class="chat-header">
       <div class="header-info">
         <div class="ai-avatar">
@@ -9,19 +11,60 @@
         </div>
         <div class="ai-details">
           <h3>Assistant IA</h3>
-          <p>En ligne • BENJEDDOU ERP</p>
+          <p>BENJEDDOU ERP • {{ currentLang.toUpperCase() }}</p>
         </div>
       </div>
-      <button class="close-btn" (click)="toggleChat()">
-        <span class="material-symbols-outlined">close</span>
-      </button>
+
+      <!-- Language Selector -->
+      <div class="header-actions">
+        <div class="lang-picker">
+          <button *ngFor="let l of langService.availableLanguages"
+                  class="lang-chip"
+                  [class.active]="currentLang === l.code"
+                  (click)="setLangue(l.code)"
+                  [title]="l.label">
+            {{ l.flag }}
+          </button>
+        </div>
+        <button class="close-btn" (click)="toggleChat()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
     </div>
 
+    <!-- Body Messages -->
     <div class="chat-body" #scrollMe>
+
+      <!-- Messages list -->
       <div class="message" *ngFor="let msg of messages" [ngClass]="msg.sender === 'user' ? 'user-msg' : 'ai-msg'">
         <div class="msg-bubble">
-          <p>{{ msg.text }}</p>
+
+          <!-- Content Parts with Links -->
+          <div class="msg-content">
+            <ng-container *ngFor="let part of msg.parts">
+              <span *ngIf="part.type === 'text'" style="white-space: pre-wrap;">{{ part.content }}</span>
+              <button *ngIf="part.type === 'link'" class="msg-link-btn" (click)="naviguerVers(part.url)">
+                <span class="material-symbols-outlined" style="font-size: 15px">open_in_new</span>
+                {{ part.content }}
+              </button>
+            </ng-container>
+          </div>
+
           <span class="msg-time">{{ msg.time | date:'HH:mm' }}</span>
+        </div>
+      </div>
+
+      <!-- Suggested Questions Chips -->
+      <div class="suggested-chips-container" *ngIf="messages.length <= 2">
+        <span class="chips-title">
+          {{ currentLang === 'ar' ? 'أسئلة مقترحة:' : currentLang === 'en' ? 'Suggested questions:' : 'Questions suggérées :' }}
+        </span>
+        <div class="chips-list">
+          <button *ngFor="let q of suggestedQuestions[currentLang]"
+                  class="suggested-chip"
+                  (click)="envoyerQuestionSuggeree(q.query)">
+            {{ q.label }}
+          </button>
         </div>
       </div>
       
@@ -33,8 +76,10 @@
       </div>
     </div>
 
+    <!-- Footer Input -->
     <div class="chat-footer">
-      <textarea rows="1" placeholder="Posez une question à l'IA..." 
+      <textarea rows="1"
+                [placeholder]="currentLang === 'ar' ? 'اطرح سؤالاً على الذكاء الاصطناعي...' : currentLang === 'en' ? 'Ask a question to AI...' : 'Posez une question à l\'IA...'"
                 [(ngModel)]="userInput" 
                 (keydown)="onKeydown($event)"></textarea>
       <button class="send-btn" (click)="sendMessage()" [disabled]="!userInput.trim() || isTyping">
@@ -44,7 +89,7 @@
   </div>
 
   <!-- Floating Trigger Button -->
-  <button class="chat-trigger" (click)="toggleChat()" [class.hidden]="isOpen">
+  <button class="chat-trigger" (click)="toggleChat()" [class.hidden]="isOpen" [title]="'Assistant IA'">
     <span class="material-symbols-outlined icon-default">smart_toy</span>
     <div class="pulse-ring"></div>
   </button>

@@ -3,10 +3,6 @@
 
   <!-- ── Progression des étapes ─────────────────────────────── -->
   <div class="steps-header" *ngIf="currentStep > 0">
-    <div class="steps-brand">
-      <div class="brand-icon">📊</div>
-      <span class="brand-name">BENJEDDOU ERP</span>
-    </div>
     <div class="steps-track">
       <div class="step-item" [class.active]="currentStep >= 1" [class.done]="currentStep > 1">
         <div class="step-circle">{{ currentStep > 1 ? '✓' : '1' }}</div>
@@ -17,12 +13,12 @@
         <div class="step-circle">{{ currentStep > 2 ? '✓' : '2' }}</div>
         <span class="step-label">{{ 'REGISTER.STEP_OTP' | translate }}</span>
       </div>
-      <div class="step-line" [class.done]="currentStep > 2"></div>
+      <div class="step-line" [class.done]="currentStep > 2" *ngIf="!modeTrial"></div>
       <div class="step-item" [class.active]="currentStep >= 3" [class.done]="currentStep > 3" *ngIf="!modeTrial">
         <div class="step-circle">{{ currentStep > 3 ? '✓' : '3' }}</div>
         <span class="step-label">{{ 'REGISTER.STEP_KYC' | translate }}</span>
       </div>
-      <div class="step-line" [class.done]="currentStep > 3" *ngIf="!modeTrial"></div>
+      <div class="step-line" [class.done]="currentStep >= 4"></div>
       <div class="step-item" [class.active]="currentStep >= 4">
         <div class="step-circle">{{ modeTrial ? '3' : '4' }}</div>
         <span class="step-label">{{ 'REGISTER.STEP_CONFIRM' | translate }}</span>
@@ -32,10 +28,9 @@
 
   <div class="register-body">
 
-    <!-- ═══════════════ ÉTAPE 0 : Choix Trial / Abonnement ════════ -->
+    <!-- ═══════════════ ÉTAPE 0 : Choix Mode Inscription (Trial vs Frais) ════════ -->
     <div class="choice-screen" *ngIf="currentStep === 0">
       <div class="choice-header">
-        <!-- SVG icône principale -->
         <div class="choice-hero-icon">
           <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="24" cy="24" r="22" fill="rgba(249,115,22,0.15)" stroke="rgba(249,115,22,0.4)" stroke-width="1.5"/>
@@ -47,10 +42,9 @@
       </div>
 
       <div class="trial-choice-grid">
-        <!-- Carte Trial -->
+        <!-- Option A : Mode Trial (Essai Gratuit) -->
         <div class="trial-card trial-free" (click)="choisirModeTrial(true)">
           <div class="tc-badge">{{ 'REGISTER.BADGE_FREE' | translate }}</div>
-          <!-- SVG play/trial -->
           <div class="tc-svg-icon tc-svg-green">
             <svg viewBox="0 0 40 40" fill="none">
               <circle cx="20" cy="20" r="19" stroke="#22c55e" stroke-width="1.5" fill="rgba(34,197,94,0.08)"/>
@@ -76,10 +70,6 @@
               <svg class="feat-icon feat-ok" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="rgba(34,197,94,0.15)"/><path d="M5 8l2 2 4-4" stroke="#22c55e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
               {{ 'REGISTER.TRIAL_F4' | translate }}
             </div>
-            <div class="tc-feature feat-disabled">
-              <svg class="feat-icon feat-no" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="rgba(148,163,184,0.1)"/><path d="M5.5 10.5l5-5M10.5 10.5l-5-5" stroke="#64748b" stroke-width="1.8" stroke-linecap="round"/></svg>
-              {{ 'REGISTER.TRIAL_F5' | translate }}
-            </div>
           </div>
           <div class="tc-counter">
             <span class="tc-num">30</span>
@@ -93,10 +83,9 @@
           </button>
         </div>
 
-        <!-- Carte Abonnement -->
+        <!-- Option B : Mode Payant (Paiement des Frais d'inscription / Abonnement Direct) -->
         <div class="trial-card trial-paid" (click)="choisirModeTrial(false)">
           <div class="tc-badge tc-badge-paid">{{ 'REGISTER.BADGE_RECOMMENDED' | translate }}</div>
-          <!-- SVG abonnement -->
           <div class="tc-svg-icon tc-svg-orange">
             <svg viewBox="0 0 40 40" fill="none">
               <circle cx="20" cy="20" r="19" stroke="#f97316" stroke-width="1.5" fill="rgba(249,115,22,0.08)"/>
@@ -143,28 +132,161 @@
       </div>
     </div>
 
-    <!-- ════════════════════ ÉTAPE 1 : Informations ═══════════════ -->
+    <!-- ════════════════════ ÉTAPE 1 : Statut Juridique & Formulaire ═══════════════ -->
     <div class="step-panel" *ngIf="currentStep === 1">
-      <div class="panel-icon">
-        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:48px;height:48px">
-          <circle cx="24" cy="16" r="8" stroke="#f97316" stroke-width="2.5" fill="rgba(249,115,22,0.12)"/>
-          <path d="M8 40c0-8.837 7.163-16 16-16s16 7.163 16 16" stroke="#f97316" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-        </svg>
+      <div class="panel-header-row">
+        <button type="button" class="btn-back-link" (click)="currentStep = 0">
+          ← Changer de mode ({{ modeTrial ? 'Mode Trial' : 'Mode Abonnement' }})
+        </button>
+        <span class="mode-badge" [class.mode-badge-trial]="modeTrial" [class.mode-badge-paid]="!modeTrial">
+          {{ modeTrial ? '✨ Mode Essai (30 connexions)' : '🚀 Mode Abonnement Direct' }}
+        </span>
       </div>
+
       <h1 class="panel-title">{{ 'REGISTER.FORM_TITLE' | translate }}</h1>
       <p class="panel-desc">{{ 'REGISTER.FORM_DESC' | translate }}</p>
 
+      <!-- Sélecteur de Statut Juridique (Entreprise / Société vs Individu) -->
+      <div class="statut-selector-container">
+        <label class="statut-main-label">{{ 'REGISTER.STATUT_LABEL' | translate }} <span class="req">*</span></label>
+        <div class="statut-cards-grid">
+          <!-- Carte Statut Entreprise -->
+          <div class="statut-card" [class.selected]="form.statutJuridique === 'ENTREPRISE'"
+               (click)="changerStatut('ENTREPRISE')">
+            <div class="statut-radio">
+              <div class="radio-inner" *ngIf="form.statutJuridique === 'ENTREPRISE'"></div>
+            </div>
+            <div class="statut-icon-box">🏢</div>
+            <div class="statut-info">
+              <strong>{{ 'REGISTER.STATUT_ENTREPRISE' | translate }}</strong>
+              <span>{{ 'REGISTER.STATUT_ENTREPRISE_DESC' | translate }}</span>
+            </div>
+          </div>
+
+          <!-- Carte Statut Individu -->
+          <div class="statut-card" [class.selected]="form.statutJuridique === 'INDIVIDU'"
+               (click)="changerStatut('INDIVIDU')">
+            <div class="statut-radio">
+              <div class="radio-inner" *ngIf="form.statutJuridique === 'INDIVIDU'"></div>
+            </div>
+            <div class="statut-icon-box">👤</div>
+            <div class="statut-info">
+              <strong>{{ 'REGISTER.STATUT_INDIVIDU' | translate }}</strong>
+              <span>{{ 'REGISTER.STATUT_INDIVIDU_DESC' | translate }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulaire Dynamique -->
       <div class="form-grid">
+
+        <!-- ── CHAMPS SPÉCIFIQUES : ENTREPRISE ── -->
+        <ng-container *ngIf="form.statutJuridique === 'ENTREPRISE'">
+          <div class="form-group full-width">
+            <label>{{ 'REGISTER.FIELD_COMPANY' | translate }} <span class="req">*</span></label>
+            <input type="text" [(ngModel)]="form.societe" [placeholder]="'REGISTER.PH_COMPANY' | translate"
+                   class="form-input" [class.input-error]="errors.societe">
+            <span class="field-error" *ngIf="errors.societe">{{ errors.societe }}</span>
+          </div>
+
+          <div class="form-group">
+            <label>{{ 'REGISTER.FIELD_SIRET_RC' | translate }} <span class="req">*</span></label>
+            <input type="text" [(ngModel)]="form.matriculeFiscal" [placeholder]="'REGISTER.PH_SIRET_RC' | translate"
+                   class="form-input" [class.input-error]="errors.matriculeFiscal">
+            <span class="field-error" *ngIf="errors.matriculeFiscal">{{ errors.matriculeFiscal }}</span>
+          </div>
+
+          <!-- Menu Déroulant Moderne Personnalisé : Secteur -->
+          <div class="form-group custom-dropdown-container">
+            <label>{{ 'REGISTER.FIELD_SECTOR' | translate }}</label>
+            <div class="custom-select-trigger" [class.dropdown-open]="secteurDropdownOpen" (click)="toggleSecteurDropdown($event)">
+              <span class="selected-text">{{ form.secteur }}</span>
+              <span class="material-symbols-outlined dropdown-arrow">expand_more</span>
+            </div>
+            <div class="custom-dropdown-menu" *ngIf="secteurDropdownOpen">
+              <div *ngFor="let s of secteurs"
+                   class="custom-dropdown-item"
+                   [class.active]="form.secteur === s"
+                   (click)="selectSecteur(s, $event)">
+                <span>{{ s }}</span>
+                <span class="material-symbols-outlined item-check" *ngIf="form.secteur === s">check</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Menu Déroulant Moderne Personnalisé : Taille Entreprise -->
+          <div class="form-group full-width custom-dropdown-container">
+            <label>{{ 'REGISTER.FIELD_SIZE' | translate }}</label>
+            <div class="custom-select-trigger" [class.dropdown-open]="tailleDropdownOpen" (click)="toggleTailleDropdown($event)">
+              <span class="selected-text">{{ form.tailleEntreprise }}</span>
+              <span class="material-symbols-outlined dropdown-arrow">expand_more</span>
+            </div>
+            <div class="custom-dropdown-menu" *ngIf="tailleDropdownOpen">
+              <div *ngFor="let t of taillesEntreprise"
+                   class="custom-dropdown-item"
+                   [class.active]="form.tailleEntreprise === t"
+                   (click)="selectTaille(t, $event)">
+                <span>{{ t }}</span>
+                <span class="material-symbols-outlined item-check" *ngIf="form.tailleEntreprise === t">check</span>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- ── CHAMPS SPÉCIFIQUES : INDIVIDU ── -->
+        <ng-container *ngIf="form.statutJuridique === 'INDIVIDU'">
+          <div class="form-group">
+            <label>{{ 'REGISTER.FIELD_CIN' | translate }} <span class="req">*</span></label>
+            <input type="text" [(ngModel)]="form.cin" [placeholder]="'REGISTER.PH_CIN' | translate"
+                   class="form-input" [class.input-error]="errors.cin">
+            <span class="field-error" *ngIf="errors.cin">{{ errors.cin }}</span>
+          </div>
+
+          <div class="form-group">
+            <label>{{ 'REGISTER.FIELD_ACTIVITY' | translate }} <span class="req">*</span></label>
+            <input type="text" [(ngModel)]="form.activite" [placeholder]="'REGISTER.PH_ACTIVITY' | translate"
+                   class="form-input" [class.input-error]="errors.activite">
+            <span class="field-error" *ngIf="errors.activite">{{ errors.activite }}</span>
+          </div>
+        </ng-container>
+
+        <!-- ── RESPONSABLE / GÉRANT ── -->
         <div class="form-group">
-          <label>{{ 'REGISTER.FIELD_FIRSTNAME' | translate }} <span class="req">*</span></label>
-          <input type="text" [(ngModel)]="form.prenom" [placeholder]="'REGISTER.PH_FIRSTNAME' | translate" class="form-input">
+          <label>
+            {{ (form.statutJuridique === 'ENTREPRISE' ? 'REGISTER.FIELD_MANAGER_FIRSTNAME' : 'REGISTER.FIELD_FIRSTNAME') | translate }}
+            <span class="req">*</span>
+          </label>
+          <input type="text" [(ngModel)]="form.prenom" [placeholder]="'REGISTER.PH_FIRSTNAME' | translate"
+                 class="form-input" [class.input-error]="errors.prenom">
           <span class="field-error" *ngIf="errors.prenom">{{ errors.prenom }}</span>
         </div>
+
         <div class="form-group">
-          <label>{{ 'REGISTER.FIELD_LASTNAME' | translate }} <span class="req">*</span></label>
-          <input type="text" [(ngModel)]="form.nom" [placeholder]="'REGISTER.PH_LASTNAME' | translate" class="form-input">
+          <label>
+            {{ (form.statutJuridique === 'ENTREPRISE' ? 'REGISTER.FIELD_MANAGER_LASTNAME' : 'REGISTER.FIELD_LASTNAME') | translate }}
+            <span class="req">*</span>
+          </label>
+          <input type="text" [(ngModel)]="form.nom" [placeholder]="'REGISTER.PH_LASTNAME' | translate"
+                 class="form-input" [class.input-error]="errors.nom">
           <span class="field-error" *ngIf="errors.nom">{{ errors.nom }}</span>
         </div>
+
+        <div class="form-group">
+          <label>{{ 'REGISTER.FIELD_PHONE' | translate }} <span class="req">*</span></label>
+          <input type="tel" [(ngModel)]="form.telephone" [placeholder]="'REGISTER.PH_PHONE' | translate"
+                 class="form-input" [class.input-error]="errors.telephone">
+          <span class="field-error" *ngIf="errors.telephone">{{ errors.telephone }}</span>
+        </div>
+
+        <div class="form-group">
+          <label>{{ 'REGISTER.FIELD_ADDRESS' | translate }} <span class="req">*</span></label>
+          <input type="text" [(ngModel)]="form.adresse" [placeholder]="'REGISTER.PH_ADDRESS' | translate"
+                 class="form-input" [class.input-error]="errors.adresse">
+          <span class="field-error" *ngIf="errors.adresse">{{ errors.adresse }}</span>
+        </div>
+
+        <!-- ── IDENTIFIANTS DE CONNEXION ── -->
         <div class="form-group full-width">
           <label>{{ 'REGISTER.FIELD_USERNAME' | translate }} <span class="req">*</span></label>
           <div class="input-check-wrap">
@@ -172,59 +294,28 @@
                    [class.input-error]="errors.nomUtilisateur || usernameAvailable === false"
                    [class.input-ok]="usernameAvailable === true"
                    (blur)="checkUsername()">
-            <span class="avail-indicator" *ngIf="usernameChecking">
-              <svg class="spin-icon" viewBox="0 0 24 24" fill="none" style="width:16px;height:16px">
-                <circle cx="12" cy="12" r="10" stroke="#94a3b8" stroke-width="2" stroke-dasharray="31" stroke-dashoffset="10"/>
-              </svg>
-            </span>
-            <span class="avail-ok" *ngIf="usernameAvailable === true && !usernameChecking">
-              <svg viewBox="0 0 16 16" fill="none" style="width:16px;height:16px">
-                <circle cx="8" cy="8" r="7" fill="rgba(34,197,94,0.15)"/>
-                <path d="M5 8l2 2 4-4" stroke="#22c55e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </span>
-            <span class="avail-no" *ngIf="usernameAvailable === false && !usernameChecking">
-              <svg viewBox="0 0 16 16" fill="none" style="width:16px;height:16px">
-                <circle cx="8" cy="8" r="7" fill="rgba(239,68,68,0.12)"/>
-                <path d="M5.5 10.5l5-5M10.5 10.5l-5-5" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round"/>
-              </svg>
-            </span>
+            <span class="avail-indicator" *ngIf="usernameChecking">⏳</span>
+            <span class="avail-ok" *ngIf="usernameAvailable === true && !usernameChecking">✓</span>
+            <span class="avail-no" *ngIf="usernameAvailable === false && !usernameChecking">✕</span>
           </div>
           <span class="field-error" *ngIf="errors.nomUtilisateur">{{ errors.nomUtilisateur }}</span>
           <span class="field-ok" *ngIf="usernameAvailable === true && !errors.nomUtilisateur">{{ 'REGISTER.USERNAME_AVAILABLE' | translate }}</span>
         </div>
+
         <div class="form-group full-width">
           <label>{{ 'REGISTER.FIELD_EMAIL' | translate }} <span class="req">*</span></label>
           <div class="input-check-wrap">
-            <input type="email" [(ngModel)]="form.email" placeholder="email@exemple.com" class="form-input"
+            <input type="email" [(ngModel)]="form.email" placeholder="contact@entreprise.com" class="form-input"
                    [class.input-error]="errors.email || emailAvailable === false"
                    [class.input-ok]="emailAvailable === true"
                    (blur)="checkEmail()">
-            <span class="avail-ok" *ngIf="emailAvailable === true">
-              <svg viewBox="0 0 16 16" fill="none" style="width:16px;height:16px">
-                <circle cx="8" cy="8" r="7" fill="rgba(34,197,94,0.15)"/>
-                <path d="M5 8l2 2 4-4" stroke="#22c55e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </span>
-            <span class="avail-no" *ngIf="emailAvailable === false">
-              <svg viewBox="0 0 16 16" fill="none" style="width:16px;height:16px">
-                <circle cx="8" cy="8" r="7" fill="rgba(239,68,68,0.12)"/>
-                <path d="M5.5 10.5l5-5M10.5 10.5l-5-5" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round"/>
-              </svg>
-            </span>
+            <span class="avail-ok" *ngIf="emailAvailable === true">✓</span>
+            <span class="avail-no" *ngIf="emailAvailable === false">✕</span>
           </div>
           <span class="field-error" *ngIf="errors.email">{{ errors.email }}</span>
           <span class="field-ok" *ngIf="emailAvailable === true && !errors.email">{{ 'REGISTER.EMAIL_AVAILABLE' | translate }}</span>
         </div>
-        <div class="form-group">
-          <label>{{ 'REGISTER.FIELD_PHONE' | translate }} <span class="req">*</span></label>
-          <input type="tel" [(ngModel)]="form.telephone" [placeholder]="'REGISTER.PH_PHONE' | translate" class="form-input">
-          <span class="field-error" *ngIf="errors.telephone">{{ errors.telephone }}</span>
-        </div>
-        <div class="form-group">
-          <label>{{ 'REGISTER.FIELD_COMPANY' | translate }}</label>
-          <input type="text" [(ngModel)]="form.societe" [placeholder]="'REGISTER.PH_COMPANY' | translate" class="form-input">
-        </div>
+
         <div class="form-group">
           <label>{{ 'REGISTER.FIELD_PASSWORD' | translate }} <span class="req">*</span></label>
           <div class="password-wrap">
@@ -232,18 +323,11 @@
                    placeholder="••••••••" class="form-input"
                    [class.input-error]="errors.motDePasse">
             <button class="pass-toggle" (click)="showPass = !showPass" type="button">
-              <svg *ngIf="!showPass" viewBox="0 0 24 24" fill="none" style="width:18px;height:18px">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="#64748b" stroke-width="1.8"/>
-                <circle cx="12" cy="12" r="3" stroke="#64748b" stroke-width="1.8"/>
-              </svg>
-              <svg *ngIf="showPass" viewBox="0 0 24 24" fill="none" style="width:18px;height:18px">
-                <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19M1 1l22 22" stroke="#64748b" stroke-width="1.8" stroke-linecap="round"/>
-              </svg>
+              <span class="material-symbols-outlined">{{ showPass ? 'visibility_off' : 'visibility' }}</span>
             </button>
           </div>
           <span class="field-error" *ngIf="errors.motDePasse">{{ errors.motDePasse }}</span>
 
-          <!-- ── Indicateur force mot de passe ── -->
           <div class="pwd-strength-wrap" *ngIf="form.motDePasse">
             <div class="pwd-strength-bar">
               <div class="pwd-strength-fill"
@@ -254,424 +338,184 @@
               {{ passwordStrength.label }}
             </span>
           </div>
-          <div class="pwd-criteria" *ngIf="form.motDePasse">
-            <span [class.criteria-ok]="form.motDePasse.length >= 8" [class.criteria-no]="form.motDePasse.length < 8">&#10003; 8 caractères min</span>
-            <span [class.criteria-ok]="pwdHasMajuscule" [class.criteria-no]="!pwdHasMajuscule">&#10003; Majuscule</span>
-            <span [class.criteria-ok]="pwdHasChiffre" [class.criteria-no]="!pwdHasChiffre">&#10003; Chiffre</span>
-            <span [class.criteria-ok]="pwdHasSymbole" [class.criteria-no]="!pwdHasSymbole">&#10003; Symbole (&#64;,!,#...)</span>
-          </div>
         </div>
+
         <div class="form-group">
           <label>{{ 'REGISTER.FIELD_CONFIRM_PWD' | translate }} <span class="req">*</span></label>
           <div class="password-wrap">
-            <input [type]="showPass ? 'text' : 'password'" [(ngModel)]="form.confirmMotDePasse"
+            <input [type]="showPassConfirm ? 'text' : 'password'" [(ngModel)]="form.confirmMotDePasse"
                    placeholder="••••••••" class="form-input"
                    [class.input-error]="errors.confirmMotDePasse">
-            <button class="pass-toggle" (click)="showPass = !showPass" type="button">
-              {{ showPass ? '🙈' : '👁️' }}
+            <button class="pass-toggle" (click)="showPassConfirm = !showPassConfirm" type="button">
+              <span class="material-symbols-outlined">{{ showPassConfirm ? 'visibility_off' : 'visibility' }}</span>
             </button>
           </div>
           <span class="field-error" *ngIf="errors.confirmMotDePasse">{{ errors.confirmMotDePasse }}</span>
         </div>
+
       </div>
 
-      <div class="notif error-notif" *ngIf="globalError">❌ {{ globalError }}</div>
-
-      <!-- ── Double CAPTCHA : Image locale + Google reCAPTCHA v2 ── -->
-      <div class="captcha-block">
-        <div class="captcha-header">
-          <span class="material-symbols-outlined captcha-shield">security</span>
-          <div class="captcha-header-text">
-            <span class="captcha-title">{{ 'REGISTER.CAPTCHA_TITLE' | translate }}</span>
-            <span class="captcha-subtitle">{{ 'REGISTER.CAPTCHA_SUBTITLE' | translate }}</span>
-          </div>
-        </div>
-        <div class="captcha-body">
-
-          <!-- Étape 1 : CAPTCHA image locale -->
-          <div class="captcha-step-label">
-            <span class="material-symbols-outlined captcha-step-icon">looks_one</span>
-            <span>{{ 'REGISTER.CAPTCHA_STEP1' | translate }}</span>
-          </div>
-          <div class="captcha-image-row">
-            <div class="captcha-image-wrapper">
-              <img *ngIf="captchaImageBase64 && !captchaLoading"
-                   [src]="'data:image/png;base64,' + captchaImageBase64"
-                   alt="CAPTCHA image"
-                   class="captcha-image" />
-              <div *ngIf="captchaLoading" class="captcha-loading">
-                <span class="material-symbols-outlined spin">refresh</span>
-              </div>
-            </div>
-            <button type="button" class="captcha-refresh-btn" (click)="refreshCaptcha()"
-                    title="{{ 'REGISTER.CAPTCHA_REFRESH' | translate }}" [disabled]="captchaLoading">
-              <span class="material-symbols-outlined">refresh</span>
-            </button>
-          </div>
-          <div class="captcha-input-wrapper">
-            <span class="material-symbols-outlined captcha-input-icon">keyboard</span>
-            <input type="text"
-                   [(ngModel)]="captchaCodeSaisi"
-                   [ngModelOptions]="{standalone: true}"
-                   id="reg-captcha-input"
-                   class="captcha-input"
-                   [placeholder]="'REGISTER.CAPTCHA_PH' | translate"
-                   maxlength="8"
-                   autocomplete="off"
-                   spellcheck="false"
-                   [class.captcha-input-error]="captchaError" />
-          </div>
-          <div *ngIf="captchaError" class="captcha-error">
-            <span class="material-symbols-outlined" style="font-size:1rem;">error</span>
-            {{ 'REGISTER.CAPTCHA_ERROR' | translate }}
-          </div>
-
-          <!-- Étape 2 : Google reCAPTCHA v2 -->
-          <div class="captcha-step-label captcha-step-label--google">
-            <span class="material-symbols-outlined captcha-step-icon">looks_two</span>
-            <span>{{ 'REGISTER.RECAPTCHA_LABEL' | translate }}</span>
-          </div>
-          <div class="recaptcha-wrapper">
-            <div class="g-recaptcha"
-                 data-sitekey="6Les43MtAAAAAJjpo3ETNwh5kxVsL74oZuTd7maC"
-                 data-callback="onRegisterRecaptchaResolved"
-                 data-expired-callback="onRegisterRecaptchaExpired"
-                 data-theme="light">
-            </div>
-            <div *ngIf="recaptchaError" class="captcha-error">
-              <span class="material-symbols-outlined" style="font-size:1rem;">error</span>
-              {{ 'REGISTER.RECAPTCHA_REQUIRED' | translate }}
-            </div>
-          </div>
-
-        </div>
-      </div>
-      <!-- ── Fin Double CAPTCHA ─────────────────────────────────── -->
-
-      <!-- ── CGU obligatoires (Point 7 encadrant) ──────────────────── -->
-      <div class="cgu-block" [class.cgu-error-active]="cguError">
-        <label class="cgu-label">
-          <input type="checkbox" [(ngModel)]="cguAcceptees" [ngModelOptions]="{standalone: true}"
-                 id="cgu-checkbox" (change)="cguError = false">
-          <span class="cgu-text">
-            J'ai lu et j'accepte les
-            <a href="/cgu" target="_blank" class="cgu-link">Conditions Générales d'Utilisation</a>
-            et la
-            <a href="/cgu" target="_blank" class="cgu-link">Politique de Confidentialité</a>
-            de BENJEDDOU ERP. <span class="req">*</span>
+      <!-- ── CGU Obligatoires ── -->
+      <div class="cgu-block" [class.cgu-block-error]="cguError">
+        <label class="cgu-checkbox-label">
+          <input type="checkbox" [(ngModel)]="cguAcceptees" (change)="cguError = false" class="cgu-checkbox">
+          <span>
+            J'accepte les <a href="javascript:void(0)" class="cgu-link">Conditions Générales d'Utilisation</a> et la Politique de Confidentialité.
           </span>
         </label>
-        <div class="cgu-error-msg" *ngIf="cguError">
-          <span class="material-symbols-outlined" style="font-size:1rem">error</span>
-          Vous devez accepter les CGU pour créer votre compte Administrateur Entreprise.
-        </div>
       </div>
-      <!-- ── Fin CGU ──────────────────────────────────────────────── -->
 
-      <div class="step-actions">
-        <a class="btn-link" routerLink="/login">{{ 'REGISTER.ALREADY_ACCOUNT' | translate }}</a>
-        <button class="btn-next" (click)="etape1Suivant()" [disabled]="loading">
+      <!-- Message d'erreur clair avec liste des champs requis -->
+      <div class="notif error-notif" *ngIf="globalError">
+        <span class="material-symbols-outlined">error</span>
+        <span>{{ globalError }}</span>
+      </div>
+
+      <!-- Bouton Action Principal -->
+      <div class="form-actions">
+        <button type="button" class="btn-primary-action" (click)="etape1Suivant()" [disabled]="loading">
           <span *ngIf="!loading">{{ 'REGISTER.BTN_CONTINUE' | translate }}</span>
-          <span *ngIf="loading" class="spinner-sm"></span>
+          <span *ngIf="loading" class="spinner"></span>
         </button>
+      </div>
+
+      <div class="login-redirect-row">
+        <a routerLink="/login" class="login-redirect-link">{{ 'REGISTER.ALREADY_ACCOUNT' | translate }}</a>
       </div>
     </div>
 
-
-    <!-- ════════════════════ ÉTAPE 2 : Vérification OTP ══════════ -->
+    <!-- ════════════════════ ÉTAPE 2 : Vérification OTP ═════════════ -->
     <div class="step-panel otp-panel" *ngIf="currentStep === 2">
-      <div class="otp-header">
-        <div class="otp-icon-wrap">
-          <!-- SVG email -->
-          <svg viewBox="0 0 48 48" fill="none" style="width:48px;height:48px">
-            <circle cx="24" cy="24" r="22" fill="rgba(249,115,22,0.1)" stroke="rgba(249,115,22,0.35)" stroke-width="1.5"/>
-            <rect x="12" y="15" width="24" height="18" rx="3" stroke="#f97316" stroke-width="2" fill="none"/>
-            <path d="M12 19l12 8 12-8" stroke="#f97316" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <h1 class="panel-title">{{ 'REGISTER.OTP_TITLE' | translate }}</h1>
-        <p class="panel-desc otp-email-info">
-          {{ 'REGISTER.OTP_SENT_TO' | translate }}<br>
-          <strong class="otp-email-addr">{{ form.email }}</strong>
-        </p>
+      <div class="panel-icon">
+        <span class="material-symbols-outlined panel-symbol">mark_email_read</span>
       </div>
+      <h1 class="panel-title">{{ 'REGISTER.OTP_TITLE' | translate }}</h1>
+      <p class="panel-desc">
+        {{ 'REGISTER.OTP_SENT_TO' | translate }} <strong>{{ form.email }}</strong>
+      </p>
 
-      <!-- Indicateur d'envoi -->
-      <div class="otp-sent-badge" *ngIf="otpEnvoye">
-        <svg viewBox="0 0 16 16" fill="none" style="width:14px;height:14px;flex-shrink:0">
-          <circle cx="8" cy="8" r="7" fill="rgba(34,197,94,0.15)"/>
-          <path d="M5 8l2 2 4-4" stroke="#22c55e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        {{ 'REGISTER.OTP_SENT_BADGE' | translate }}
-      </div>
-
-      <!-- Saisie OTP -->
-      <div class="otp-input-row">
-        <input *ngFor="let i of [0,1,2,3,4,5]"
-               type="text" maxlength="1" inputmode="numeric"
-               class="otp-digit"
-               [class.otp-error]="otpError"
-               [id]="'otp-' + i"
+      <div class="otp-boxes" [class.shake]="otpShake">
+        <input *ngFor="let digit of otpDigits; let i = index"
+               id="otp-{{i}}"
+               type="text"
+               maxlength="1"
+               [(ngModel)]="otpDigits[i]"
                (input)="onOtpInput($event, i)"
                (keydown)="onOtpKeydown($event, i)"
-               [(ngModel)]="otpDigits[i]">
+               class="otp-digit"
+               autocomplete="one-time-code" />
       </div>
 
-      <div class="notif error-notif otp-err" *ngIf="otpError">❌ {{ otpError }}</div>
+      <div class="otp-error" *ngIf="otpError">❌ {{ otpError }}</div>
 
-      <!-- Renvoyer le code -->
-      <div class="otp-resend">
+      <button type="button" class="btn-primary-action" (click)="etape2VerifierOtp()" [disabled]="loading || otpCode.length < 6">
+        <span *ngIf="!loading">{{ 'REGISTER.BTN_VERIFY' | translate }}</span>
+        <span *ngIf="loading" class="spinner"></span>
+      </button>
+
+      <div class="resend-row">
         <span class="resend-text">{{ 'REGISTER.OTP_NO_CODE' | translate }}</span>
-        <button class="btn-resend" (click)="renvoyerOtp()" [disabled]="loading || resendCountdown > 0">
-          <span *ngIf="resendCountdown === 0">{{ 'REGISTER.OTP_RESEND' | translate }}</span>
-          <span *ngIf="resendCountdown > 0">{{ 'REGISTER.OTP_RESEND_IN' | translate:{ s: resendCountdown } }}</span>
+        <button *ngIf="resendCountdown === 0" type="button" class="btn-resend" (click)="renvoyerOtp()">
+          {{ 'REGISTER.OTP_RESEND' | translate }}
         </button>
-      </div>
-
-      <div class="step-actions">
-        <button class="btn-back" (click)="currentStep = 1">← {{ 'REGISTER.BTN_BACK' | translate }}</button>
-        <button class="btn-next" (click)="etape2VerifierOtp()" [disabled]="loading || otpCode.length < 6">
-          <span *ngIf="!loading">{{ 'REGISTER.BTN_VERIFY' | translate }}</span>
-          <span *ngIf="loading" class="spinner-sm"></span>
-        </button>
+        <span *ngIf="resendCountdown > 0" class="resend-timer">
+          {{ 'REGISTER.OTP_RESEND_IN' | translate : { s: resendCountdown } }}
+        </span>
       </div>
     </div>
 
-    <!-- ════════════════════ ÉTAPE 3 : KYC ═════════════════════════ -->
+    <!-- ════════════════════ ÉTAPE 3 : Documents KYC (Si Payant) ════ -->
     <div class="step-panel" *ngIf="currentStep === 3">
       <div class="panel-icon">
-        <svg viewBox="0 0 48 48" fill="none" style="width:48px;height:48px">
-          <circle cx="24" cy="24" r="22" fill="rgba(249,115,22,0.1)" stroke="rgba(249,115,22,0.35)" stroke-width="1.5"/>
-          <rect x="14" y="11" width="20" height="26" rx="2" stroke="#f97316" stroke-width="2" fill="none"/>
-          <path d="M18 19h12M18 24h12M18 29h8" stroke="#f97316" stroke-width="2" stroke-linecap="round"/>
-        </svg>
+        <span class="material-symbols-outlined panel-symbol">verified</span>
       </div>
       <h1 class="panel-title">{{ 'REGISTER.KYC_TITLE' | translate }}</h1>
-      <p class="panel-desc">{{ 'REGISTER.KYC_DESC' | translate }}</p>
+      <p class="panel-desc">
+        Documents requis pour le statut <strong>{{ form.statutJuridique === 'ENTREPRISE' ? 'Entreprise / Société' : 'Personne Physique' }}</strong>
+      </p>
 
-      <div class="kyc-info-box">
-        <svg viewBox="0 0 16 16" fill="none" style="width:16px;height:16px;flex-shrink:0">
-          <circle cx="8" cy="8" r="7" stroke="#3b82f6" stroke-width="1.5" fill="rgba(59,130,246,0.1)"/>
-          <path d="M8 7v5M8 5v.5" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round"/>
-        </svg>
-        <p [innerHTML]="'REGISTER.KYC_INFO' | translate"></p>
-      </div>
-
-      <div class="docs-list">
-        <div class="doc-item" *ngFor="let doc of kycDocuments">
-          <div class="doc-header">
-            <div class="doc-icon">
-              <svg *ngIf="doc.type === 'CNI'" viewBox="0 0 24 24" fill="none" style="width:22px;height:22px">
-                <rect x="2" y="5" width="20" height="14" rx="2" stroke="#f97316" stroke-width="1.8" fill="none"/>
-                <circle cx="9" cy="11" r="2.5" stroke="#f97316" stroke-width="1.5"/>
-                <path d="M14 10h4M14 13h3" stroke="#f97316" stroke-width="1.5" stroke-linecap="round"/>
-              </svg>
-              <svg *ngIf="doc.type === 'REGISTRE_COMMERCE'" viewBox="0 0 24 24" fill="none" style="width:22px;height:22px">
-                <rect x="3" y="2" width="18" height="20" rx="2" stroke="#f97316" stroke-width="1.8" fill="none"/>
-                <path d="M7 8h10M7 12h10M7 16h6" stroke="#f97316" stroke-width="1.5" stroke-linecap="round"/>
-              </svg>
-              <svg *ngIf="doc.type === 'PATENTE'" viewBox="0 0 24 24" fill="none" style="width:22px;height:22px">
-                <rect x="3" y="2" width="18" height="20" rx="2" stroke="#f97316" stroke-width="1.8" fill="none"/>
-                <path d="M12 6v12M7 11h10" stroke="#f97316" stroke-width="1.8" stroke-linecap="round"/>
-              </svg>
-              <svg *ngIf="doc.type === 'JUSTIFICATIF'" viewBox="0 0 24 24" fill="none" style="width:22px;height:22px">
-                <path d="M3 12l9-9 9 9" stroke="#f97316" stroke-width="1.8" stroke-linecap="round"/>
-                <path d="M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9" stroke="#f97316" stroke-width="1.8" stroke-linecap="round"/>
-              </svg>
-            </div>
-            <div class="doc-info">
-              <span class="doc-name">{{ doc.labelKey | translate }}</span>
-              <span class="doc-required" *ngIf="doc.obligatoire">{{ 'REGISTER.KYC_REQUIRED' | translate }}</span>
-              <span class="doc-optional" *ngIf="!doc.obligatoire">{{ 'REGISTER.KYC_OPTIONAL' | translate }}</span>
-            </div>
-            <div class="doc-status">
-              <span class="doc-status-badge badge-pending" *ngIf="!doc.fichier">{{ 'REGISTER.KYC_PENDING' | translate }}</span>
-              <span class="doc-status-badge badge-uploaded" *ngIf="doc.fichier">✅ {{ 'REGISTER.KYC_SUBMITTED' | translate }}</span>
+      <div class="kyc-list">
+        <div class="kyc-item" *ngFor="let doc of kycDocuments">
+          <div class="kyc-left">
+            <span class="kyc-icon">{{ doc.icone }}</span>
+            <div class="kyc-labels">
+              <div class="kyc-title">
+                {{ doc.labelKey | translate }}
+                <span class="badge-req" *ngIf="doc.obligatoire">{{ 'REGISTER.KYC_REQUIRED' | translate }}</span>
+                <span class="badge-opt" *ngIf="!doc.obligatoire">{{ 'REGISTER.KYC_OPTIONAL' | translate }}</span>
+              </div>
+              <span class="kyc-sub">{{ 'REGISTER.UPLOAD_FORMATS' | translate }}</span>
             </div>
           </div>
-          <div class="doc-upload-zone" [class.has-file]="doc.fichier"
-               (click)="triggerUpload(doc.type)" (dragover)="$event.preventDefault()"
-               (drop)="onDrop($event, doc)">
-            <div *ngIf="!doc.fichier" class="upload-placeholder">
-              <svg viewBox="0 0 24 24" fill="none" style="width:32px;height:32px;color:#94a3b8">
-                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round"/>
-                <polyline points="17 8 12 3 7 8" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                <line x1="12" y1="3" x2="12" y2="15" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round"/>
-              </svg>
-              <span>{{ 'REGISTER.UPLOAD_HINT' | translate }}</span>
-              <span class="upload-hint">{{ 'REGISTER.UPLOAD_FORMATS' | translate }}</span>
-            </div>
-            <div *ngIf="doc.fichier" class="upload-done">
-              <svg viewBox="0 0 24 24" fill="none" style="width:20px;height:20px;flex-shrink:0">
-                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="#22c55e" stroke-width="1.8"/>
-                <polyline points="14 2 14 8 20 8" stroke="#22c55e" stroke-width="1.8"/>
-                <path d="M9 13h6M9 17h4" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round"/>
-              </svg>
+
+          <div class="kyc-right">
+            <input type="file" id="input-{{doc.type}}" style="display:none" (change)="onFileSelect($event, doc)" accept=".pdf,.jpg,.jpeg,.png">
+            <button *ngIf="!doc.fichier" type="button" class="btn-upload" (click)="triggerUpload(doc.type)">
+              <span class="material-symbols-outlined">upload_file</span>
+              <span>Déposer</span>
+            </button>
+            <div *ngIf="doc.fichier" class="uploaded-badge">
               <span class="file-name">{{ doc.fichier.name }}</span>
-              <button class="btn-remove" (click)="retirerDoc($event, doc)">✕</button>
+              <button type="button" class="btn-remove-file" (click)="retirerDoc($event, doc)">✕</button>
             </div>
-            <input [id]="'input-' + doc.type" type="file" accept=".pdf,.jpg,.jpeg,.png"
-                   (change)="onFileSelect($event, doc)" style="display:none">
           </div>
         </div>
       </div>
 
       <div class="notif error-notif" *ngIf="globalError">❌ {{ globalError }}</div>
-      <div class="notif success-notif" *ngIf="globalSuccess">✅ {{ globalSuccess }}</div>
 
-      <div class="step-actions">
-        <button class="btn-back" (click)="currentStep = 2">← {{ 'REGISTER.BTN_BACK' | translate }}</button>
-        <button class="btn-next" (click)="etape3Soumettre()" [disabled]="loading">
-          <span *ngIf="!loading">{{ 'REGISTER.BTN_SUBMIT_DOCS' | translate }}</span>
-          <span *ngIf="loading" class="spinner-sm"></span>
-        </button>
-      </div>
+      <button type="button" class="btn-primary-action" (click)="etape3Soumettre()" [disabled]="loading">
+        <span *ngIf="!loading">{{ 'REGISTER.BTN_SUBMIT_DOCS' | translate }}</span>
+        <span *ngIf="loading" class="spinner"></span>
+      </button>
     </div>
 
-    <!-- ════════════════════ ÉTAPE 4 : Confirmation ═════════════════ -->
-    <div class="step-panel step-success" *ngIf="currentStep === 4">
-      <div class="success-animation">
-        <div class="success-circle">
-          <span class="success-check">&#x2713;</span>
+    <!-- ════════════════════ ÉTAPE 4 : Confirmation & Finalisation ═══ -->
+    <div class="step-panel confirm-panel" *ngIf="currentStep === 4">
+
+      <!-- Cas 1 : Mode Trial activé avec succès -->
+      <ng-container *ngIf="modeTrial">
+        <div class="confirm-icon-box confirm-trial">
+          <span class="material-symbols-outlined confirm-icon">check_circle</span>
         </div>
-      </div>
+        <h1 class="confirm-title">{{ 'REGISTER.CONFIRM_TRIAL_TITLE' | translate }}</h1>
+        <p class="confirm-desc">{{ 'REGISTER.CONFIRM_TRIAL_DESC' | translate }}</p>
 
-      <!-- ══ Mode TRIAL ══════════════════════════════════════════════ -->
-      <ng-container *ngIf="modeTrial === true">
-        <h1 class="panel-title">{{ 'REGISTER.CONFIRM_TRIAL_TITLE' | translate }}</h1>
-        <p class="panel-desc">{{ 'REGISTER.CONFIRM_TRIAL_DESC' | translate }}</p>
-
-        <div class="timeline">
-          <div class="tl-item done">
-            <div class="tl-dot">
-              <svg viewBox="0 0 20 20" fill="none" style="width:14px;height:14px">
-                <path d="M4 10l4 4 8-8" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <div class="tl-content">
-              <span class="tl-title">{{ 'REGISTER.TL_EMAIL_VERIFIED' | translate }}</span>
-              <span class="tl-desc">{{ 'REGISTER.TL_EMAIL_VERIFIED_DESC' | translate }}</span>
-            </div>
-          </div>
-          <div class="tl-item done">
-            <div class="tl-dot">
-              <svg viewBox="0 0 20 20" fill="none" style="width:14px;height:14px">
-                <path d="M4 10l4 4 8-8" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <div class="tl-content">
-              <span class="tl-title">{{ 'REGISTER.TL_REGISTERED' | translate }}</span>
-              <span class="tl-desc">{{ 'REGISTER.TL_REGISTERED_DESC' | translate }}</span>
-            </div>
-          </div>
-          <div class="tl-item done">
-            <div class="tl-dot">
-              <svg viewBox="0 0 20 20" fill="none" style="width:14px;height:14px">
-                <path d="M4 10l4 4 8-8" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <div class="tl-content">
-              <span class="tl-title">{{ 'REGISTER.TL_TRIAL_ACTIVE' | translate }}</span>
-              <span class="tl-desc">{{ 'REGISTER.TL_TRIAL_ACTIVE_DESC' | translate }}</span>
-            </div>
-          </div>
+        <div class="trial-stat-card">
+          <div class="tsc-number">30</div>
+          <div class="tsc-label">Connexions d'essai offertes</div>
+          <div class="tsc-sub">Accédez à l'ensemble des modules : Ventes, Stock, Documents, Facturation, IA</div>
         </div>
 
-        <div class="trial-confirm-box">
-          <span class="trial-confirm-num">30</span>
-          <div>
-            <span class="trial-confirm-label">{{ 'REGISTER.TRIAL_CONFIRM_LABEL' | translate }}</span>
-            <span class="trial-confirm-sub">{{ 'REGISTER.TRIAL_CONFIRM_SUB' | translate }}</span>
-          </div>
-        </div>
-
-        <div class="confirmation-actions">
-          <a class="btn-login" routerLink="/login">{{ 'REGISTER.BTN_START_TRIAL' | translate }} &#x2192;</a>
-        </div>
+        <a routerLink="/login" [queryParams]="{ username: form.nomUtilisateur }" class="btn-primary-action btn-confirm-link">
+          <span class="material-symbols-outlined">login</span>
+          <span>Se connecter à mon espace ERP</span>
+        </a>
       </ng-container>
 
-      <!-- ══ Mode ABONNEMENT ══════════════════════════════════════════ -->
-      <ng-container *ngIf="modeTrial !== true">
-        <h1 class="panel-title">{{ 'REGISTER.CONFIRM_PAID_TITLE' | translate }}</h1>
-        <p class="panel-desc">{{ 'REGISTER.CONFIRM_PAID_DESC' | translate }}</p>
+      <!-- Cas 2 : Mode Payant / Abonnement Direct -->
+      <ng-container *ngIf="!modeTrial">
+        <div class="confirm-icon-box confirm-paid">
+          <span class="material-symbols-outlined confirm-icon">verified</span>
+        </div>
+        <h1 class="confirm-title">{{ 'REGISTER.CONFIRM_PAID_TITLE' | translate }}</h1>
+        <p class="confirm-desc">{{ 'REGISTER.CONFIRM_PAID_DESC' | translate }}</p>
 
-        <div class="timeline">
-          <div class="tl-item done">
-            <div class="tl-dot">
-              <svg viewBox="0 0 20 20" fill="none" style="width:14px;height:14px">
-                <path d="M4 10l4 4 8-8" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <div class="tl-content">
-              <span class="tl-title">{{ 'REGISTER.TL_EMAIL_VERIFIED' | translate }}</span>
-              <span class="tl-desc">{{ 'REGISTER.TL_EMAIL_VERIFIED_DESC' | translate }}</span>
-            </div>
+        <div class="paid-summary-box">
+          <div class="psb-header">
+            <strong>Espace ERP réservé :</strong> {{ form.societe || form.prenom }}
           </div>
-          <div class="tl-item done">
-            <div class="tl-dot">
-              <svg viewBox="0 0 20 20" fill="none" style="width:14px;height:14px">
-                <path d="M4 10l4 4 8-8" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <div class="tl-content">
-              <span class="tl-title">{{ 'REGISTER.TL_REGISTERED' | translate }}</span>
-              <span class="tl-desc">{{ 'REGISTER.TL_REGISTERED_DESC' | translate }}</span>
-            </div>
-          </div>
-          <div class="tl-item done">
-            <div class="tl-dot">
-              <svg viewBox="0 0 20 20" fill="none" style="width:14px;height:14px">
-                <path d="M4 10l4 4 8-8" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <div class="tl-content">
-              <span class="tl-title">{{ 'REGISTER.TL_KYC_SUBMITTED' | translate }}</span>
-              <span class="tl-desc">{{ 'REGISTER.TL_KYC_SUBMITTED_DESC' | translate }}</span>
-            </div>
-          </div>
-          <div class="tl-item pending">
-            <div class="tl-dot">
-              <svg viewBox="0 0 20 20" fill="none" style="width:14px;height:14px">
-                <circle cx="10" cy="10" r="8" stroke="rgba(148,163,184,0.7)" stroke-width="1.5"/>
-                <path d="M10 6v4l2.5 2.5" stroke="rgba(148,163,184,0.7)" stroke-width="1.8" stroke-linecap="round"/>
-              </svg>
-            </div>
-            <div class="tl-content">
-              <span class="tl-title">{{ 'REGISTER.TL_ADMIN_REVIEW' | translate }}</span>
-              <span class="tl-desc">{{ 'REGISTER.TL_ADMIN_REVIEW_DESC' | translate }}</span>
-            </div>
-          </div>
-          <div class="tl-item pending">
-            <div class="tl-dot">
-              <svg viewBox="0 0 20 20" fill="none" style="width:14px;height:14px">
-                <rect x="2" y="5" width="16" height="11" rx="2" stroke="rgba(148,163,184,0.7)" stroke-width="1.5"/>
-                <path d="M2 9h16" stroke="rgba(148,163,184,0.7)" stroke-width="1.5"/>
-                <path d="M5 13h4" stroke="rgba(148,163,184,0.5)" stroke-width="1.5" stroke-linecap="round"/>
-              </svg>
-            </div>
-            <div class="tl-content">
-              <span class="tl-title">{{ 'REGISTER.TL_PAYMENT' | translate }}</span>
-              <span class="tl-desc">{{ 'REGISTER.TL_PAYMENT_DESC' | translate }}</span>
-            </div>
-          </div>
-          <div class="tl-item pending">
-            <div class="tl-dot">
-              <svg viewBox="0 0 20 20" fill="none" style="width:14px;height:14px">
-                <circle cx="10" cy="10" r="8" stroke="rgba(148,163,184,0.7)" stroke-width="1.5"/>
-                <path d="M7 10l2 2 4-4" stroke="rgba(148,163,184,0.6)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <div class="tl-content">
-              <span class="tl-title">{{ 'REGISTER.TL_ACTIVATION' | translate }}</span>
-              <span class="tl-desc">{{ 'REGISTER.TL_ACTIVATION_DESC' | translate }}</span>
-            </div>
+          <div class="psb-detail">
+            Votre compte a été initialisé. Vous pouvez dès à présent régler vos frais d'inscription et choisir votre formule d'abonnement pour finaliser l'ouverture définitive.
           </div>
         </div>
 
-        <div class="confirmation-actions">
-          <a class="btn-login" routerLink="/login">{{ 'REGISTER.BTN_LOGIN' | translate }}</a>
-        </div>
+        <a routerLink="/abonnement" class="btn-primary-action btn-confirm-link btn-pay-fees">
+          <span class="material-symbols-outlined">credit_card</span>
+          <span>Payer les frais d'inscription & Activer l'abonnement</span>
+        </a>
       </ng-container>
+
     </div>
 
   </div>

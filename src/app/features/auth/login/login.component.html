@@ -117,7 +117,6 @@
           <div class="form-group">
             <label for="identifiant">{{ 'LOGIN.IDENTIFIER_LABEL' | translate }}</label>
             <div class="input-wrapper">
-              <span class="material-symbols-outlined input-icon">person</span>
               <input type="text" id="identifiant" formControlName="identifiant" class="input-field"
                 [placeholder]="'LOGIN.IDENTIFIER_PH' | translate" autocomplete="username" required />
             </div>
@@ -132,10 +131,9 @@
           <div class="form-group">
             <label for="motDePasse">{{ 'LOGIN.PASSWORD' | translate }}</label>
             <div class="input-wrapper">
-              <span class="material-symbols-outlined input-icon">lock</span>
               <input [type]="showPassword ? 'text' : 'password'" id="motDePasse" formControlName="motDePasse"
                 class="input-field" placeholder="••••••••" required />
-              <button type="button" class="visibility-btn" (click)="showPassword = !showPassword">
+              <button type="button" class="visibility-btn" (click)="showPassword = !showPassword" aria-label="Toggle password visibility">
                 <span class="material-symbols-outlined">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
               </button>
             </div>
@@ -160,12 +158,12 @@
             </button>
           </div>
 
-          <!-- Client Registration CTA -->
+          <!-- Single Registration CTA -->
           <div class="client-register-cta">
-            <span class="cta-icon">🏢</span>
+            <span class="cta-icon">🚀</span>
             <div class="cta-text">
-              <span class="cta-title">{{ 'LOGIN.CTA_TITLE' | translate }}</span>
-              <span class="cta-desc">{{ 'LOGIN.CTA_DESC' | translate }}</span>
+              <span class="cta-title">Créer un espace ERP</span>
+              <span class="cta-desc">Inscription Entreprise ou Individu — Essai gratuit 30 connexions ou Abonnement</span>
             </div>
             <a routerLink="/register" class="cta-btn">{{ 'LOGIN.CTA_BTN' | translate }}</a>
           </div>
@@ -202,7 +200,6 @@
                 </button>
               </div>
               <div class="captcha-input-wrapper">
-                <span class="material-symbols-outlined captcha-input-icon">keyboard</span>
                 <input type="text"
                        [(ngModel)]="captchaCodeSaisi"
                        [ngModelOptions]="{standalone: true}"
@@ -284,7 +281,6 @@
           <div class="form-group">
             <label for="regNomUtilisateur">{{ 'LOGIN.REG_USERNAME' | translate }}</label>
             <div class="input-wrapper">
-              <span class="material-symbols-outlined input-icon">person</span>
               <input type="text" id="regNomUtilisateur" formControlName="nomUtilisateur" class="input-field"
                 placeholder="Ex: jean_dupont" required />
             </div>
@@ -300,7 +296,6 @@
             <div class="form-group" style="flex: 1;">
               <label for="regPrenom">{{ 'LOGIN.REG_FIRSTNAME' | translate }}</label>
               <div class="input-wrapper">
-                <span class="material-symbols-outlined input-icon">badge</span>
                 <input type="text" id="regPrenom" formControlName="prenom" class="input-field" placeholder="Jean" required />
               </div>
               <div *ngIf="registerForm.get('prenom')?.touched && registerForm.get('prenom')?.invalid" class="field-error">
@@ -310,7 +305,6 @@
             <div class="form-group" style="flex: 1;">
               <label for="regNom">{{ 'LOGIN.REG_LASTNAME' | translate }}</label>
               <div class="input-wrapper">
-                <span class="material-symbols-outlined input-icon">badge</span>
                 <input type="text" id="regNom" formControlName="nom" class="input-field" placeholder="Dupont" required />
               </div>
               <div *ngIf="registerForm.get('nom')?.touched && registerForm.get('nom')?.invalid" class="field-error">
@@ -323,7 +317,6 @@
           <div class="form-group">
             <label for="regEmail">{{ 'LOGIN.REG_EMAIL' | translate }}</label>
             <div class="input-wrapper">
-              <span class="material-symbols-outlined input-icon">mail</span>
               <input type="email" id="regEmail" formControlName="email" class="input-field"
                 placeholder="Ex: jean.dupont@benjeddou.com" required />
             </div>
@@ -338,7 +331,6 @@
             <label>{{ 'LOGIN.REG_ROLE' | translate }}</label>
             <div class="custom-select-wrapper" [class.open]="regRoleDropdownOpen" (click)="$event.stopPropagation()">
               <div class="custom-select-trigger" (click)="regRoleDropdownOpen = !regRoleDropdownOpen">
-                <span class="material-symbols-outlined input-icon-custom">assignment_ind</span>
                 <span class="selected-value">{{ getRoleLabel(registerForm.get('role')?.value) }}</span>
                 <span class="material-symbols-outlined arrow-icon-custom">keyboard_arrow_down</span>
               </div>
@@ -354,10 +346,9 @@
           <div class="form-group">
             <label for="regMotDePasse">{{ 'LOGIN.PASSWORD' | translate }}</label>
             <div class="input-wrapper">
-              <span class="material-symbols-outlined input-icon">lock</span>
               <input [type]="showRegPassword ? 'text' : 'password'" id="regMotDePasse" formControlName="motDePasse"
                 class="input-field" placeholder="••••••••" required />
-              <button type="button" class="visibility-btn" (click)="showRegPassword = !showRegPassword">
+              <button type="button" class="visibility-btn" (click)="showRegPassword = !showRegPassword" aria-label="Toggle password visibility">
                 <span class="material-symbols-outlined">{{ showRegPassword ? 'visibility_off' : 'visibility' }}</span>
               </button>
             </div>
@@ -380,10 +371,9 @@
           <div class="form-group">
             <label for="regConfirmerMotDePasse">{{ 'LOGIN.REG_CONFIRM_PASSWORD' | translate }}</label>
             <div class="input-wrapper">
-              <span class="material-symbols-outlined input-icon">lock</span>
               <input [type]="showRegConfirmPassword ? 'text' : 'password'" id="regConfirmerMotDePasse"
                 formControlName="confirmerMotDePasse" class="input-field" placeholder="••••••••" required />
-              <button type="button" class="visibility-btn" (click)="showRegConfirmPassword = !showRegConfirmPassword">
+              <button type="button" class="visibility-btn" (click)="showRegConfirmPassword = !showRegConfirmPassword" aria-label="Toggle password visibility">
                 <span class="material-symbols-outlined">{{ showRegConfirmPassword ? 'visibility_off' : 'visibility' }}</span>
               </button>
             </div>
@@ -423,7 +413,6 @@
             <div class="form-group">
               <label for="email">{{ 'LOGIN.REG_EMAIL' | translate }}</label>
               <div class="input-wrapper">
-                <span class="material-symbols-outlined input-icon">mail</span>
                 <input type="email" id="email" formControlName="email" class="input-field"
                   placeholder="Ex: contact@benjeddou.com" required />
               </div>

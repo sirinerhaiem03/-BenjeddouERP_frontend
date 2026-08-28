@@ -1089,3 +1089,17 @@
       </div>
     </div>
   </div>
+
+<!-- ═══════════════════════════════════════════════════
+     DATALISTS — Suggestions depuis la base (Stock)
+     ═══════════════════════════════════════════════════ -->
+
+<!-- Catégories produits -->
+<datalist id="categories-list">
+  <option *ngFor="let cat of uniqueCategories" [value]="cat">{{ cat }}</option>
+</datalist>
+
+<!-- Noms de produits -->
+<datalist id="produits-list">
+  <option *ngFor="let p of products" [value]="p.nom">{{ p.reference }}</option>
+</datalist>

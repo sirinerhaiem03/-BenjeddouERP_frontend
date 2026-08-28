@@ -2454,4 +2454,162 @@
   right: auto !important;
 }
 
+/* Sidebar Bottom Tools (Assistant IA & Paramètres du Thème) */
+.sidebar-tools-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 0 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sidebar-tool-btn {
+  flex: 1 1 50%;
+  width: 50%;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-tool-btn.tool-ai {
+  background: linear-gradient(135deg, #ea580c, #f97316);
+  color: #ffffff;
+  border: 1px solid #c2410c;
+  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.35);
+}
+
+.sidebar-tool-btn.tool-ai:hover {
+  background: linear-gradient(135deg, #c2410c, #ea580c);
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.5);
+  transform: translateY(-1px);
+}
+
+.sidebar-tool-btn.tool-theme {
+  background: rgba(255, 255, 255, 0.15);
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.sidebar-tool-btn.tool-theme:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.sidebar-tool-btn .material-symbols-outlined {
+  font-size: 19px;
+}
+
+/* ═══════════════════════════════════════════════════
+   RTL — Arabe : Positionnement & Alignement complet
+   ═══════════════════════════════════════════════════ */
+
+/* Sidebar tools row : boutons à l'extrême gauche en RTL */
+:host-context([dir="rtl"]) .sidebar-tools-row,
+[dir="rtl"] .sidebar-tools-row {
+  flex-direction: row-reverse !important;
+  justify-content: flex-start !important;
+}
+
+:host-context([dir="rtl"]) .sidebar-tool-btn,
+[dir="rtl"] .sidebar-tool-btn {
+  flex-direction: row-reverse !important;
+}
+
+/* Liens de navigation : icône à droite, texte à droite */
+[dir="rtl"] .nav-link,
+[dir="rtl"] .nav-sub-link {
+  flex-direction: row-reverse !important;
+  text-align: right !important;
+  padding-left: 12px !important;
+  padding-right: 16px !important;
+}
+
+[dir="rtl"] .nav-link .material-symbols-outlined,
+[dir="rtl"] .nav-sub-link .material-symbols-outlined {
+  margin-right: 0 !important;
+  margin-left: 8px !important;
+}
+
+/* Flèche d'expansion des sous-menus */
+[dir="rtl"] .nav-arrow {
+  margin-left: 0 !important;
+  margin-right: auto !important;
+  transform: rotate(180deg);
+}
+
+[dir="rtl"] .nav-item-open .nav-arrow {
+  transform: rotate(90deg) !important;
+}
+
+/* Logo et brand */
+[dir="rtl"] .sidebar-brand {
+  flex-direction: row-reverse !important;
+}
+
+/* User card */
+[dir="rtl"] .sidebar-user-card {
+  flex-direction: row-reverse !important;
+}
+
+[dir="rtl"] .sidebar-user-info {
+  text-align: right !important;
+}
+
+/* Menus déroulants (user bottom menu) */
+[dir="rtl"] .user-bottom-menu {
+  right: auto !important;
+  left: 0 !important;
+  text-align: right !important;
+}
+
+[dir="rtl"] .user-menu-item {
+  flex-direction: row-reverse !important;
+}
+
+/* Trial badge */
+[dir="rtl"] .sidebar-trial-badge {
+  flex-direction: row-reverse !important;
+  text-align: right !important;
+}
+
+/* Sections/groupes nav */
+[dir="rtl"] .nav-section-label {
+  text-align: right !important;
+  padding-right: 16px !important;
+  padding-left: 0 !important;
+}
+
+/* Sous-menus : indentation à droite en RTL */
+[dir="rtl"] .nav-sub-list {
+  padding-right: 32px !important;
+  padding-left: 0 !important;
+  border-right: 2px solid rgba(255,255,255,0.12) !important;
+  border-left: none !important;
+}
+
+/* Badge de compteur (notifications/alertes dans nav) */
+[dir="rtl"] .nav-badge {
+  margin-left: 0 !important;
+  margin-right: auto !important;
+}
+
+/* Sidebar collapse toggle */
+[dir="rtl"] .sidebar-toggle {
+  left: auto !important;
+  right: -14px !important;
+}
 

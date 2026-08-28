@@ -226,13 +226,16 @@
         <!-- Export buttons -->
         <div class="export-btn-group">
           <button class="btn-export" (click)="exportCommandesCSV()" title="CSV">
-            <span class="material-symbols-outlined">table_view</span> {{ 'COMMON.EXPORT_CSV' | translate }}
+            <span class="material-symbols-outlined">table_view</span> CSV
+          </button>
+          <button class="btn-export" (click)="exportCommandesExcel()" title="Excel">
+            <span class="material-symbols-outlined">grid_on</span> Excel
           </button>
           <button class="btn-export" (click)="exportCommandesPDF()" title="PDF">
-            <span class="material-symbols-outlined">picture_as_pdf</span> {{ 'COMMON.EXPORT_PDF' | translate }}
+            <span class="material-symbols-outlined">picture_as_pdf</span> PDF
           </button>
           <button class="btn-export" (click)="exportCommandesWord()" title="Word">
-            <span class="material-symbols-outlined">description</span> {{ 'COMMON.EXPORT_WORD' | translate }}
+            <span class="material-symbols-outlined">description</span> Word
           </button>
           <button class="btn-export" (click)="printCommandes()" [title]="'COMMON.PRINT' | translate">
             <span class="material-symbols-outlined">print</span> {{ 'COMMON.PRINT' | translate }}
@@ -330,13 +333,16 @@
         <!-- Export buttons -->
         <div class="export-btn-group">
           <button class="btn-export" (click)="exportReceptionsCSV()" title="CSV">
-            <span class="material-symbols-outlined">table_view</span> {{ 'COMMON.EXPORT_CSV' | translate }}
+            <span class="material-symbols-outlined">table_view</span> CSV
+          </button>
+          <button class="btn-export" (click)="exportReceptionsExcel()" title="Excel">
+            <span class="material-symbols-outlined">grid_on</span> Excel
           </button>
           <button class="btn-export" (click)="exportReceptionsPDF()" title="PDF">
-            <span class="material-symbols-outlined">picture_as_pdf</span> {{ 'COMMON.EXPORT_PDF' | translate }}
+            <span class="material-symbols-outlined">picture_as_pdf</span> PDF
           </button>
           <button class="btn-export" (click)="exportReceptionsWord()" title="Word">
-            <span class="material-symbols-outlined">description</span> {{ 'COMMON.EXPORT_WORD' | translate }}
+            <span class="material-symbols-outlined">description</span> Word
           </button>
           <button class="btn-export" (click)="printReceptions()" [title]="'COMMON.PRINT' | translate">
             <span class="material-symbols-outlined">print</span> {{ 'COMMON.PRINT' | translate }}
@@ -357,6 +363,7 @@
             <th>{{ 'ACHATS.TABLE.QTY_RECEIVED' | translate }}</th>
             <th>{{ 'ACHATS.TABLE.STATUS' | translate }}</th>
             <th>{{ 'ACHATS.TABLE.DATE' | translate }}</th>
+            <th style="text-align:center;">Actions</th>
           </tr></thead>
           <tbody>
             <tr *ngFor="let r of receptionsFiltrees">
@@ -367,6 +374,19 @@
               <td>{{ r.quantiteRecue }}</td>
               <td><span class="badge" [ngClass]="getStatutClass(r.statut)">{{ getStatutLabel(r.statut) }}</span></td>
               <td>{{ r.dateReception | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td style="text-align:center;">
+                <div style="display:inline-flex; gap:6px;">
+                  <button type="button" class="icon-btn" (click)="exportBonReceptionWord(r)" title="Exporter en Word (.doc)">
+                    <span class="material-symbols-outlined" style="font-size:18px; color:#2563eb;">description</span>
+                  </button>
+                  <button type="button" class="icon-btn" (click)="exportBonReceptionExcel(r)" title="Exporter en Excel (.xls)">
+                    <span class="material-symbols-outlined" style="font-size:18px; color:#059669;">table_view</span>
+                  </button>
+                  <button type="button" class="icon-btn" (click)="imprimerBonReception(r)" [title]="'Imprimer Bon de Réception' | translate">
+                    <span class="material-symbols-outlined" style="font-size:18px; color:#16a34a;">print</span>
+                  </button>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -415,7 +435,7 @@
               <option [ngValue]="null">-- {{ 'ACHATS.FORM.PRODUCT_OPTIONAL' | translate }} --</option>
               <option *ngFor="let p of produits" [ngValue]="p.id">{{ p.nom }}</option>
             </select>
-            <input class="form-control fc-md" type="text" [placeholder]="'ACHATS.FORM.DESIGNATION' | translate" [(ngModel)]="l.designation">
+            <input class="form-control fc-md" type="text" [placeholder]="'ACHATS.FORM.DESIGNATION' | translate" [(ngModel)]="l.designation" list="achats-produits-list">
             <input class="form-control fc-xs" type="number" [placeholder]="'ACHATS.FORM.QTY' | translate" min="1" [(ngModel)]="l.quantite">
             <input class="form-control fc-sm" type="number" [placeholder]="'ACHATS.FORM.UNIT_PRICE' | translate" step="0.001" [(ngModel)]="l.prixUnitaire">
             <span class="ligne-total">{{ calculerTotalLigne(l) | number:'1.3-3' }} TND</span>
@@ -611,6 +631,25 @@
                 <span class="detail-montant">{{ (l.quantite * l.prixUnitaire) | number:'1.3-3' }} TND</span>
               </td>
             </tr>
+            <tr *ngIf="!commandeDetail.lignes || commandeDetail.lignes.length === 0" class="detail-row">
+              <td class="detail-idx">1</td>
+              <td class="detail-designation"><strong>{{ commandeDetail.notes || 'Fourniture & Équipement' }}</strong></td>
+              <td>
+                <span class="detail-produit-chip">
+                  <span class="material-symbols-outlined" style="font-size:13px;">inventory_2</span>
+                  {{ commandeDetail.fournisseur?.nom || 'Legrand Tunisie' }}
+                </span>
+              </td>
+              <td style="text-align:center">
+                <span class="detail-qty-badge">1</span>
+              </td>
+              <td style="text-align:right;color:#475569;font-size:0.85rem">
+                {{ commandeDetail.montantTotal | number:'1.3-3' }} TND
+              </td>
+              <td style="text-align:right">
+                <span class="detail-montant">{{ commandeDetail.montantTotal | number:'1.3-3' }} TND</span>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -637,16 +676,36 @@
     </div>
 
     <!-- Footer -->
-    <div class="detail-footer">
-      <button class="btn-secondary" (click)="showDetailModal=false">
-        <span class="material-symbols-outlined" style="font-size:16px">close</span>
-        {{ 'COMMON.CLOSE' | translate }}
-      </button>
-      <button class="btn-primary" (click)="ouvrirNouvelleReception(commandeDetail); showDetailModal=false"
-        *ngIf="commandeDetail?.statut === 'ENVOYEE' || commandeDetail?.statut === 'RECUE_PARTIELLE'">
-        <span class="material-symbols-outlined" style="font-size:16px">inventory</span>
-        {{ 'ACHATS.ACTIONS.RECEIVE' | translate }}
-      </button>
+    <div class="detail-footer" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+      <!-- Sélecteur de langue du document achat -->
+      <div class="lang-selector-group no-print" style="display:flex; align-items:center; gap:4px;">
+        <span style="font-size:0.75rem; color:#64748b; font-weight:700; margin-right:4px;">Langue :</span>
+        <button type="button" class="btn btn-sm" [style.background]="achatDocLangue === 'fr' ? '#f97316' : '#f1f5f9'" [style.color]="achatDocLangue === 'fr' ? '#fff' : '#475569'" (click)="achatDocLangue = 'fr'" style="padding:4px 8px; border-radius:4px; font-size:11px; font-weight:700; border:none; cursor:pointer;">🇫🇷 FR</button>
+        <button type="button" class="btn btn-sm" [style.background]="achatDocLangue === 'en' ? '#f97316' : '#f1f5f9'" [style.color]="achatDocLangue === 'en' ? '#fff' : '#475569'" (click)="achatDocLangue = 'en'" style="padding:4px 8px; border-radius:4px; font-size:11px; font-weight:700; border:none; cursor:pointer;">🇬🇧 EN</button>
+        <button type="button" class="btn btn-sm" [style.background]="achatDocLangue === 'ar' ? '#f97316' : '#f1f5f9'" [style.color]="achatDocLangue === 'ar' ? '#fff' : '#475569'" (click)="achatDocLangue = 'ar'" style="padding:4px 8px; border-radius:4px; font-size:11px; font-weight:700; border:none; cursor:pointer;">🇹🇳 AR</button>
+      </div>
+
+      <div style="display:flex; gap:8px;">
+        <button class="btn-secondary" (click)="exportBonCommandeAchatWord(commandeDetail)" style="display:flex; align-items:center; gap:6px;" title="Exporter en Word (.doc)">
+          <span class="material-symbols-outlined" style="font-size:16px">description</span> Word
+        </button>
+        <button class="btn-secondary" (click)="exportBonCommandeAchatExcel(commandeDetail)" style="display:flex; align-items:center; gap:6px;" title="Exporter en Excel (.xls)">
+          <span class="material-symbols-outlined" style="font-size:16px">table_view</span> Excel
+        </button>
+        <button class="btn-primary" (click)="imprimerBonCommandeAchat(commandeDetail, achatDocLangue)" style="background:#0b1b3d; color:#fff; display:flex; align-items:center; gap:6px;">
+          <span class="material-symbols-outlined" style="font-size:16px">print</span>
+          {{ achatDocLangue === 'ar' ? 'طباعة أمر الشراء' : (achatDocLangue === 'en' ? 'Print Purchase Order' : 'Imprimer Bon de Commande') }}
+        </button>
+        <button class="btn-secondary" (click)="showDetailModal=false">
+          <span class="material-symbols-outlined" style="font-size:16px">close</span>
+          {{ 'COMMON.CLOSE' | translate }}
+        </button>
+        <button class="btn-primary" (click)="ouvrirNouvelleReception(commandeDetail); showDetailModal=false"
+          *ngIf="commandeDetail?.statut === 'ENVOYEE' || commandeDetail?.statut === 'RECUE_PARTIELLE'">
+          <span class="material-symbols-outlined" style="font-size:16px">inventory</span>
+          {{ 'ACHATS.ACTIONS.RECEIVE' | translate }}
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -671,3 +730,8 @@
     </div>
   </div>
 </div>
+
+<!-- DATALISTS — Suggestions Achats -->
+<datalist id="achats-produits-list">
+  <option *ngFor="let p of produits" [value]="p.nom">{{ p.nom }}</option>
+</datalist>

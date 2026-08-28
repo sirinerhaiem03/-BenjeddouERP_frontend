@@ -75,6 +75,9 @@ export class CommercialService {
   getFacture(id: number): Observable<any> {
     return this.http.get<any>(`${API_BASE}/factures/${id}`);
   }
+  getLignesFacture(id: number): Observable<any[]> {
+    return this.http.get<any[]>(`${API_BASE}/factures/${id}/lignes`);
+  }
   changerStatutFacture(id: number, statut: string): Observable<any> {
     return this.http.put<any>(`${API_BASE}/factures/${id}/statut`, { statut });
   }

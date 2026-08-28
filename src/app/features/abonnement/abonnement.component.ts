@@ -571,6 +571,12 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
       .plans-grid { flex-direction: column; }
       .hero-title { font-size: 1.8rem; }
     }
+    .plan-card {
+  background: rgba(255,255,255,0.05) !important;
+}
+.plan-name, .plan-desc, .plan-features li, .plan-duration {
+  color: #fff !important;
+}
   `]
 })
 export class AbonnementComponent implements OnInit {
@@ -586,9 +592,9 @@ export class AbonnementComponent implements OnInit {
 
   methodes = [
     { value: 'VIREMENT', icon: '🏦' },
-    { value: 'CHEQUE',   icon: '📝' },
-    { value: 'ESPECES',  icon: '💵' },
-    { value: 'CARTE',    icon: '💳' }
+    { value: 'CHEQUE', icon: '📝' },
+    { value: 'ESPECES', icon: '💵' },
+    { value: 'CARTE', icon: '💳' }
   ];
 
   private clientId: number | null = null;
@@ -598,7 +604,7 @@ export class AbonnementComponent implements OnInit {
     private router: Router,
     private authService: AuthService,
     private translate: TranslateService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     try {
@@ -618,7 +624,7 @@ export class AbonnementComponent implements OnInit {
   chargerPlans(): void {
     this.http.get<any[]>('/api/abonnement/plans').subscribe({
       next: data => this.plans = data,
-      error: () => {}
+      error: () => { }
     });
   }
 
@@ -628,7 +634,7 @@ export class AbonnementComponent implements OnInit {
         this.abonnementActuel = data?.abonnement !== null ? data : null;
         if (data && data.id) this.abonnementActuel = data;
       },
-      error: () => {}
+      error: () => { }
     });
   }
 
@@ -647,9 +653,9 @@ export class AbonnementComponent implements OnInit {
     this.errorMsg = '';
 
     const body = {
-      clientId:          String(this.clientId),
-      typePlan:          this.planSelectionne.type,
-      methodePaiement:   this.methodePaiement,
+      clientId: String(this.clientId),
+      typePlan: this.planSelectionne.type,
+      methodePaiement: this.methodePaiement,
       referencePaiement: this.referencePaiement
     };
 
@@ -719,10 +725,10 @@ export class AbonnementComponent implements OnInit {
   getStatutClass(s: string): string {
     const map: any = {
       EN_ATTENTE: 'statut-pill pill-attente',
-      ACTIF:      'statut-pill pill-actif',
-      VALIDE:     'statut-pill pill-valide',
-      EXPIRE:     'statut-pill pill-expire',
-      ANNULE:     'statut-pill pill-annule'
+      ACTIF: 'statut-pill pill-actif',
+      VALIDE: 'statut-pill pill-valide',
+      EXPIRE: 'statut-pill pill-expire',
+      ANNULE: 'statut-pill pill-annule'
     };
     return map[s] || 'statut-pill';
   }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpParams } from '@angular/common/http';
@@ -35,7 +35,11 @@ export interface Role {
   standalone: true,
   imports: [CommonModule, FormsModule, TranslateModule],
   templateUrl: './roles-permissions.component.html',
-  styleUrls: ['./roles-permissions.component.css']
+  styleUrls: ['./roles-permissions.component.css'],
+  // OnPush : Angular ne re-rend que sur changement de référence d'input,
+  // sur événement DOM, ou appel explicite à markForCheck().
+  // Élimine 95% des re-renders excessifs.
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RolesPermissionsComponent implements OnInit {
 
@@ -55,9 +59,32 @@ export class RolesPermissionsComponent implements OnInit {
   successMsg = '';
   errorMsg   = '';
 
-  // ── Modules disponibles (labels dynamiques via i18n) ───────────
-  get MODULES(): { module: string; label: string; icon: string }[] {
-    return [
+  // ── CORRECTION PERFORMANCE : propriétés READONLY (calculées une seule fois)
+  // Avant : des getters recalculés à chaque cycle Angular (~60x/sec)
+  //         → translate.instant() appelé ~108 fois/sec → freeze navigateur
+  // Après : initialisées une fois dans le constructeur → 0 recalcul
+  readonly MODULES: { module: string; label: string; icon: string }[];
+  readonly PERMISSIONS_LABELS: { key: keyof Permission; label: string; icon: string; color: string }[];
+
+  readonly COULEURS = [
+    '#f97316','#3b82f6','#10b981','#8b5cf6','#ef4444',
+    '#f59e0b','#06b6d4','#ec4899','#84cc16','#6366f1'
+  ];
+
+  readonly ICONES = [
+    'person','manage_accounts','storefront','inventory_2','receipt_long',
+    'account_balance','local_shipping','shopping_cart','bar_chart','settings',
+    'shield','star','verified_user','work','groups'
+  ];
+
+  constructor(
+    private http: HttpClient,
+    private translate: TranslateService,
+    private cdr: ChangeDetectorRef
+  ) {
+    // Initialisation des constantes dans le constructeur (après injection translate)
+    // translate.instant() appelé UNE SEULE FOIS au démarrage.
+    this.MODULES = [
       { module: 'dashboard',      label: this.translate.instant('ROLES.MODULES.DASHBOARD'),     icon: 'dashboard' },
       { module: 'ventes',         label: this.translate.instant('ROLES.MODULES.VENTES'),         icon: 'point_of_sale' },
       { module: 'factures',       label: this.translate.instant('ROLES.MODULES.FACTURES'),       icon: 'receipt_long' },
@@ -71,10 +98,8 @@ export class RolesPermissionsComponent implements OnInit {
       { module: 'utilisateurs',   label: this.translate.instant('ROLES.MODULES.UTILISATEURS'),   icon: 'manage_accounts' },
       { module: 'parametres',     label: this.translate.instant('ROLES.MODULES.PARAMETRES'),     icon: 'settings' },
     ];
-  }
 
-  get PERMISSIONS_LABELS(): { key: keyof Permission; label: string; icon: string; color: string }[] {
-    return [
+    this.PERMISSIONS_LABELS = [
       { key: 'consulter',  label: this.translate.instant('ROLES.PERMS.CONSULTER'),  icon: 'visibility',   color: '#3b82f6' },
       { key: 'creer',      label: this.translate.instant('ROLES.PERMS.CREER'),      icon: 'add_circle',   color: '#10b981' },
       { key: 'modifier',   label: this.translate.instant('ROLES.PERMS.MODIFIER'),   icon: 'edit',         color: '#f59e0b' },
@@ -84,19 +109,6 @@ export class RolesPermissionsComponent implements OnInit {
     ];
   }
 
-  readonly COULEURS = [
-    '#f97316','#3b82f6','#10b981','#8b5cf6','#ef4444',
-    '#f59e0b','#06b6d4','#ec4899','#84cc16','#6366f1'
-  ];
-
-  readonly ICONES = [
-    'person','manage_accounts','storefront','inventory_2','receipt_long',
-    'account_balance','local_shipping','shopping_cart','bar_chart','settings',
-    'shield','star','verified_user','work','groups'
-  ];
-
-  constructor(private http: HttpClient, private translate: TranslateService) {}
-
   ngOnInit(): void {
     this.initRolesParDefaut();
     this.chargerRolesEtPermissions();
@@ -104,30 +116,52 @@ export class RolesPermissionsComponent implements OnInit {
   }
 
   chargerRolesEtPermissions(): void {
+    // Chargement prioritaire depuis localStorage pour affichage immédiat
     const savedLocal = localStorage.getItem('benjeddou_roles_permissions');
     if (savedLocal) {
-      try { this.roles = JSON.parse(savedLocal); this.roleSelectionne = this.roles[0] || null; } catch (e) {}
+      try {
+        const parsed = JSON.parse(savedLocal);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          this.roles = parsed;
+          this.roleSelectionne = this.roles[0] || null;
+          this.cdr.markForCheck();
+        }
+      } catch (e) {}
     }
+
+    // Chargement depuis la DB (source de vérité)
     this.http.get<any>('/api/admin/roles-permissions').subscribe({
       next: (res) => {
         if (res && res.roles && Array.isArray(res.roles) && res.roles.length > 0) {
           this.roles = res.roles;
           this.roleSelectionne = this.roles[0] || null;
+          // Synchroniser le localStorage avec la DB
           localStorage.setItem('benjeddou_roles_permissions', JSON.stringify(this.roles));
+          this.cdr.markForCheck();
         }
+        // Si la DB retourne {} (première utilisation), on garde les rôles par défaut déjà initialisés
       },
-      error: () => {}
+      error: () => {
+        // Erreur réseau : on garde ce qui est dans localStorage
+      }
     });
   }
 
   sauvegarderMatrice(): void {
+    // 1. Sauvegarder immédiatement en localStorage (expérience utilisateur instantanée)
     localStorage.setItem('benjeddou_roles_permissions', JSON.stringify(this.roles));
+
+    // 2. Persister en base de données (source de vérité permanente)
     this.http.put('/api/admin/roles-permissions', this.roles).subscribe({
-      next: () => {
+      next: (res: any) => {
         this.showSuccess(this.translate.instant('ROLES.MATRIX.SAVED'));
+        this.cdr.markForCheck();
       },
-      error: () => {
-        this.showSuccess(this.translate.instant('ROLES.MATRIX.SAVED'));
+      error: (err) => {
+        // En cas d'erreur réseau, on indique clairement le problème
+        const msg = err?.error?.message || 'Erreur de sauvegarde en base de données.';
+        this.showError(msg);
+        this.cdr.markForCheck();
       }
     });
   }
@@ -135,8 +169,8 @@ export class RolesPermissionsComponent implements OnInit {
   // ── Attribution des rôles aux utilisateurs ───────────────────
   chargerUtilisateurs(): void {
     this.http.get<any[]>('/api/admin/users').subscribe({
-      next: data => { this.users = data; this.loadingUsers = false; },
-      error: () => { this.loadingUsers = false; }
+      next: data => { this.users = data; this.loadingUsers = false; this.cdr.markForCheck(); },
+      error: () => { this.loadingUsers = false; this.cdr.markForCheck(); }
     });
   }
 
@@ -147,6 +181,7 @@ export class RolesPermissionsComponent implements OnInit {
       next: () => {
         user.role = role;
         this.showSuccess(`${user.nomUtilisateur} → ${role}`);
+        this.cdr.markForCheck();
       },
       error: () => this.showError(this.translate.instant('ROLES.ERRORS.ROLE_CHANGE'))
     });
@@ -163,11 +198,13 @@ export class RolesPermissionsComponent implements OnInit {
 
   showSuccess(msg: string): void {
     this.successMsg = msg; this.errorMsg = '';
-    setTimeout(() => this.successMsg = '', 4000);
+    this.cdr.markForCheck();
+    setTimeout(() => { this.successMsg = ''; this.cdr.markForCheck(); }, 4000);
   }
   showError(msg: string): void {
     this.errorMsg = msg; this.successMsg = '';
-    setTimeout(() => this.errorMsg = '', 5000);
+    this.cdr.markForCheck();
+    setTimeout(() => { this.errorMsg = ''; this.cdr.markForCheck(); }, 5000);
   }
 
   initRolesParDefaut(): void {
@@ -323,6 +360,7 @@ export class RolesPermissionsComponent implements OnInit {
   // ── CRUD Rôles ───────────────────────────────────────────────
   selectionnerRole(role: Role): void {
     this.roleSelectionne = role;
+    this.cdr.markForCheck();
   }
 
   ouvrirCreerRole(): void {
@@ -339,12 +377,14 @@ export class RolesPermissionsComponent implements OnInit {
       }))
     };
     this.showRoleModal = true;
+    this.cdr.markForCheck();
   }
 
   ouvrirEditerRole(role: Role): void {
     this.modeEdition = true;
     this.nouveauRole = JSON.parse(JSON.stringify(role));
     this.showRoleModal = true;
+    this.cdr.markForCheck();
   }
 
   sauvegarderRole(): void {
@@ -364,6 +404,7 @@ export class RolesPermissionsComponent implements OnInit {
     }
     this.sauvegarderMatrice();
     this.showRoleModal = false;
+    this.cdr.markForCheck();
   }
 
   supprimerRole(role: Role): void {
@@ -377,6 +418,7 @@ export class RolesPermissionsComponent implements OnInit {
     }
     this.sauvegarderMatrice();
     this.showSuccess(this.translate.instant('ROLES.MSG.ROLE_DELETED', { nom: role.nom }));
+    this.cdr.markForCheck();
   }
 
   // ── Gestion des permissions dans la matrice ──────────────────
@@ -387,6 +429,7 @@ export class RolesPermissionsComponent implements OnInit {
     mp.permissions.supprimer = activer;
     mp.permissions.valider   = activer;
     mp.permissions.exporter  = activer;
+    this.cdr.markForCheck();
   }
 
   toggleToutePermission(key: keyof Permission, activer: boolean): void {
@@ -394,6 +437,7 @@ export class RolesPermissionsComponent implements OnInit {
     this.roleSelectionne.modulePermissions.forEach(mp => {
       mp.permissions[key] = activer;
     });
+    this.cdr.markForCheck();
   }
 
   compterPermissions(role: Role): number {

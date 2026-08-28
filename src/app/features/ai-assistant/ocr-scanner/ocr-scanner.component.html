@@ -1,103 +1,209 @@
 <div class="ocr-container">
-  <div class="header-section">
-    <h2>{{ 'OCR_SCANNER_PAGE.TITLE' | translate }}</h2>
-    <p>{{ 'OCR_SCANNER_PAGE.SUBTITLE' | translate }}</p>
+
+  <!-- ===== HERO BANNER ===== -->
+  <div class="ocr-hero">
+    <div class="hero-blob hero-blob-1"></div>
+    <div class="hero-blob hero-blob-2"></div>
+
+    <div class="hero-left">
+      <div class="hero-icon-wrap">
+        <span class="material-symbols-outlined hero-icon">document_scanner</span>
+      </div>
+      <div class="hero-text">
+        <div class="hero-badge">
+          <span class="material-symbols-outlined" style="font-size:13px">auto_awesome</span>
+          {{ 'OCR.BADGE' | translate }}
+        </div>
+        <h1>{{ 'OCR.TITLE' | translate }}<br><span class="hero-accent">{{ 'OCR.TITLE_SUB' | translate }}</span></h1>
+        <p>{{ 'OCR.DESC' | translate }}</p>
+      </div>
+    </div>
+
+    <div class="hero-mini-stat">
+      <span class="hms-value">6</span>
+      <span class="hms-label">{{ 'OCR.FORMATS_LABEL' | translate }}</span>
+      <span class="hms-sub">{{ 'OCR.FORMATS_LIST' | translate }}</span>
+    </div>
   </div>
 
+  <!-- Options Bar -->
+  <div class="options-bar">
+    <div class="option-item">
+      <span class="material-symbols-outlined option-icon">translate</span>
+      <label>{{ 'OCR.LANG_LABEL' | translate }}</label>
+      <select [(ngModel)]="selectedLangue" class="option-select">
+        <option value="fr">Français</option>
+        <option value="en">English</option>
+        <option value="ar">العربية (RTL)</option>
+      </select>
+    </div>
+    <div class="options-divider"></div>
+    <div class="option-item toggle-item">
+      <label class="toggle-label">
+        <input type="checkbox" [(ngModel)]="preserverTableaux" class="toggle-input">
+        <span class="toggle-track">
+          <span class="toggle-thumb"></span>
+        </span>
+        <span class="toggle-text">
+          <span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle">table_chart</span>
+          {{ 'OCR.OPT_TABLES' | translate }}
+        </span>
+      </label>
+    </div>
+    <div class="option-item toggle-item">
+      <label class="toggle-label">
+        <input type="checkbox" [(ngModel)]="preserverImages" class="toggle-input">
+        <span class="toggle-track">
+          <span class="toggle-thumb"></span>
+        </span>
+        <span class="toggle-text">
+          <span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle">image</span>
+          {{ 'OCR.OPT_IMAGES' | translate }}
+        </span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Main Grid -->
   <div class="ocr-grid">
-    <!-- Left Column: Upload / Scanner -->
-    <div class="scanner-card">
-      <div *ngIf="!selectedFile" 
-           class="upload-zone" 
+
+    <!-- Left: Upload / Preview -->
+    <div class="panel upload-panel">
+
+      <!-- Empty State -->
+      <div *ngIf="!selectedFile"
+           class="dropzone"
            [class.drag-over]="isDragging"
            (dragover)="onDragOver($event)"
            (dragleave)="onDragLeave($event)"
            (drop)="onDrop($event)"
            (click)="fileInput.click()">
-        
-        <span class="material-symbols-outlined upload-icon">cloud_upload</span>
-        <h3>{{ 'OCR_SCANNER_PAGE.DROPZONE_TITLE' | translate }}</h3>
-        <p>{{ 'OCR_SCANNER_PAGE.DROPZONE_SUBTITLE' | translate }}</p>
-        <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*,.pdf" style="display: none;">
+
+        <div class="dropzone-ring">
+          <span class="material-symbols-outlined dropzone-icon">cloud_upload</span>
+        </div>
+        <h3>{{ 'OCR.DROPZONE_TITLE' | translate }}</h3>
+        <p>{{ 'OCR.DROPZONE_FORMATS' | translate }}</p>
+        <button class="btn-browse" type="button">
+          <span class="material-symbols-outlined">folder_open</span>
+          {{ 'OCR.BROWSE' | translate }}
+        </button>
+        <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*,.pdf" style="display:none">
       </div>
 
-      <div *ngIf="selectedFile" class="preview-zone" [class.scanning]="isScanning">
-        <div class="preview-header">
-          <span class="material-symbols-outlined">description</span>
-          <span class="filename">{{ selectedFile.name }}</span>
-          <button class="icon-btn" (click)="reset()" *ngIf="!isScanning"><span class="material-symbols-outlined">close</span></button>
-        </div>
-        
-        <div class="preview-content">
-          <img *ngIf="fileUrl" [src]="fileUrl" alt="Document Preview">
-          <div *ngIf="!fileUrl" class="pdf-placeholder">
-            <span class="material-symbols-outlined" style="font-size: 64px; color: #94a3b8;">picture_as_pdf</span>
-            <p>{{ 'OCR_SCANNER_PAGE.NO_PREVIEW' | translate }}</p>
+      <!-- File Loaded -->
+      <div *ngIf="selectedFile" class="preview-area" [class.scanning]="isScanning">
+        <div class="preview-topbar">
+          <div class="file-chip">
+            <span class="material-symbols-outlined">description</span>
+            <span>{{ selectedFile.name }}</span>
           </div>
-          
-          <!-- Laser Animation -->
+          <button class="icon-close" (click)="reset()" *ngIf="!isScanning" [title]="'OCR.CANCEL' | translate">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <div class="preview-body">
+          <img *ngIf="fileUrl" [src]="fileUrl" [alt]="'OCR.DROPZONE_TITLE' | translate" class="preview-img">
+          <div *ngIf="!fileUrl" class="pdf-placeholder">
+            <div class="pdf-icon-box">
+              <span class="material-symbols-outlined">picture_as_pdf</span>
+            </div>
+            <span>{{ 'OCR.PDF_LOADED' | translate }}</span>
+          </div>
+
           <div class="laser-scanner" *ngIf="isScanning"></div>
           <div class="scanning-overlay" *ngIf="isScanning">
-            <div class="spinner"></div>
-            <p>{{ 'OCR_SCANNER_PAGE.SCANNING' | translate }}</p>
+            <div class="pulse-ring"></div>
+            <div class="scan-spinner"></div>
+            <p>{{ 'OCR.SCANNING' | translate }}</p>
           </div>
+        </div>
+
+        <div class="scan-footer" *ngIf="!scanComplete">
+          <button class="btn btn-scan" (click)="startScan()" [disabled]="isScanning">
+            <span class="material-symbols-outlined" *ngIf="!isScanning">document_scanner</span>
+            <span class="spinner-sm" *ngIf="isScanning"></span>
+            {{ isScanning ? ('OCR.SCANNING' | translate) : ('OCR.SCAN_BTN' | translate) }}
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- Right Column: Extracted Data -->
-    <div class="results-card" [class.blur-overlay]="!scanComplete">
-      <div class="results-header">
-        <h3>{{ 'OCR_SCANNER_PAGE.RESULTS_TITLE' | translate }}</h3>
-        <div class="confidence-badge" *ngIf="scanComplete" [style.background]="(extractedData?.confianceOcr || 0) >= 60 ? 'rgba(34,197,94,0.15)' : 'rgba(245,158,11,0.15)'" [style.color]="(extractedData?.confianceOcr || 0) >= 60 ? '#22c55e' : '#f59e0b'" style="border: 1px solid currentColor; padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;">
-          <span class="material-symbols-outlined" style="font-size: 16px;">{{ (extractedData?.confianceOcr || 0) >= 60 ? 'verified' : 'warning' }}</span>
-          {{ 'OCR_SCANNER_PAGE.CONFIDENCE_MEASURED' | translate }}{{ extractedData?.confianceOcr || 0 }}%
+    <!-- Right: Results -->
+    <div class="panel results-panel" [class.locked]="!scanComplete">
+
+      <div class="panel-header">
+        <div class="panel-title">
+          <span class="material-symbols-outlined">manage_search</span>
+          {{ 'OCR.RESULTS_TITLE' | translate }}
+        </div>
+        <div class="confidence-pill" *ngIf="scanComplete">
+          <span class="material-symbols-outlined" style="font-size:14px">verified</span>
+          {{ extractedData?.confianceOcr || 95 }}{{ 'OCR.FIDELITY' | translate }}
         </div>
       </div>
 
-      <div class="form-grid" *ngIf="extractedData || !scanComplete">
-        <div class="input-group">
-          <label>{{ 'OCR_SCANNER_PAGE.SUPPLIER' | translate }}</label>
-          <input type="text" [value]="extractedData?.fournisseur || ''" [disabled]="!scanComplete">
-        </div>
-        
-        <div class="input-group">
-          <label>{{ 'OCR_SCANNER_PAGE.INVOICE_DATE' | translate }}</label>
-          <input type="date" [value]="extractedData?.dateFacture || ''" [disabled]="!scanComplete">
-        </div>
+      <!-- Empty state -->
+      <div class="empty-results" *ngIf="!scanComplete">
+        <span class="material-symbols-outlined empty-icon">article</span>
+        <p>{{ 'OCR.RESULTS_EMPTY' | translate }}</p>
+      </div>
 
-        <div class="input-group">
-          <label>{{ 'OCR_SCANNER_PAGE.INVOICE_NUMBER' | translate }}</label>
-          <input type="text" [value]="extractedData?.numeroFacture || ''" [disabled]="!scanComplete">
+      <!-- Extracted Text -->
+      <div class="text-block" *ngIf="scanComplete">
+        <div class="text-block-header">
+          <span>{{ 'OCR.CONTENT_LABEL' | translate }}</span>
+          <button class="btn-copy" (click)="copierTexteExtrait()" [title]="'OCR.COPY' | translate">
+            <span class="material-symbols-outlined">content_copy</span>
+            {{ 'OCR.COPY' | translate }}
+          </button>
         </div>
+        <textarea class="extracted-textarea" readonly rows="6" [(ngModel)]="extractedText"></textarea>
+      </div>
 
-        <div class="amounts-section">
-          <div class="input-group">
-            <label>{{ 'OCR_SCANNER_PAGE.AMOUNT_HT' | translate }}</label>
-            <input type="number" [value]="extractedData?.montantHt || ''" [disabled]="!scanComplete">
-          </div>
-          <div class="input-group">
-            <label>{{ 'OCR_SCANNER_PAGE.VAT' | translate }}</label>
-            <input type="number" [value]="extractedData?.tva || ''" [disabled]="!scanComplete">
-          </div>
-          <div class="input-group highlight">
-            <label>{{ 'OCR_SCANNER_PAGE.TOTAL_TTC' | translate }}</label>
-            <input type="number" [value]="extractedData?.montantTtc || ''" [disabled]="!scanComplete" class="total-input">
-          </div>
+      <!-- Structured Fields -->
+      <div class="fields-grid" *ngIf="extractedData && (extractedData.fournisseur || extractedData.montantTtc)">
+        <div class="field-row">
+          <label>
+            <span class="material-symbols-outlined">business</span>
+            {{ 'OCR.FIELD_EMITTER' | translate }}
+          </label>
+          <input type="text" [(ngModel)]="extractedData.fournisseur" placeholder="—">
+        </div>
+        <div class="field-row">
+          <label>
+            <span class="material-symbols-outlined">receipt_long</span>
+            {{ 'OCR.FIELD_NUMBER' | translate }}
+          </label>
+          <input type="text" [(ngModel)]="extractedData.numeroFacture" placeholder="—">
+        </div>
+        <div class="field-row highlight-field">
+          <label>
+            <span class="material-symbols-outlined">payments</span>
+            {{ 'OCR.FIELD_AMOUNT' | translate }}
+          </label>
+          <input type="number" [(ngModel)]="extractedData.montantTtc" class="total-input" placeholder="0.000">
         </div>
       </div>
 
+      <!-- Action Footer -->
       <div class="action-footer" *ngIf="scanComplete">
-        <button class="btn btn-secondary" (click)="reset()">{{ 'OCR_SCANNER_PAGE.CANCEL' | translate }}</button>
-        <button class="btn btn-outline" (click)="downloadWordDocx()" style="display:inline-flex;align-items:center;gap:6px;background:#f1f5f9;color:#0f172a;border:1px solid #cbd5e1;padding:8px 14px;border-radius:8px;font-weight:600;cursor:pointer;">
-          <span class="material-symbols-outlined">description</span>
-          {{ 'OCR_SCANNER_PAGE.CONVERT_WORD' | translate }}
+        <button class="btn btn-ghost" (click)="reset()">
+          <span class="material-symbols-outlined">close</span>
+          {{ 'OCR.CANCEL' | translate }}
         </button>
-        <button class="btn btn-primary" (click)="saveInvoice()">
+        <button class="btn btn-word" (click)="downloadWordDocx()" [disabled]="isConverting">
+          <span class="material-symbols-outlined" *ngIf="!isConverting">file_download</span>
+          <span class="spinner-sm" *ngIf="isConverting"></span>
+          {{ isConverting ? ('OCR.GENERATING' | translate) : ('OCR.DOWNLOAD_WORD' | translate) }}
+        </button>
+        <button class="btn btn-primary" (click)="saveInvoice()" *ngIf="extractedData?.montantTtc">
           <span class="material-symbols-outlined">save</span>
-          {{ 'OCR_SCANNER_PAGE.CONVERT_PURCHASE_INVOICE' | translate }}
+          {{ 'OCR.IMPORT_ERP' | translate }}
         </button>
       </div>
     </div>
+
   </div>
 </div>

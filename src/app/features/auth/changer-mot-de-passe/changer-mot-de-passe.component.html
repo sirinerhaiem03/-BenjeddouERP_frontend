@@ -35,7 +35,6 @@
         <div class="field-group">
           <label for="ancienMdp">Mot de passe initial (fourni par l'admin)</label>
           <div class="input-wrap">
-            <span class="material-symbols-outlined input-icon">key</span>
             <input [type]="showAncien ? 'text' : 'password'"
                    id="ancienMdp" name="ancienMdp"
                    [(ngModel)]="ancienMdp"
@@ -52,7 +51,6 @@
         <div class="field-group">
           <label for="nouveauMdp">Nouveau mot de passe</label>
           <div class="input-wrap">
-            <span class="material-symbols-outlined input-icon">lock</span>
             <input [type]="showNouveau ? 'text' : 'password'"
                    id="nouveauMdp" name="nouveauMdp"
                    [(ngModel)]="nouveauMdp"
@@ -77,7 +75,6 @@
         <div class="field-group">
           <label for="confirmerMdp">Confirmer le nouveau mot de passe</label>
           <div class="input-wrap">
-            <span class="material-symbols-outlined input-icon">lock_clock</span>
             <input [type]="showConfirmer ? 'text' : 'password'"
                    id="confirmerMdp" name="confirmerMdp"
                    [(ngModel)]="confirmerMdp"

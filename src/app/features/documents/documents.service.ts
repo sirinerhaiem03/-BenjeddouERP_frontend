@@ -21,12 +21,12 @@ export interface ModeleDocument {
 
 export interface DocumentGenere {
   id: number;
-  modele: { id: number; nom: string };
+  modele?: { id: number; nom: string };
   titreDocument: string;
   moduleSource: string;
-  entiteId: number;
+  entiteId?: number;
   langue: string;
-  statut: 'GENERE' | 'SIGNE' | 'ARCHIVE';
+  statut: 'GENERE' | 'SIGNE' | 'ARCHIVE' | string;
   version: number;
   dateGeneration: string;
   hasPdf?: boolean;
@@ -55,7 +55,8 @@ export class DocumentsService {
 
   private getHeaders(): HttpHeaders {
     const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    return new HttpHeaders({ 'Authorization': `Bearer ${user.token || ''}` });
+    const token = user.token || user.accessToken || localStorage.getItem('token') || localStorage.getItem('accessToken') || '';
+    return new HttpHeaders({ 'Authorization': `Bearer ${token}` });
   }
 
   // ── Modèles ─────────────────────────────────────────────────────────
@@ -138,6 +139,18 @@ export class DocumentsService {
     fd.append('fichier', fichier);
     fd.append('langue', langue);
     return this.http.post(`${API_URL}/ocr/image-vers-docx`, fd, {
+      headers: this.getHeaders(),
+      responseType: 'blob'
+    });
+  }
+
+  convertirDocumentVersWordComplet(fichier: File, langue = 'fr', preserverTableaux = true, preserverImages = true): Observable<Blob> {
+    const fd = new FormData();
+    fd.append('fichier', fichier);
+    fd.append('langue', langue);
+    fd.append('preserverTableaux', String(preserverTableaux));
+    fd.append('preserverImages', String(preserverImages));
+    return this.http.post(`${API_URL}/convertir-vers-word`, fd, {
       headers: this.getHeaders(),
       responseType: 'blob'
     });
