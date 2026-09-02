@@ -39,15 +39,15 @@ export class SaSecuriteComponent implements OnInit {
   private apiUrl = `${environment.apiUrl}/superadmin`;
 
   // ── État des boutons ──────────────────────────────────────────────────
-  loadingReset    = false;
-  loadingBackup   = false;
-  loadingStatus   = false;
-  loadingListe    = false;
+  loadingReset = false;
+  loadingBackup = false;
+  loadingStatus = false;
+  loadingListe = false;
   loadingNettoyer = false;
 
   // ── Messages feedback ─────────────────────────────────────────────────
-  msgReset:    { type: 'succes' | 'erreur'; texte: string } | null = null;
-  msgBackup:   { type: 'succes' | 'erreur'; texte: string } | null = null;
+  msgReset: { type: 'succes' | 'erreur'; texte: string } | null = null;
+  msgBackup: { type: 'succes' | 'erreur'; texte: string } | null = null;
   msgNettoyer: { type: 'succes' | 'erreur'; texte: string } | null = null;
 
   // ── Données ───────────────────────────────────────────────────────────
@@ -59,7 +59,7 @@ export class SaSecuriteComponent implements OnInit {
   // ── Confirmation reset ────────────────────────────────────────────────
   showConfirmReset = false;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
     this.chargerStatutSecurite();

@@ -37,7 +37,7 @@ export class SaEntreprisesComponent implements OnInit {
   };
   errors: any = {};
 
-  constructor(private http: HttpClient, private authService: AuthService) {}
+  constructor(private http: HttpClient, private authService: AuthService) { }
 
   private getHeaders(): HttpHeaders {
     return new HttpHeaders({ Authorization: 'Bearer ' + this.authService.getToken() });

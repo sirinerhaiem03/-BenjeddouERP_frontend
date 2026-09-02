@@ -2,14 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { environment } from '../../../environments/environment';
-
 @Injectable({ providedIn: 'root' })
 export class AiService {
-  private apiUrl = `${environment.apiUrl}/ai`;
+  private apiUrl = `${environment.apiUrl}api/ai`;
   private isOpenSubject = new BehaviorSubject<boolean>(false);
   public isOpen$ = this.isOpenSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   toggleChat(): void {
     this.isOpenSubject.next(!this.isOpenSubject.value);

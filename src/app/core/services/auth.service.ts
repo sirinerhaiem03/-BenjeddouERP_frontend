@@ -3,8 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-
-const API_URL = `${environment.apiUrl}/auth/`;
+const API_URL = `${environment.apiUrl}/api/auth/`;
 
 /**
  * AuthService — J3 Sécurité
@@ -58,7 +57,7 @@ export class AuthService {
     if (token) {
       this.http.post(API_URL + 'logout', {}, {
         headers: { Authorization: 'Bearer ' + token }
-      }).subscribe({ error: () => {} }); // Silencieux
+      }).subscribe({ error: () => { } }); // Silencieux
     }
     this._accessToken = null;
     localStorage.removeItem('currentUser');
