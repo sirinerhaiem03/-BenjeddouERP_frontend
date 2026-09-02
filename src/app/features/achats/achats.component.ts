@@ -8,7 +8,7 @@ import { Chart, registerables } from 'chart.js';
 import { ExportService } from '../../core/services/export.service';
 import { PermissionService } from '../../core/services/permission.service';
 import { AppPermissionDirective } from '../../shared/directives/app-permission.directive';
-import { environment } from '../../environments/environment';
+import { environment } from '../../../environments/environment';
 Chart.register(...registerables);
 
 

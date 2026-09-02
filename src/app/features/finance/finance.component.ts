@@ -8,7 +8,7 @@ import { ExportService } from '../../core/services/export.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { PermissionService } from '../../core/services/permission.service';
 import { AppPermissionDirective } from '../../shared/directives/app-permission.directive';
-import { environment } from '../../environments/environment';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-finance',
