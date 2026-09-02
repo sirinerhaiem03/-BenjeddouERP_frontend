@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-portail-layout',
@@ -250,7 +251,7 @@ export class PortailLayoutComponent implements OnInit {
     const token = raw ? JSON.parse(raw).token : null;
     if (!token) return;
 
-    fetch('http://localhost:9090/api/portail/dashboard', {
+    fetch(`${environment.apiUrl}/portail/dashboard`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
     .then(r => r.json())

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
 interface BackupInfo {
   fichier: string;
@@ -35,7 +36,7 @@ interface SecuriteStatus {
 })
 export class SaSecuriteComponent implements OnInit {
 
-  private apiUrl = 'http://localhost:9090/api/superadmin';
+  private apiUrl = `${environment.apiUrl}/superadmin`;
 
   // ── État des boutons ──────────────────────────────────────────────────
   loadingReset    = false;

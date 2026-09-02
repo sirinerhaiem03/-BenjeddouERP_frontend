@@ -4,6 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-sa-entreprises',
@@ -14,7 +15,7 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class SaEntreprisesComponent implements OnInit {
 
-  private apiUrl = 'http://localhost:9090/api';
+  private apiUrl = environment.apiUrl;
 
   entreprises: any[] = [];
   loading = true;

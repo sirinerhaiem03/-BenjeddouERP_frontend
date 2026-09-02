@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-superadmin-entreprises',
@@ -12,7 +13,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class SuperadminEntreprisesComponent implements OnInit {
 
-  private apiUrl = 'http://localhost:9090/api/entreprises';
+  private apiUrl = `${environment.apiUrl}/entreprises`;
 
   entreprises: any[]     = [];
   adminsMap: any         = {};   // { adminId: 'nomUtilisateur' }
@@ -58,7 +59,7 @@ export class SuperadminEntreprisesComponent implements OnInit {
 
   chargerAdmins(): void {
     // Pour afficher le nom de l'admin dans le tableau
-    this.http.get<any[]>('http://localhost:9090/api/admin/users').subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/admin/users`).subscribe({
       next: (users) => {
         users.forEach(u => this.adminsMap[u.id] = u.nomUtilisateur);
       },

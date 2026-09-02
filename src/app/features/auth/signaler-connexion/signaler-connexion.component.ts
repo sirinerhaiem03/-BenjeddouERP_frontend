@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
 type EtatPage = 'chargement' | 'succes' | 'deja_signale' | 'invalide' | 'erreur';
 
@@ -17,7 +18,7 @@ export class SignalerConnexionComponent implements OnInit {
   etat: EtatPage = 'chargement';
   messageServeur = '';
   erreurDebug = '';   // code HTTP exact pour diagnostic
-  private apiUrl = 'http://localhost:9090/api';
+  private apiUrl = environment.apiUrl;
 
   constructor(private route: ActivatedRoute, private http: HttpClient) {}
 

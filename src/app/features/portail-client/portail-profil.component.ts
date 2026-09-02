@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-portail-profil',
@@ -458,7 +459,7 @@ export class PortailProfilComponent implements OnInit {
       return;
     }
 
-    fetch('http://localhost:9090/api/portail/profil', {
+    fetch(`${environment.apiUrl}/portail/profil`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
     .then(r => {
@@ -533,7 +534,7 @@ export class PortailProfilComponent implements OnInit {
     const token = raw ? JSON.parse(raw).token : null;
     if (!token) { this.saving = false; return; }
 
-    fetch('http://localhost:9090/api/portail/profil', {
+    fetch(`${environment.apiUrl}/portail/profil`, {
       method: 'PUT',
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify(this.editData)

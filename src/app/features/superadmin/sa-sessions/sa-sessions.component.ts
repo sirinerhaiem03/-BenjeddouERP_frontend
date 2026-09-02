@@ -5,6 +5,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../../../environments/environment';
 
 interface SessionActive {
   id: number;
@@ -99,7 +100,7 @@ export class SaSessionsComponent implements OnInit, OnDestroy {
   // Auto-rafraîchissement toutes les 30s
   private refreshInterval: any;
 
-  private apiUrl = 'http://localhost:9090/api';
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 

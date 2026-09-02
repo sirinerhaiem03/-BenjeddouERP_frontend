@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../../../environments/environment';
 
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -18,7 +19,7 @@ export class SaConfigurationComponent {
     trialDureeJours: 30,
     smtpFrom: 'noreply@benjeddou.com',
     urlFrontend: 'http://localhost:4200',
-    urlBackend: 'http://localhost:9090'
+    urlBackend: environment.backendUrl
   };
 
   saved = false;

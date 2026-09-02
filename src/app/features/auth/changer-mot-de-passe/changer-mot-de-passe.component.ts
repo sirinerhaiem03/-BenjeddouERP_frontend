@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-changer-mot-de-passe',
@@ -74,7 +75,7 @@ export class ChangerMotDePasseComponent {
       .set('ancienMotDePasse', this.ancienMdp)
       .set('nouveauMotDePasse', this.nouveauMdp);
 
-    this.http.put('http://localhost:9090/api/auth/changer-mot-de-passe', null, { headers, params }).subscribe({
+    this.http.put(`${environment.apiUrl}/auth/changer-mot-de-passe`, null, { headers, params }).subscribe({
       next: (_res: any) => {
         this.loading = false;
         this.successMsg = '✅ Mot de passe changé avec succès ! Redirection vers le tableau de bord...';

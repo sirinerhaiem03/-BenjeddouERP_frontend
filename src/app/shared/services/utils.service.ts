@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 
-const API = 'http://localhost:9090/api/utils';
+const API = `${environment.apiUrl}/utils`;
 
 export interface ResultatRecherche {
   type: string;

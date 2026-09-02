@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { QrBarcodeService } from '../../core/services/qr-barcode.service';
+import { environment } from '../../../environments/environment';
 
 interface LigneDevis {
   designation: string;
@@ -714,7 +715,7 @@ export class PortailDemandeDevisComponent implements OnInit {
     const token = raw ? JSON.parse(raw)?.token : null;
     if (!token) return;
 
-    fetch('http://localhost:9090/api/portail/devis-requests', {
+    fetch(`${environment.apiUrl}/portail/devis-requests`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
     .then(r => r.ok ? r.json() : [])
@@ -752,7 +753,7 @@ export class PortailDemandeDevisComponent implements OnInit {
       return;
     }
 
-    fetch('http://localhost:9090/api/portail/devis-request', {
+    fetch(`${environment.apiUrl}/portail/devis-request`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ ...this.form })

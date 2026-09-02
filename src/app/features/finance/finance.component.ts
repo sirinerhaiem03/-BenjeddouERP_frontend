@@ -8,6 +8,7 @@ import { ExportService } from '../../core/services/export.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { PermissionService } from '../../core/services/permission.service';
 import { AppPermissionDirective } from '../../shared/directives/app-permission.directive';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-finance',
@@ -69,7 +70,7 @@ export class FinanceComponent implements OnInit, OnDestroy {
   ];
   anneeOptions: number[] = [];
 
-  private baseUrl = 'http://localhost:9090/api';
+  private baseUrl = environment.apiUrl;
 
   constructor(private http: HttpClient, private route: ActivatedRoute, private exportService: ExportService, public permissionService: PermissionService) {}
 

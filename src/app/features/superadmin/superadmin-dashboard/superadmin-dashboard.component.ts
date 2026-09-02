@@ -4,6 +4,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { forkJoin } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -30,7 +31,7 @@ export class SuperadminDashboardComponent implements OnInit {
   logsRecents: any[] = [];
   today = new Date();
 
-  private apiUrl = 'http://localhost:9090/api';
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 

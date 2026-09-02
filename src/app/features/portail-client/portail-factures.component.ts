@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-portail-factures',
@@ -656,19 +657,19 @@ export class PortailFacturesComponent implements OnInit {
     this.filtrer();
 
     // 2. Envoi HTTP sécurisé (avec Token JWT automatique) aux 2 endpoints backend
-    this.http.post(`http://localhost:9090/api/portail/factures/${f.id}/payer`, { modePaiement: this.modePaiement }).subscribe({
+    this.http.post(`${environment.apiUrl}/portail/factures/${f.id}/payer`, { modePaiement: this.modePaiement }).subscribe({
       next: () => console.log('Facture marquée PAYEE via portail BDD ✓'),
       error: () => {}
     });
 
-    this.http.put(`http://localhost:9090/api/factures/${f.id}/statut`, { statut: 'PAYEE' }).subscribe({
+    this.http.put(`${environment.apiUrl}/factures/${f.id}/statut`, { statut: 'PAYEE' }).subscribe({
       next: () => console.log('Statut facture mis à jour BDD ✓'),
       error: () => {}
     });
   }
 
   private confirmerPaiementStripe(sessionId: string, factureId: number): void {
-    this.http.get(`http://localhost:9090/api/stripe/facture-succes?sessionId=${sessionId}&factureId=${factureId}`).subscribe({
+    this.http.get(`${environment.apiUrl}/stripe/facture-succes?sessionId=${sessionId}&factureId=${factureId}`).subscribe({
       next: (data: any) => {
         if (data?.statut === 'PAYEE') {
           this.showToast('✅ Paiement confirmé ! Facture marquée comme payée.');
@@ -681,7 +682,7 @@ export class PortailFacturesComponent implements OnInit {
 
   private loadFactures(): void {
     this.loading = true;
-    this.http.get<any[]>('http://localhost:9090/api/portail/factures').subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/portail/factures`).subscribe({
       next: (data) => {
         const raw = Array.isArray(data) ? data : [];
         this.factures = this.applyLocalPaidStatus(raw);
@@ -691,7 +692,7 @@ export class PortailFacturesComponent implements OnInit {
       },
       error: () => {
         // Repli vers endpoint général factures
-        this.http.get<any[]>('http://localhost:9090/api/factures').subscribe({
+        this.http.get<any[]>(`${environment.apiUrl}/factures`).subscribe({
           next: (data) => {
             const raw = Array.isArray(data) ? data : [];
             this.factures = this.applyLocalPaidStatus(raw);

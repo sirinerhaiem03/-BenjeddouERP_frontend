@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-portail-commandes',
@@ -251,7 +252,7 @@ export class PortailCommandesComponent implements OnInit {
     const token = raw ? JSON.parse(raw).token : null;
     if (!token) { this.loading = false; return; }
 
-    fetch('http://localhost:9090/api/portail/commandes', {
+    fetch(`${environment.apiUrl}/portail/commandes`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
     .then(r => {

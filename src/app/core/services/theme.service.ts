@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 
-const API_URL = 'http://localhost:9090/api/theme';
+const API_URL = `${environment.apiUrl}/theme`;
 
 export interface ThemeConfig {
   primaryColor: string;

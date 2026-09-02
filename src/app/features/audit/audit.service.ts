@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
+import { environment } from '../../../environments/environment';
 
-const API_URL = 'http://localhost:9090/api/audit/';
+const API_URL = `${environment.apiUrl}/audit/`;
 
 export interface AuditLog {
   id: number;

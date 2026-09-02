@@ -2,8 +2,9 @@ import { Injectable, NgZone, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from './auth.service';
+import { environment } from '../../../environments/environment';
 
-const API_URL = 'http://localhost:9090/api/auth/';
+const API_URL = `${environment.apiUrl}/auth/`;
 
 /**
  * HeartbeatService — J3 Sécurité (P5)

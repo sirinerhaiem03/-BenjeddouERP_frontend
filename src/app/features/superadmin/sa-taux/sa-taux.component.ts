@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
+import { environment } from '../../../../environments/environment';
 
 export interface PeriodeTaux {
   id: number;
@@ -26,7 +27,7 @@ import { TranslateModule } from '@ngx-translate/core';
 })
 export class SaTauxComponent implements OnInit {
 
-  private apiUrl = 'http://localhost:9090/api/periodes-taux';
+  private apiUrl = `${environment.apiUrl}/periodes-taux`;
 
   // ── Données ──
   periodes: PeriodeTaux[] = [];

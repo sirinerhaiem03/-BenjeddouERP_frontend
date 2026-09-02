@@ -3,8 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { tap, map, catchError } from 'rxjs/operators';
 import { AuthService } from './auth.service';
+import { environment } from '../../../environments/environment';
 
-const PERMISSIONS_URL = 'http://localhost:9090/api/user/permissions';
+const PERMISSIONS_URL = `${environment.apiUrl}/user/permissions`;
 const LOCAL_ROLES_KEY  = 'benjeddou_roles_permissions'; // clé du localStorage
 
 export interface ModulePermsMap {

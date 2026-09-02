@@ -4,6 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { AiService } from '../../../core/services/ai.service';
 import { DocumentsService } from '../../documents/documents.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-ocr-scanner',
@@ -299,7 +300,7 @@ export class OcrScannerComponent {
     this.isScanning = true;
     const token = localStorage.getItem('accessToken') || localStorage.getItem('token') || '';
 
-    fetch('http://localhost:9090/api/factures/ocr-import', {
+    fetch(`${environment.apiUrl}/factures/ocr-import`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -1,6 +1,6 @@
 {
   "/api": {
-    "target": "http://localhost:9090",
+    "target": "https://benjeddouerp-backend.onrender.com",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"

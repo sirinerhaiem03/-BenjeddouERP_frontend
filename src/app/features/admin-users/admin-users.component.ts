@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExportService } from '../../core/services/export.service';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-admin-users',
@@ -13,7 +14,7 @@ import { ExportService } from '../../core/services/export.service';
   styleUrls: ['./admin-users.component.css']
 })
 export class AdminUsersComponent implements OnInit {
-  private apiUrl = 'http://localhost:9090/api/admin';
+  private apiUrl = `${environment.apiUrl}/admin`;
 
   users: any[] = [];
   loading = true;

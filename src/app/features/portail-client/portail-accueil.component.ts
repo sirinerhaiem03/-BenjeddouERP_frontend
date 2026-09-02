@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 interface Kpis {
   facturesImpayees: number;
@@ -372,7 +373,7 @@ export class PortailAccueilComponent implements OnInit {
 
     if (!token) { this.loading = false; return; }
 
-    fetch('http://localhost:9090/api/portail/dashboard', {
+    fetch(`${environment.apiUrl}/portail/dashboard`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
     .then(r => r.json())

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-portail-devis',
@@ -273,7 +274,7 @@ export class PortailDevisComponent implements OnInit {
     const token = raw ? JSON.parse(raw).token : null;
     if (!token) { this.loading = false; return; }
 
-    fetch('http://localhost:9090/api/portail/devis', {
+    fetch(`${environment.apiUrl}/portail/devis`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
     .then(r => r.ok ? r.json() : [])
@@ -295,7 +296,7 @@ export class PortailDevisComponent implements OnInit {
     this.reponseSuccess = null;
     this.reponseError   = null;
 
-    fetch(`http://localhost:9090/api/portail/devis/${devis.id}/reponse`, {
+    fetch(`${environment.apiUrl}/portail/devis/${devis.id}/reponse`, {
       method: 'PUT',
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ action })

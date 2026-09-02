@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
 interface TableInfo { nom: string; lignes: number | string; }
 interface BackupInfo { fichier: string; tailleKo: number; dateCreation: string; }
@@ -745,7 +746,7 @@ interface BaseInfo { succes: boolean; schema: string; nbTables: number; tables: 
 })
 export class DbManagementComponent implements OnInit {
   private http = inject(HttpClient);
-  private apiBase = 'http://localhost:9090';
+  private apiBase = environment.backendUrl;
 
   isSuperAdmin = false;
   schemaSelectionne = 'master';

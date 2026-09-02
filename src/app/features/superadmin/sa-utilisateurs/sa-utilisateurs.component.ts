@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
+import { environment } from '../../../../environments/environment';
 
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -14,7 +15,7 @@ import { TranslateModule } from '@ngx-translate/core';
   styleUrls: ['./sa-utilisateurs.component.css']
 })
 export class SaUtilisateursComponent implements OnInit {
-  private apiUrl = 'http://localhost:9090/api';
+  private apiUrl = environment.apiUrl;
 
   utilisateurs: any[] = [];
   loading = true;

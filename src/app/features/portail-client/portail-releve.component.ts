@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, DecimalPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../../environments/environment';
 
 interface LigneReleve {
   date: string;
@@ -342,7 +343,7 @@ export class PortailReleveComponent implements OnInit {
     const token = raw ? JSON.parse(raw)?.token : null;
     if (!token) { this.loading = false; this.erreur = true; return; }
 
-    fetch('http://localhost:9090/api/portail/releve', {
+    fetch(`${environment.apiUrl}/portail/releve`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
     .then(r => {

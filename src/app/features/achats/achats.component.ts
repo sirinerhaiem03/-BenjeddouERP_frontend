@@ -8,6 +8,7 @@ import { Chart, registerables } from 'chart.js';
 import { ExportService } from '../../core/services/export.service';
 import { PermissionService } from '../../core/services/permission.service';
 import { AppPermissionDirective } from '../../shared/directives/app-permission.directive';
+import { environment } from '../../environments/environment';
 Chart.register(...registerables);
 
 
@@ -89,7 +90,7 @@ export class AchatsComponent implements OnInit, OnDestroy, AfterViewInit {
   errorMsg: string = '';
   private msgTimer: any;
 
-  private baseUrl = 'http://localhost:9090/api';
+  private baseUrl = environment.apiUrl;
 
   // ── Chart.js instances ──
   private chartStatut: Chart | null = null;
