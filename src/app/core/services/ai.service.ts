@@ -4,7 +4,7 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { environment } from '../../../environments/environment';
 @Injectable({ providedIn: 'root' })
 export class AiService {
-  private apiUrl = `${environment.apiUrl}api/ai`;
+  private apiUrl = `${environment.apiUrl}/ai`;
   private isOpenSubject = new BehaviorSubject<boolean>(false);
   public isOpen$ = this.isOpenSubject.asObservable();
 

@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-const API_URL = `${environment.apiUrl}/api/auth/`;
+const API_URL = `${environment.apiUrl}/auth/`;
 
 /**
  * AuthService — J3 Sécurité
