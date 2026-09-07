@@ -5,6 +5,7 @@ import { RouterLink, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { finalize } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { environment } from '../../../../environments/environment';
 
 declare const grecaptcha: any;
 
@@ -16,7 +17,7 @@ declare const grecaptcha: any;
   styleUrls: ['./register-admin.component.css']
 })
 export class RegisterAdminComponent implements OnInit, OnDestroy {
-  private apiUrl = '/api/inscription-admin'; // TOUS les endpoints admin : OTP, check, register
+  private apiUrl = `${environment.apiUrl}/inscription-admin`; // TOUS les endpoints admin : OTP, check, register
 
   // 1=Identité Admin, 2=Entreprise, 3=OTP, 4=Confirmation
   currentStep = 1;

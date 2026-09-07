@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-trial-expire',
@@ -347,7 +348,7 @@ export class TrialExpireComponent implements OnInit {
     private router: Router,
     private authService: AuthService,
     private http: HttpClient
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // Vérifier que l'utilisateur est bien en mode trial expiré
@@ -366,16 +367,16 @@ export class TrialExpireComponent implements OnInit {
     const token = this.authService.getToken();
     const headers = new HttpHeaders(token ? { 'Authorization': `Bearer ${token}` } : {});
 
-    this.http.get<any>('/api/export/mes-donnees', { headers }).subscribe({
+    this.http.get<any>(`${environment.apiUrl}/export/mes-donnees`, { headers }).subscribe({
       next: (data) => {
         this.exportLoading = false;
         this.exportSuccess = true;
         // Télécharger le JSON
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const url  = window.URL.createObjectURL(blob);
-        const a    = document.createElement('a');
-        a.href     = url;
-        a.download = `export-mes-donnees-${new Date().toISOString().slice(0,10)}.json`;
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `export-mes-donnees-${new Date().toISOString().slice(0, 10)}.json`;
         a.click();
         window.URL.revokeObjectURL(url);
         setTimeout(() => this.exportSuccess = false, 4000);

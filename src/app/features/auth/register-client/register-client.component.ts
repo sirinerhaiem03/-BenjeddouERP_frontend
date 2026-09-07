@@ -5,6 +5,7 @@ import { RouterLink, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PublicHeaderComponent } from '../../../shared/components/public-header/public-header.component';
+import { environment } from '../../../../environments/environment';
 
 interface KycDocument {
   type: string;
@@ -22,7 +23,7 @@ interface KycDocument {
   styleUrls: ['./register-client.component.css']
 })
 export class RegisterClientComponent implements OnInit, OnDestroy {
-  private apiUrl = '/api/client';
+  private apiUrl = `${environment.apiUrl}/client`;
 
   // 0 = Choix Mode (Trial / Paiement), 1 = Infos & Statut, 2 = OTP, 3 = KYC, 4 = Confirmation
   currentStep = 0;

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { TranslateModule } from '@ngx-translate/core';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-admin-clients',
@@ -569,8 +570,8 @@ import { TranslateModule } from '@ngx-translate/core';
 })
 export class AdminClientsComponent implements OnInit {
   // URL relatives → passent par le proxy Angular (proxy.conf.json) → plus de CORS
-  private backendUrl = '';                         // chemin relatif : /api/client/kyc/document/1
-  private apiUrl     = '/api/admin';
+  private backendUrl = environment.backendUrl;
+  private apiUrl     = `${environment.apiUrl}/admin`;
 
   clients: any[] = [];
   loading = true;

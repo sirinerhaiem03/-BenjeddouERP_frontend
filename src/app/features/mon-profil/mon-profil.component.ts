@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-mon-profil',
@@ -459,7 +460,7 @@ export class MonProfilComponent implements OnInit {
     this.savingInfos = true;
     const token = this.authService.getToken();
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    this.http.put('/api/utilisateurs/mon-profil', {
+    this.http.put(`${environment.apiUrl}/utilisateurs/mon-profil`, {
       prenom: this.editData.prenom.trim(),
       nom: this.editData.nom.trim(),
       telephone: this.editData.telephone?.trim() || null
@@ -510,7 +511,7 @@ export class MonProfilComponent implements OnInit {
     this.savingPwd = true;
     const token = this.authService.getToken();
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    this.http.post('/api/utilisateurs/changer-mot-de-passe', {
+    this.http.post(`${environment.apiUrl}/utilisateurs/changer-mot-de-passe`, {
       ancienMotDePasse: this.pwd.ancien,
       nouveauMotDePasse: this.pwd.nouveau
     }, { headers }).subscribe({

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Subject, debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 export interface AutocompleteSuggestion {
   value: string;
@@ -77,7 +78,7 @@ export class AutocompleteInputComponent implements OnInit, OnDestroy {
   activeIndex = -1;
 
   private search$ = new Subject<string>();
-  private apiBase = '/api/suggestions';
+  private apiBase = `${environment.apiUrl}/suggestions`;
 
   get defaultIcon(): string {
     const icons: Record<string, string> = {

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { environment } from '../../../environments/environment';
 
 export interface Permission {
   consulter: boolean;
@@ -130,7 +131,7 @@ export class RolesPermissionsComponent implements OnInit {
     }
 
     // Chargement depuis la DB (source de vérité)
-    this.http.get<any>('/api/admin/roles-permissions').subscribe({
+    this.http.get<any>(`${environment.apiUrl}/admin/roles-permissions`).subscribe({
       next: (res) => {
         if (res && res.roles && Array.isArray(res.roles) && res.roles.length > 0) {
           this.roles = res.roles;
@@ -152,7 +153,7 @@ export class RolesPermissionsComponent implements OnInit {
     localStorage.setItem('benjeddou_roles_permissions', JSON.stringify(this.roles));
 
     // 2. Persister en base de données (source de vérité permanente)
-    this.http.put('/api/admin/roles-permissions', this.roles).subscribe({
+    this.http.put(`${environment.apiUrl}/admin/roles-permissions`, this.roles).subscribe({
       next: (res: any) => {
         this.showSuccess(this.translate.instant('ROLES.MATRIX.SAVED'));
         this.cdr.markForCheck();
@@ -168,14 +169,14 @@ export class RolesPermissionsComponent implements OnInit {
 
   // ── Attribution des rôles aux utilisateurs ───────────────────
   chargerUtilisateurs(): void {
-    this.http.get<any[]>('/api/admin/users').subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/admin/users`).subscribe({
       next: data => { this.users = data; this.loadingUsers = false; this.cdr.markForCheck(); },
       error: () => { this.loadingUsers = false; this.cdr.markForCheck(); }
     });
   }
 
   changerRoleUtilisateur(user: any, role: string): void {
-    this.http.put(`/api/admin/users/${user.id}/role`, null,
+    this.http.put(`${environment.apiUrl}/admin/users/${user.id}/role`, null,
       { params: new HttpParams().set('role', role) }
     ).subscribe({
       next: () => {

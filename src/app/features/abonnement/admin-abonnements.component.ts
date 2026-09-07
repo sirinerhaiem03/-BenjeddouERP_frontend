@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-admin-abonnements',
@@ -327,7 +328,7 @@ export class AdminAbonnementsComponent implements OnInit {
   ngOnInit(): void { this.charger(); }
 
   charger(): void {
-    this.http.get<any[]>('/api/abonnement/admin/tous', { headers: this.getHeaders() }).subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/abonnement/admin/tous`, { headers: this.getHeaders() }).subscribe({
       next: data => {
         this.abonnements = Array.isArray(data) ? data : [];
         this.appliquerFiltre();
@@ -383,7 +384,7 @@ export class AdminAbonnementsComponent implements OnInit {
     this.errorMsg = '';
     this.successMsg = '';
 
-    const url = `/api/abonnement/admin/${this.aboSelectionne.id}/decider?decision=${this.decisionType}&notes=${encodeURIComponent(this.notesDecision)}`;
+    const url = `${environment.apiUrl}/abonnement/admin/${this.aboSelectionne.id}/decider?decision=${this.decisionType}&notes=${encodeURIComponent(this.notesDecision)}`;
     this.http.put<any>(url, {}, { headers: this.getHeaders() }).subscribe({
       next: res => {
         this.decisionLoading = false;
