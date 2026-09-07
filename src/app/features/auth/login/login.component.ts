@@ -8,6 +8,7 @@ import { DeviceFingerprintService } from '../../../core/services/device-fingerpr
 import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
 import { PublicHeaderComponent } from '../../../shared/components/public-header/public-header.component';
+import { environment } from '../../../../environments/environment';
 
 // Déclaration globale pour le widget reCAPTCHA v2 injecté via index.html
 declare const grecaptcha: any;
@@ -59,22 +60,22 @@ export class LoginComponent implements OnInit, OnDestroy {
   public regRoleDropdownOpen = false;
 
   // ── CAPTCHA image local (actif après 2 échecs) — généré par le backend ─
-  failedAttempts   = 0;      // Compteur de tentatives échouées
-  showCaptcha      = false;  // Afficher le bloc double CAPTCHA
-  captchaSessionId   = '';   // sessionId UUID retourné par le backend
+  failedAttempts = 0;      // Compteur de tentatives échouées
+  showCaptcha = false;  // Afficher le bloc double CAPTCHA
+  captchaSessionId = '';   // sessionId UUID retourné par le backend
   captchaImageBase64 = '';   // Image PNG en base64 retournée par le backend
-  captchaCodeSaisi   = '';   // Code alphanumérique tapé par l'utilisateur
-  captchaError       = false; // true si code local incorrect
-  captchaLoading     = false; // true pendant le chargement de l'image
+  captchaCodeSaisi = '';   // Code alphanumérique tapé par l'utilisateur
+  captchaError = false; // true si code local incorrect
+  captchaLoading = false; // true pendant le chargement de l'image
 
   // ── Google reCAPTCHA v2 ──────────────────────────────────────
-  recaptchaToken   = '';     // Token Google reCAPTCHA v2 (callback onRecaptchaResolved)
-  recaptchaValide  = false;  // true une fois que l'utilisateur a coché la case
-  recaptchaError   = false;  // true si la validation reCAPTCHA a échoué
+  recaptchaToken = '';     // Token Google reCAPTCHA v2 (callback onRecaptchaResolved)
+  recaptchaValide = false;  // true une fois que l'utilisateur a coché la case
+  recaptchaError = false;  // true si la validation reCAPTCHA a échoué
   private recaptchaWidgetId: number | null = null; // ID du widget rendu
 
   /** URL de l'API CAPTCHA locale */
-  private readonly CAPTCHA_API = '/api/auth/captcha';
+  private readonly CAPTCHA_API = `${environment.apiUrl}/auth/captcha`;
 
   /**
    * Charge un nouveau CAPTCHA depuis le backend Spring Boot.
@@ -86,15 +87,15 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.captchaError = false;
     this.http.get<{ sessionId: string; imageBase64: string }>(this.CAPTCHA_API).subscribe({
       next: (res) => {
-        this.captchaSessionId   = res.sessionId;
+        this.captchaSessionId = res.sessionId;
         this.captchaImageBase64 = res.imageBase64;
-        this.captchaLoading     = false;
-        this.captchaError       = false;
+        this.captchaLoading = false;
+        this.captchaError = false;
       },
       error: (err) => {
         console.error('Erreur lors du chargement du CAPTCHA:', err);
         this.captchaLoading = false;
-        this.captchaError   = false;
+        this.captchaError = false;
       }
     });
   }
@@ -112,17 +113,17 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   /** Réinitialise l'état complet CAPTCHA (local + reCAPTCHA) après une connexion réussie */
   resetCaptchaState(): void {
-    this.showCaptcha       = false;
-    this.captchaSessionId   = '';
+    this.showCaptcha = false;
+    this.captchaSessionId = '';
     this.captchaImageBase64 = '';
-    this.captchaCodeSaisi   = '';
-    this.captchaError       = false;
-    this.failedAttempts     = 0;
+    this.captchaCodeSaisi = '';
+    this.captchaError = false;
+    this.failedAttempts = 0;
     // Réinitialiser Google reCAPTCHA v2
-    this.recaptchaToken     = '';
-    this.recaptchaValide    = false;
-    this.recaptchaError     = false;
-    this.recaptchaWidgetId  = null;
+    this.recaptchaToken = '';
+    this.recaptchaValide = false;
+    this.recaptchaError = false;
+    this.recaptchaWidgetId = null;
   }
 
   /** Vérifie que l'utilisateur a saisi un code ET coché le reCAPTCHA avant de soumettre */
@@ -142,14 +143,14 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   /** Callback appelé par le widget reCAPTCHA quand l'utilisateur coche la case */
   onRecaptchaResolved(token: string): void {
-    this.recaptchaToken  = token;
+    this.recaptchaToken = token;
     this.recaptchaValide = true;
-    this.recaptchaError  = false;
+    this.recaptchaError = false;
   }
 
   /** Callback appelé par reCAPTCHA quand le token expire (2 minutes) */
   onRecaptchaExpired(): void {
-    this.recaptchaToken  = '';
+    this.recaptchaToken = '';
     this.recaptchaValide = false;
   }
 
@@ -163,8 +164,8 @@ export class LoginComponent implements OnInit, OnDestroy {
    * On les enveloppe dans ngZone.run() pour forcer la détection de changement.
    */
   private renderRecaptcha(): void {
-    this.recaptchaToken  = '';
-    this.recaptchaError  = false;
+    this.recaptchaToken = '';
+    this.recaptchaError = false;
     // NE PAS réinitialiser recaptchaValide ici : on attend que le reset visuel soit fait
 
     // 600ms : laisse Angular terminer le cycle *ngIf et injecter le div dans le DOM
@@ -182,7 +183,7 @@ export class LoginComponent implements OnInit, OnDestroy {
             // Reset Angular state après le reset visuel
             this.ngZone.run(() => {
               this.recaptchaValide = false;
-              this.recaptchaToken  = '';
+              this.recaptchaToken = '';
             });
             console.log('🔄 reCAPTCHA reset, widgetId=', this.recaptchaWidgetId);
           } catch (e) {
@@ -203,11 +204,11 @@ export class LoginComponent implements OnInit, OnDestroy {
 
         try {
           this.recaptchaWidgetId = grecaptcha.render(container, {
-            sitekey           : '6Les43MtAAAAAJjpo3ETNwh5kxVsL74oZuTd7maC',
+            sitekey: '6Les43MtAAAAAJjpo3ETNwh5kxVsL74oZuTd7maC',
             // ⚠️ Les callbacks grecaptcha s’exécutent hors NgZone → ngZone.run() obligatoire
-            callback          : (token: string) => this.ngZone.run(() => this.onRecaptchaResolved(token)),
-            'expired-callback': ()              => this.ngZone.run(() => this.onRecaptchaExpired()),
-            theme             : 'light'
+            callback: (token: string) => this.ngZone.run(() => this.onRecaptchaResolved(token)),
+            'expired-callback': () => this.ngZone.run(() => this.onRecaptchaExpired()),
+            theme: 'light'
           });
           console.log('✅ reCAPTCHA widget rendu, id=', this.recaptchaWidgetId);
         } catch (e: any) {
@@ -299,7 +300,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     // Le widget g-recaptcha appelle ces fonctions via data-callback / data-expired-callback.
     // On les expose en les liant au contexte (this) du composant Angular.
     (window as any)['onAngularRecaptchaResolved'] = (token: string) => this.onRecaptchaResolved(token);
-    (window as any)['onAngularRecaptchaExpired']  = ()              => this.onRecaptchaExpired();
+    (window as any)['onAngularRecaptchaExpired'] = () => this.onRecaptchaExpired();
   }
 
 
@@ -509,11 +510,11 @@ export class LoginComponent implements OnInit, OnDestroy {
           // Le backend joint le CAPTCHA dans la réponse après 2 échecs
           const body = err.error || {};
           if (body.captchaRequired || body.captchaSessionId) {
-            this.showCaptcha        = true;
-            this.captchaSessionId   = body.captchaSessionId   || '';
+            this.showCaptcha = true;
+            this.captchaSessionId = body.captchaSessionId || '';
             this.captchaImageBase64 = body.captchaImageBase64 || '';
-            this.captchaCodeSaisi   = '';
-            this.captchaError       = false;
+            this.captchaCodeSaisi = '';
+            this.captchaError = false;
             // Forcer le rendu du widget reCAPTCHA (réinitialise aussi le token)
             this.renderRecaptcha();
           } else if (this.showCaptcha) {
