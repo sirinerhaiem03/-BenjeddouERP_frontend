@@ -5,6 +5,8 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { environment } from '../../../environments/environment';
+
 
 @Component({
   selector: 'app-abonnement',
@@ -622,19 +624,44 @@ export class AbonnementComponent implements OnInit {
   }
 
   chargerPlans(): void {
-    this.http.get<any[]>('/api/abonnement/plans').subscribe({
-      next: data => this.plans = data,
-      error: () => { }
+    const url = `${environment.apiUrl}/abonnement/plans`;
+
+    console.log('🔵 URL plans:', url);
+
+    this.http.get<any[]>(url).subscribe({
+      next: data => {
+        console.log('🟢 PLANS REÇUS:', data);
+        console.log('🟢 TYPE:', typeof data);
+        console.log('🟢 LONGUEUR:', Array.isArray(data) ? data.length : 'PAS UN TABLEAU');
+
+        this.plans = Array.isArray(data) ? data : [];
+      },
+      error: err => {
+        console.error('🔴 ERREUR PLANS:', err);
+        console.error('🔴 STATUS:', err.status);
+        console.error('🔴 BODY:', err.error);
+
+        this.errorMsg =
+          err?.error?.message ||
+          `Impossible de charger les plans (${err.status})`;
+      }
     });
   }
-
   chargerMonAbonnement(): void {
-    this.http.get<any>(`/api/abonnement/mon-abonnement/${this.clientId}`).subscribe({
+    this.http.get<any>(
+      `${environment.apiUrl}/abonnement/mon-abonnement/${this.clientId}`
+    ).subscribe({
       next: data => {
-        this.abonnementActuel = data?.abonnement !== null ? data : null;
-        if (data && data.id) this.abonnementActuel = data;
+        this.abonnementActuel =
+          data?.abonnement !== null ? data : null;
+
+        if (data && data.id) {
+          this.abonnementActuel = data;
+        }
       },
-      error: () => { }
+      error: err => {
+        console.error('❌ Erreur abonnement actuel:', err);
+      }
     });
   }
 
@@ -659,7 +686,7 @@ export class AbonnementComponent implements OnInit {
       referencePaiement: this.referencePaiement
     };
 
-    this.http.post<any>('/api/abonnement/souscrire', body).subscribe({
+    this.http.post<any>(`${environment.apiUrl}/abonnement/souscrire`, body).subscribe({
       next: res => {
         this.loading = false;
         this.successMsg = res.message || this.translate.instant('ABONNEMENT.PAYMENT.SUBMIT');
@@ -693,7 +720,7 @@ export class AbonnementComponent implements OnInit {
 
     const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
 
-    this.http.post<any>('/api/stripe/create-checkout', body, { headers }).subscribe({
+    this.http.post<any>(`${environment.apiUrl}/stripe/create-checkout`, body, { headers }).subscribe({
       next: res => {
         if (res.checkoutUrl) {
           window.location.href = res.checkoutUrl;
