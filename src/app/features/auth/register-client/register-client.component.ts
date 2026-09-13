@@ -153,7 +153,7 @@ export class RegisterClientComponent implements OnInit, OnDestroy {
     private router: Router,
     private translate: TranslateService,
     private eRef: ElementRef
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     const prefs = JSON.parse(localStorage.getItem('erp_user_prefs') || '{}');
@@ -389,17 +389,41 @@ export class RegisterClientComponent implements OnInit, OnDestroy {
       },
       error: (err: any) => {
         this.loading = false;
-        const msg = err?.error?.message || err?.error || 'Erreur lors de la création du compte.';
-        if (msg.toLowerCase().includes('utilisateur') || msg.toLowerCase().includes('username')) {
+
+        console.error('❌ ERREUR REGISTER:', err);
+        console.error('❌ STATUS:', err?.status);
+        console.error('❌ ERROR BODY:', err?.error);
+
+        let msg = 'Erreur lors de la création du compte.';
+
+        if (typeof err?.error === 'string') {
+          msg = err.error;
+        } else if (typeof err?.error?.message === 'string') {
+          msg = err.error.message;
+        } else if (err?.message) {
+          msg = err.message;
+        }
+
+        console.error('❌ MESSAGE FINAL:', msg);
+
+        const msgLower = msg.toLowerCase();
+
+        if (
+          msgLower.includes('utilisateur') ||
+          msgLower.includes('username') ||
+          msgLower.includes('nom d\'utilisateur')
+        ) {
           this.errors.nomUtilisateur = msg;
           this.currentStep = 1;
           this.globalError = msg;
           this.usernameAvailable = false;
-        } else if (msg.toLowerCase().includes('email')) {
+
+        } else if (msgLower.includes('email')) {
           this.errors.email = msg;
           this.currentStep = 1;
           this.globalError = msg;
           this.emailAvailable = false;
+
         } else {
           this.otpError = '⚠️ ' + msg;
         }
