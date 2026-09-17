@@ -1,5 +1,4 @@
 export const environment = {
-  production: false,
-  apiUrl: '/api',
-  backendUrl: 'https://benjeddouerp-backend.onrender.com'
+  production: true,
+  apiUrl: 'https://benjeddouerp-backend.onrender.com'
 };
