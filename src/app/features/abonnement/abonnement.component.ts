@@ -45,12 +45,20 @@ import { environment } from '../../../environments/environment';
       <div class="current-note" *ngIf="abonnementActuel.statut === 'EN_ATTENTE'">
         {{ 'ABONNEMENT.CURRENT.PENDING_NOTE' | translate }}
       </div>
+      <div class="current-actions" *ngIf="abonnementActuel.statut === 'EN_ATTENTE'" style="margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap;">
+        <button class="btn-back" style="margin-bottom: 0; background: #f97316; color: #fff; border: none; font-weight: 700; cursor: pointer; padding: 8px 14px; border-radius: 8px;" (click)="modifierDemande()">
+          🔄 Modifier ma demande / Choisir un autre plan
+        </button>
+        <button class="btn-back" style="margin-bottom: 0; background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); cursor: pointer; padding: 8px 14px; border-radius: 8px;" (click)="annulerMaDemande()">
+          ❌ Annuler la demande
+        </button>
+      </div>
     </div>
     <div class="current-prix">{{ abonnementActuel.prix }} DT</div>
   </div>
 
-  <!-- Plans (si pas d'abonnement actif/en-attente) -->
-  <ng-container *ngIf="!abonnementActuel || abonnementActuel.statut === 'EXPIRE' || abonnementActuel.statut === 'ANNULE'">
+  <!-- Plans (si pas d'abonnement actif/en-attente ou en mode édition) -->
+  <ng-container *ngIf="!abonnementActuel || abonnementActuel.statut === 'EXPIRE' || abonnementActuel.statut === 'ANNULE' || editerDemandeEnAttente">
 
     <!-- Cards plans -->
     <div class="plans-grid" *ngIf="!planSelectionne">
@@ -592,6 +600,8 @@ export class AbonnementComponent implements OnInit {
   successMsg = '';
   errorMsg = '';
 
+  editerDemandeEnAttente = false;
+
   methodes = [
     { value: 'VIREMENT', icon: '🏦' },
     { value: 'CHEQUE', icon: '📝' },
@@ -608,55 +618,94 @@ export class AbonnementComponent implements OnInit {
     private translate: TranslateService
   ) { }
 
-  ngOnInit(): void {
-    try {
-      const stored = localStorage.getItem('currentUser');
-      if (stored) {
-        const user = JSON.parse(stored);
-        this.clientId = user?.id ?? null;
+  private getClientId(): number | null {
+    const authUser = this.authService.currentUserValue;
+    let localUser: any = null;
+
+    const rawCurrent = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
+    if (rawCurrent) {
+      try { localUser = JSON.parse(rawCurrent); } catch (e) { }
+    }
+    if (!localUser) {
+      const rawUser = localStorage.getItem('user') || sessionStorage.getItem('user');
+      if (rawUser) {
+        try { localUser = JSON.parse(rawUser); } catch (e) { }
       }
-    } catch { /* */ }
+    }
+
+    const u = authUser || localUser;
+    if (!u) return null;
+
+    const id = u.id || u.userId || u.clientId || u.user?.id || u.user?.userId || u.user?.clientId;
+    return id ? Number(id) : null;
+  }
+
+  ngOnInit(): void {
+    this.clientId = this.getClientId();
+    console.log('🆔 clientId final =', this.clientId);
 
     this.chargerPlans();
+
     if (this.clientId) {
       this.chargerMonAbonnement();
+    } else {
+      console.warn('⚠️ Aucun clientId trouvé !');
     }
+  }
+
+  modifierDemande(): void {
+    this.editerDemandeEnAttente = true;
+    this.planSelectionne = null;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  annulerMaDemande(): void {
+    this.clientId = this.getClientId();
+    if (!this.clientId) {
+      this.redirectToLogin();
+      return;
+    }
+    if (!this.abonnementActuel || !this.abonnementActuel.id) return;
+    if (!confirm('Voulez-vous vraiment annuler votre demande d\'abonnement en attente ?')) return;
+
+    this.http.put<any>(`${environment.apiUrl}/abonnement/annuler/${this.abonnementActuel.id}?clientId=${this.clientId}`, {}).subscribe({
+      next: res => {
+        this.successMsg = res.message || 'Demande d\'abonnement annulée.';
+        this.abonnementActuel = null;
+        this.editerDemandeEnAttente = false;
+        this.chargerMonAbonnement();
+      },
+      error: err => {
+        this.errorMsg = err?.error?.message || 'Erreur lors de l\'annulation de la demande.';
+      }
+    });
   }
 
   chargerPlans(): void {
     const url = `${environment.apiUrl}/abonnement/plans`;
 
-    console.log('🔵 URL plans:', url);
-
     this.http.get<any[]>(url).subscribe({
       next: data => {
-        console.log('🟢 PLANS REÇUS:', data);
-        console.log('🟢 TYPE:', typeof data);
-        console.log('🟢 LONGUEUR:', Array.isArray(data) ? data.length : 'PAS UN TABLEAU');
-
         this.plans = Array.isArray(data) ? data : [];
       },
       error: err => {
         console.error('🔴 ERREUR PLANS:', err);
-        console.error('🔴 STATUS:', err.status);
-        console.error('🔴 BODY:', err.error);
-
-        this.errorMsg =
-          err?.error?.message ||
-          `Impossible de charger les plans (${err.status})`;
+        this.errorMsg = err?.error?.message || `Impossible de charger les plans (${err.status})`;
       }
     });
   }
+
   chargerMonAbonnement(): void {
+    this.clientId = this.getClientId();
+    if (!this.clientId) return;
     this.http.get<any>(
       `${environment.apiUrl}/abonnement/mon-abonnement/${this.clientId}`
     ).subscribe({
       next: data => {
-        this.abonnementActuel =
-          data?.abonnement !== null ? data : null;
-
         if (data && data.id) {
           this.abonnementActuel = data;
+        } else {
+          this.abonnementActuel = null;
         }
       },
       error: err => {
@@ -669,15 +718,33 @@ export class AbonnementComponent implements OnInit {
     this.planSelectionne = plan;
     this.methodePaiement = '';
     this.referencePaiement = '';
+    this.errorMsg = '';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   soumettreDemande(): void {
-    if (!this.clientId || !this.planSelectionne || !this.methodePaiement) return;
-    if (this.methodePaiement === 'CARTE') { this.payerAvecStripe(); return; }
+    this.clientId = this.getClientId();
+    if (!this.clientId) {
+      this.redirectToLogin();
+      return;
+    }
+    if (!this.planSelectionne) {
+      this.errorMsg = '⚠️ Veuillez sélectionner un plan.';
+      return;
+    }
+    if (!this.methodePaiement) {
+      this.errorMsg = '⚠️ Veuillez sélectionner une méthode de paiement.';
+      return;
+    }
+
+    if (this.methodePaiement === 'CARTE') { 
+      this.payerAvecStripe(); 
+      return; 
+    }
 
     this.loading = true;
     this.errorMsg = '';
+    this.successMsg = '';
 
     const body = {
       clientId: String(this.clientId),
@@ -691,39 +758,47 @@ export class AbonnementComponent implements OnInit {
         this.loading = false;
         this.successMsg = res.message || this.translate.instant('ABONNEMENT.PAYMENT.SUBMIT');
         this.planSelectionne = null;
+        this.editerDemandeEnAttente = false;
         this.chargerMonAbonnement();
       },
       error: err => {
         this.loading = false;
-        this.errorMsg = err?.error?.message || 'Erreur lors de la soumission.';
+        this.errorMsg = err?.error?.message || 'Erreur lors de la soumission de la demande.';
       }
     });
   }
 
   payerAvecStripe(): void {
-    if (!this.clientId || !this.planSelectionne) return;
-    this.stripeLoading = true;
-    this.errorMsg = '';
-
-    const token = this.authService.getToken();
-
-    if (!token) {
-      this.stripeLoading = false;
-      this.errorMsg = '❌ Vous devez être connecté pour payer. Reconnectez-vous sur la page de login.';
+    this.clientId = this.getClientId();
+    if (!this.clientId) {
+      this.redirectToLogin();
       return;
     }
+    if (!this.planSelectionne) {
+      this.errorMsg = '⚠️ Veuillez sélectionner un plan d\'abonnement.';
+      return;
+    }
+    this.stripeLoading = true;
+    this.errorMsg = '';
+    this.successMsg = '';
+
+    const token = this.authService.getToken();
 
     const body = {
       clientId: String(this.clientId),
       typePlan: this.planSelectionne.type
     };
 
-    const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+    const headers: any = { 'Content-Type': 'application/json' };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
 
     this.http.post<any>(`${environment.apiUrl}/stripe/create-checkout`, body, { headers }).subscribe({
       next: res => {
-        if (res.checkoutUrl) {
-          window.location.href = res.checkoutUrl;
+        const checkoutUrl = res.checkoutUrl || res.url;
+        if (checkoutUrl) {
+          window.location.href = checkoutUrl;
         } else {
           this.stripeLoading = false;
           this.errorMsg = 'Impossible de créer la session Stripe. Réessayez.';
@@ -734,15 +809,20 @@ export class AbonnementComponent implements OnInit {
         console.error('[Stripe] Erreur:', err);
         if (err.status === 401 || err.status === 403) {
           this.errorMsg = '❌ Session expirée. Reconnectez-vous puis revenez sur cette page.';
-        } else if (err.status === 400) {
-          this.errorMsg = err?.error?.message || '⚠️ Vous avez déjà un abonnement en cours.';
         } else if (err.status === 0) {
-          this.errorMsg = '❌ Serveur inaccessible (port 9090). Démarrez IntelliJ / le backend Spring Boot.';
+          this.errorMsg = '❌ Serveur inaccessible. Vérifiez la connexion backend.';
         } else {
-          this.errorMsg = `Erreur ${err.status} : ${err?.error?.message || err.message || "Contactez l'administrateur."}`;
+          this.errorMsg = err?.error?.message || err.message || "Erreur lors de la création du paiement Stripe.";
         }
       }
     });
+  }
+
+  private redirectToLogin(): void {
+    this.errorMsg = '❌ Vous devez être connecté pour souscrire un abonnement. Redirection vers la page de connexion...';
+    setTimeout(() => {
+      this.router.navigate(['/login']);
+    }, 1500);
   }
 
   getLabelPlan(type: string): string {

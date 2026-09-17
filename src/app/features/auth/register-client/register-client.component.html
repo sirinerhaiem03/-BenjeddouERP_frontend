@@ -178,6 +178,51 @@
         </div>
       </div>
 
+      <!-- Sélecteur de Plan d'Abonnement (uniquement si paiement direct) -->
+      <div class="statut-selector-container" *ngIf="modeTrial === false" style="margin-top: 24px;">
+        <label class="statut-main-label">Choisissez votre plan d'abonnement <span class="req">*</span></label>
+        <div class="statut-cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+          <!-- Carte Mensuel -->
+          <div class="statut-card" [class.selected]="selectedTypePlan === 'MENSUEL'"
+               (click)="selectedTypePlan = 'MENSUEL'">
+            <div class="statut-radio">
+              <div class="radio-inner" *ngIf="selectedTypePlan === 'MENSUEL'"></div>
+            </div>
+            <div class="statut-icon-box" style="background: #f8fafc; color: #64748b;">🥉</div>
+            <div class="statut-info">
+              <strong>Mensuel</strong>
+              <span>Renouvellement chaque mois</span>
+            </div>
+          </div>
+
+          <!-- Carte Trimestriel -->
+          <div class="statut-card" [class.selected]="selectedTypePlan === 'TRIMESTRIEL'"
+               (click)="selectedTypePlan = 'TRIMESTRIEL'">
+            <div class="statut-radio">
+              <div class="radio-inner" *ngIf="selectedTypePlan === 'TRIMESTRIEL'"></div>
+            </div>
+            <div class="statut-icon-box" style="background: #f1f5f9; color: #475569;">🥈</div>
+            <div class="statut-info">
+              <strong>Trimestriel</strong>
+              <span>Renouvellement tous les 3 mois</span>
+            </div>
+          </div>
+
+          <!-- Carte Annuel -->
+          <div class="statut-card" [class.selected]="selectedTypePlan === 'ANNUEL'"
+               (click)="selectedTypePlan = 'ANNUEL'">
+            <div class="statut-radio">
+              <div class="radio-inner" *ngIf="selectedTypePlan === 'ANNUEL'"></div>
+            </div>
+            <div class="statut-icon-box" style="background: #fef9c3; color: #d97706;">🥇</div>
+            <div class="statut-info">
+              <strong>Annuel</strong>
+              <span>Économisez 20% sur l'année</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Formulaire Dynamique -->
       <div class="form-grid">
 

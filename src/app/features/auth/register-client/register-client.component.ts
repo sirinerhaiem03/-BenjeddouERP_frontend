@@ -35,6 +35,7 @@ export class RegisterClientComponent implements OnInit, OnDestroy {
 
   // Mode d'inscription choisi au Step 0
   modeTrial: boolean | null = null; // true = Essai gratuit 30 connexions, false = Paiement direct
+  selectedTypePlan: string = 'MENSUEL';
 
   // Formulaire d'inscription unifié et dynamique
   form = {
@@ -226,8 +227,9 @@ export class RegisterClientComponent implements OnInit, OnDestroy {
   // ══════════════════════════════════════════════════════════════
   // ÉTAPE 0 : Choix Mode Inscription (Trial vs Frais)
   // ══════════════════════════════════════════════════════════════
-  choisirModeTrial(trial: boolean): void {
+  choisirModeTrial(trial: boolean, typePlan: string = 'MENSUEL'): void {
     this.modeTrial = trial;
+    this.selectedTypePlan = typePlan;
     this.currentStep = 1;
     this.globalError = '';
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -373,7 +375,8 @@ export class RegisterClientComponent implements OnInit, OnDestroy {
       adresse: this.form.adresse,
       nomUtilisateur: this.form.nomUtilisateur,
       motDePasse: this.form.motDePasse,
-      modeTrial: this.modeTrial === true
+      modeTrial: this.modeTrial === true,
+      typePlan: this.selectedTypePlan || 'MENSUEL'
     };
 
     this.loading = true;
@@ -400,6 +403,8 @@ export class RegisterClientComponent implements OnInit, OnDestroy {
           msg = err.error;
         } else if (typeof err?.error?.message === 'string') {
           msg = err.error.message;
+        } else if (typeof err?.error?.erreur === 'string') {
+          msg = err.error.erreur;
         } else if (err?.message) {
           msg = err.message;
         }

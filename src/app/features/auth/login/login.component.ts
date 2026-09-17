@@ -204,7 +204,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
         try {
           this.recaptchaWidgetId = grecaptcha.render(container, {
-            sitekey: '6Les43MtAAAAAJjpo3ETNwh5kxVsL74oZuTd7maC',
+            sitekey: '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
             // ⚠️ Les callbacks grecaptcha s’exécutent hors NgZone → ngZone.run() obligatoire
             callback: (token: string) => this.ngZone.run(() => this.onRecaptchaResolved(token)),
             'expired-callback': () => this.ngZone.run(() => this.onRecaptchaExpired()),
@@ -470,6 +470,12 @@ export class LoginComponent implements OnInit, OnDestroy {
         // ── 2. Changement de mot de passe obligatoire
         if ((user as any).doitChangerMotDePasse === true) {
           this.router.navigate(['/changer-mot-de-passe']);
+          return;
+        }
+
+        // ── 2b. Compte en attente de paiement / validation abonnement ──
+        if (user.statut === 'EN_ATTENTE' || (user as any).statutCompte === 'EN_ATTENTE') {
+          this.router.navigate(['/abonnement']);
           return;
         }
 
