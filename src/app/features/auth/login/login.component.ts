@@ -474,7 +474,10 @@ export class LoginComponent implements OnInit, OnDestroy {
         }
 
         // ── 2b. Compte en attente de paiement / validation abonnement ──
-        if (user.statut === 'EN_ATTENTE' || (user as any).statutCompte === 'EN_ATTENTE') {
+        if (
+          user.statut === 'EN_ATTENTE' || (user as any).statutCompte === 'EN_ATTENTE' ||
+          user.statut === 'VALIDE' || (user as any).statutCompte === 'VALIDE'
+        ) {
           this.router.navigate(['/abonnement']);
           return;
         }
