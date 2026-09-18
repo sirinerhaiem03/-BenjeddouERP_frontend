@@ -47,6 +47,13 @@ export class DashboardLayoutComponent implements OnInit {
   settingsPanelOpen = false;
   currentLang = 'fr';
   isDarkMode = false;
+  isStockRole = false;
+  isClientRole = false;
+  isTrialUser = false;
+  isMasterAdmin = false;
+  trialRestant = 0;
+  showLogoutInSidebar = true;
+  showLogoutInHeader = true;
 
   // ── Prefs utilisateur ──────────────────────────────
   activeThemePreset: ThemePreset = 'light';
@@ -182,6 +189,12 @@ export class DashboardLayoutComponent implements OnInit {
     this.isStockRole = roles.includes('ROLE_STOCK') && !roles.includes('ROLE_ADMIN') && !isSuperAdmin;
     this.isClientRole = roles.includes('ROLE_CLIENT') || roles.includes('CLIENT');
     this.isTrialUser = !!(this.user?.modeTrial) && !isSuperAdmin;
+
+    // Admin général de l'entreprise mère Benjeddou (ERP 0000 / master) ou Superadmin
+    const schema = this.user?.entrepriseSchema || this.getSchemaFromToken();
+    const is0000 = !schema || schema === 'master' || schema.includes('0000');
+    this.isMasterAdmin = isSuperAdmin || ((roles.includes('ROLE_ADMIN') || roles.includes('ADMIN')) && is0000);
+
     const msg = localStorage.getItem('trialMessage');
     if (msg) {
       const match = msg.match(/(\d+)/);
@@ -193,6 +206,19 @@ export class DashboardLayoutComponent implements OnInit {
     }
     this.showLogoutInSidebar = this.logoutPosition === 'sidebar' || this.logoutPosition === 'both';
     this.showLogoutInHeader = this.logoutPosition === 'header' || this.logoutPosition === 'both';
+  }
+
+  private getSchemaFromToken(): string | null {
+    try {
+      const token = this.authService.getToken();
+      if (!token) return null;
+      const parts = token.split('.');
+      if (parts.length === 3) {
+        const payload = JSON.parse(atob(parts[1]));
+        return payload.schema || null;
+      }
+    } catch { /* ignore */ }
+    return null;
   }
 
   // ──────────────────────────────────────────────────────────────

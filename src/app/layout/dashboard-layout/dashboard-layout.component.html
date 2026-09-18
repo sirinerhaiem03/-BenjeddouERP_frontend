@@ -226,10 +226,10 @@
               <li><a routerLink="roles-permissions" routerLinkActive="active" class="nav-sub-link">
                 <span class="material-symbols-outlined">shield</span><span>{{ 'NAV.ROLES' | translate }}</span>
               </a></li>
-              <li><a routerLink="clients" routerLinkActive="active" class="nav-sub-link">
+              <li *ngIf="isMasterAdmin"><a routerLink="clients" routerLinkActive="active" class="nav-sub-link">
                 <span class="material-symbols-outlined">verified_user</span><span>{{ 'NAV.CLIENTS_KYC' | translate }}</span>
               </a></li>
-              <li><a routerLink="abonnements" routerLinkActive="active" class="nav-sub-link">
+              <li *ngIf="isMasterAdmin"><a routerLink="abonnements" routerLinkActive="active" class="nav-sub-link">
                 <span class="material-symbols-outlined">credit_card</span><span>{{ 'NAV.SUBSCRIPTIONS' | translate }}</span>
               </a></li>
               <li><a routerLink="audit" routerLinkActive="active" class="nav-sub-link nav-sub-link-audit">
