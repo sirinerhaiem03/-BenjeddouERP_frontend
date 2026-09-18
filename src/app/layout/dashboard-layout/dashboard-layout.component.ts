@@ -493,17 +493,8 @@ export class DashboardLayoutComponent implements OnInit {
   }
 
   // ──────────────────────────────────────────────────────────────
-  //  COMPUTED PROPS
+  //  MÉTHODES UTILITAIRES RÔLE
   // ──────────────────────────────────────────────────────────────
-  // Propriétés de rôle — calculées une fois au ngOnInit
-  showLogoutInSidebar = true;
-  showLogoutInHeader = true;
-  isTrialUser = false;
-  trialRestant = 0;
-  isStockRole = false;
-  isClientRole = false;
-
-  // ─ Méthodes utilitaires rôle ───────────────────────────────────
   hasRole(role: string): boolean {
     return this.authService.hasRole(role);
   }
